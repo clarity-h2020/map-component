@@ -1,0 +1,7 @@
+name: map_app
+description: shows a leaflet map 
+package: Custom
+
+type: module
+core: 8.x
+
