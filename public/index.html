@@ -41,7 +41,7 @@
     -->
     <script type="text/javascript">
       function go(la, ln) {
-        window.mapCom.setView(la, ln, 8);
+        window.mapCom.setView(la, ln, 13);
       }
       function addPo(url) {
   //      window.mapCom.setPolygonURL(url);
@@ -61,6 +61,7 @@
     </script>
       <input onclick="go(48.858093, 2.294694)" style="margin-right: 20px;" type="button" value="Paris" />
       <input onclick="go(51.509865, -0.118092)" type="button" value="London" />
+      <input onclick="go(40.853294, 14.305573)" type="button" value="Neapel" />
       <input onclick="addPo('http://localhost:8080/taxonomy/term/93?_format=json')" type="button" value="test" />
       <input onclick="pr()" type="button" value="print" />
   </body>

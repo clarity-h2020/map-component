@@ -23157,20 +23157,36 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
       lng: 2.09,
       zoom: 4,
       geom: null,
-      creationCallback: null
+      creationCallback: null,
+      currentStep: null
     };
   }
 
   setView(la, ln, zo) {
     this.setState({
-      lat: 0,
-      lng: ln,
-      zoom: zo
-    });
-    this.setState({
       lat: la,
       lng: ln,
       zoom: zo
+    });
+  }
+
+  setLayers(urls, layers) {
+    this.setState({
+      layer: layers,
+      url: urls
+    });
+  }
+
+  setLayers2(urls, layers) {
+    this.setState({
+      layer2: layers,
+      url2: urls
+    });
+  }
+
+  setStep(step) {
+    this.setState({
+      currentStep: step
     });
   }
 
@@ -23184,7 +23200,7 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     fetch(url, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       var wkt = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
       wkt.read(data.field_boundaries[0].value);
-      window.mapCom.setGeom(JSON.stringify(wkt.toJson()));
+      window.mapCom.setCountryGeom(JSON.stringify(wkt.toJson()));
     }).catch(function (error) {
       console.log(JSON.stringify(error));
     });
@@ -23196,10 +23212,13 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
       hname: hostName
     });
     fetch(hostName + '/study/' + id + '?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      var wktVar = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
+      wktVar.read(data.field_area[0].value);
+      window.mapCom.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       fetch(hostName + data.field_country[0].url + '?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
         var wkt = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
         wkt.read(data.field_boundaries[0].value);
-        window.mapCom.setGeom(JSON.stringify(wkt.toJson()));
+        window.mapCom.setCountryGeom(JSON.stringify(wkt.toJson()));
       }).catch(function (error) {
         console.log(JSON.stringify(error));
       });
@@ -23235,7 +23254,7 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     });
   }
 
-  setGeom(geome) {
+  setCountryGeom(geome) {
     var centroid = __WEBPACK_IMPORTED_MODULE_5_turf___default.a.centroid(JSON.parse(geome));
     this.setState({
       lat: 0,
@@ -23245,23 +23264,25 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     this.setState({
       lat: centroid.geometry.coordinates[0],
       lng: centroid.geometry.coordinates[1],
-      geom: JSON.parse(geome).coordinates,
+      geom: __WEBPACK_IMPORTED_MODULE_5_turf___default.a.flip(JSON.parse(geome)).coordinates,
+      geomJson: __WEBPACK_IMPORTED_MODULE_5_turf___default.a.flip(JSON.parse(geome)),
       zoom: 5
     });
-    //      prompt(turf.centroid(JSON.parse(geome)));
-    //      prompt(JSON.parse(geome).getBounds().getCenter());
   }
 
-  //  _onEdited = (e) => {
+  setStudyAreaGeom(geome) {
+    this.setState({
+      studyGeom: null,
+      studyGeomJson: null
+    });
 
-  //    let numEdited = 0;
-  //    e.layers.eachLayer( (layer) => {
-  //      numEdited += 1;
-  //    })
-  //    console.log(`_onEdited: edited ${numEdited} layers`, e);
-  //
-  //    this._onChange();
-  //  }
+    if (geome != null) {
+      this.setState({
+        studyGeom: JSON.parse(geome).coordinates,
+        studyGeomJson: JSON.parse(geome)
+      });
+    }
+  }
 
   getTokenUrl() {
     return this.state.hname + '/rest/session/token';
@@ -23271,57 +23292,28 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     return this.state.hname;
   }
 
+  getHostnameWithoutProtocol() {
+    return this.state.hname.substring(this.state.hname.indexOf(':') + 3);
+  }
+
   getStudyId() {
     return this.state.studyId;
   }
 
   _onCreated(e) {
-    //    prompt(e.layer);
-    //    prompt);
-    //    window.mapCom.invokeCallbackFunction(JSON.stringify(e.layer.toGeoJSON()));
-    //    fetch('http://localhost:8080/rest/session/token', {credentials: 'include'})
-    //    .then((resp) => resp.text())
-    //    .then(function(key) {
-    //        var data = '{"_links":{"type":{"href":"http://localhost:8080/rest/type/node/article"}}, "TextTest":[{"value":"MULTIPOLYGON (((47.052715301514 9.4778022766113, 47.06640625 9.4737567901611, 47.094188690185 9.5233325958251, 47.181838989258 9.4864015579223, 47.052715301514 9.4778022766113)))"}],"type":[{"target_id":"article"}]}';
-    //        var mimeType = "application/hal+json";      //hal+json
-    //        var xmlHttp = new XMLHttpRequest();
-    //        xmlHttp.open('PATCH', 'http://localhost:8080/node/13?_format=hal_json', true);  // true : asynchrone false: synchrone
-    //        xmlHttp.setRequestHeader('Content-Type', mimeType);  
-    //       xmlHttp.setRequestHeader('X-CSRF-Token', key);  
-    //        xmlHttp.send(data);     
-    //    })
-    //    .catch(function(error) {
-    //      console.log(JSON.stringify(error));
-    //    });         
-
-    //    fetch('http://localhost:8080/rest/session/token', {credentials: 'include'})
-    //    .then((resp) => resp.text())
-    //    .then(function(key) {
-    //        var data = '{"_links":{"type":{"href":"http://localhost:8080/rest/type/node/article"}}, "texttest":[{"value":"MULTIPOLYGON (((47.052715301514 9.4778022766113, 47.06640625 9.4737567901611, 47.094188690185 9.5233325958251, 47.181838989258 9.4864015579223, 47.052715301514 9.4778022766113)))"}],"type":[{"target_id":"article"}]}';
-    //        var mimeType = "application/hal+json";      //hal+json
-    //        var xmlHttp = new XMLHttpRequest();
-    //        xmlHttp.open('PATCH', 'http://localhost:8080/node/13?_format=hal_json', true);  // true : asynchrone false: synchrone
-    //        xmlHttp.setRequestHeader('Content-Type', mimeType);  
-    //        xmlHttp.setRequestHeader('X-CSRF-Token', key);  
-    //        xmlHttp.send(data);     
-    //   })
-    //    .catch(function(error) {
-    //      console.log(JSON.stringify(error));
-    //    });         
-    //  }
-
     fetch(window.mapCom.getTokenUrl(), { credentials: 'include' }).then(resp => resp.text()).then(function (key) {
+      var hostWithoutProt = window.mapCom.getHostnameWithoutProtocol();
       var wkt = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
       wkt.fromJson(e.layer.toGeoJSON());
-      var data = '{"_links":{"type":{"href":"' + window.mapCom.getHostname() + '/rest/type/group/study"}}, "field_area":[{"value":"' + wkt.write() + '"}],"type":[{"target_id":"study"}]}';
-      //      var data = '{"_links":{"type":{"href":"http://localhost:8080/rest/type/group/study"}}, "field_area":[{"value":"MULTIPOLYGON (((47.052715301514 9.4778022766113, 47.06640625 9.4737567901611, 47.094188690185 9.5233325958251, 47.181838989258 9.4864015579223, 47.052715301514 9.4778022766113)))"}],"type":[{"target_id":"study"}]}';
+      var data = '{"_links":{"type":{"href":"' + 'http://' + hostWithoutProt.substring(0, hostWithoutProt.length) + '/rest/type/group/study"}}, "field_area":[{"value":"' + wkt.write() + '"}],"type":[{"target_id":"study"}]}';
       var mimeType = "application/hal+json"; //hal+json
       var xmlHttp = new XMLHttpRequest();
-      xmlHttp.open('PATCH', window.mapCom.getHostname() + '/study/' + window.mapCom.getStudyId() + '?_format=hal_json', true); // true : asynchrone false: synchrone
+      xmlHttp.open('PATCH', window.mapCom.getHostname().substring(0, window.mapCom.getHostname().length) + '/study/' + window.mapCom.getStudyId() + '?_format=hal_json', true); // true : asynchrone false: synchrone
       xmlHttp.setRequestHeader('Content-Type', mimeType);
       xmlHttp.setRequestHeader('X-CSRF-Token', key);
       xmlHttp.send(data);
-      window.mapCom.invokeCallbackFunction(wkt.write());
+      window.mapCom.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
+      //      window.mapCom.invokeCallbackFunction(wkt.write());
     }).catch(function (error) {
       console.log(JSON.stringify(error));
     });
@@ -23337,78 +23329,209 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     map.invalidateSize();
   }
 
+  countryPolygonStyle(feature) {
+    return {
+      weight: 2,
+      opacity: 0.3,
+      color: 'black',
+      dashArray: '3',
+      fillOpacity: 0.1,
+      fillColor: '#0000ff'
+    };
+  }
+
+  getBoundsFromArea(area) {
+    const bboxArray = __WEBPACK_IMPORTED_MODULE_5_turf___default.a.bbox(area);
+    const corner1 = [bboxArray[1], bboxArray[0]];
+    const corner2 = [bboxArray[3], bboxArray[2]];
+    var bounds = [corner1, corner2];
+
+    return bounds;
+  }
+
   render() {
     const position = [this.state.lat, this.state.lng];
+    var study = null;
 
-    if (this.state.geom == null) {
-      //        window.map = (
-      //          <Map ref='map'  center={position} zoom={this.state.zoom}>
-      //            <TileLayer
-      //              attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-      //              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      //            />
-      //            <Marker position={position}>
-      //              <Popup>
-      //                A pretty CSS3 popup. <br /> Easily customizable.
-      //              </Popup>
-      //            </Marker>
-      //          </Map>
-      //        )
-      window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-        __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
-        { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
-          attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        }),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
-          layers: 'clarity:CLY_POPULATION_1758',
-          url: 'https://service.emikat.at/geoserver/clarity/wms',
-          transparent: 'true',
-          opacity: '0.5'
-        }),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
-          layers: 'it003l3_napoli_ua2012_water',
-          url: 'http://5.79.69.33:8080/geoserver/clarity/wms',
-          transparent: 'true',
-          opacity: '0.5'
-        })
-      );
+    if (this.state.studyGeomJson != null) {
+      study = {
+        "type": "Feature",
+        "properties": {
+          "popupContent": "study",
+          "style": {
+            weight: 2,
+            color: "black",
+            opacity: 0.5,
+            fillColor: "#ff0000",
+            fillOpacity: 0.2
+          }
+        },
+        "geometry": this.state.studyGeomJson
+      };
+    }
+
+    //    if (this.state.geom == null || this.state.layer != null) {
+    if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
+      if (this.state.layer == null || this.state.currentStep != '83') {
+        if (this.state.studyGeomJson != null) {
+          window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+            { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.studyGeomJson) },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+              attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+              url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: study, style: this.countryPolygonStyle })
+          );
+        } else {
+          window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+            { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+              attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+              url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            })
+          );
+        }
+      } else {
+        if (this.state.studyGeomJson == null) {
+          window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+            { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"],
+              { position: 'topright' },
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].BaseLayer,
+                { name: 'OpenStreetMap.Mapnik', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+                  attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'naple', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: this.state.layer,
+                  url: this.state.url,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              )
+            )
+          );
+        } else {
+          window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+            { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.studyGeomJson) },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"],
+              { position: 'topright' },
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].BaseLayer,
+                { name: 'OpenStreetMap.Mapnik', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+                  attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'naple', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: this.state.layer,
+                  url: this.state.url,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: study, style: this.countryPolygonStyle })
+            )
+          );
+        }
+      }
     } else {
       const pol = this.state.geom;
-      window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-        __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
-        { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Polygon"], { positions: pol, color: 'blue' }),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
-          attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-          url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        }),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
-          layers: 'clarity:CLY_POPULATION_1758',
-          url: 'https://service.emikat.at/geoserver/clarity/wms',
-          transparent: 'true',
-          opacity: '0.5'
-        }),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
-          layers: 'it003l3_napoli_ua2012_water',
-          url: 'http://5.79.69.33:8080/geoserver/clarity/wms',
-          transparent: 'true',
-          opacity: '0.5'
-        }),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["FeatureGroup"],
-          null,
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_leaflet_draw__["EditControl"], {
-            position: 'topright',
-            onCreated: this._onCreated,
-            draw: {
-              rectangle: false
-            }
+      var st = {
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.2,
+        fillColor: '#FF0000'
+      };
+      //      <Polygon positions={pol} setStyle={this.countryPolygonStyle}/>
+      if (this.state.geomJson == null) {
+        window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+          { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+            attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
           })
-        )
-      );
+        );
+      } else {
+        var p = {
+          "type": "Feature",
+          "properties": {
+            "popupContent": "country",
+            "style": {
+              weight: 2,
+              color: "black",
+              opacity: 0.5,
+              fillColor: "#ff0000",
+              fillOpacity: 0.2
+            }
+          },
+          "geometry": this.state.geomJson
+
+          //    <Map ref='map' touchExtend="false" center={position} zoom={zoom}>
+        };if (study != null) {
+          window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+            { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p, style: this.countryPolygonStyle }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+              attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+              url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: study, style: this.countryPolygonStyle }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["FeatureGroup"],
+              null,
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_leaflet_draw__["EditControl"], {
+                position: 'topright',
+                onCreated: this._onCreated
+              })
+            )
+          );
+        } else {
+          window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
+            { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p, style: this.countryPolygonStyle }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
+              attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+              url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["FeatureGroup"],
+              null,
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_leaflet_draw__["EditControl"], {
+                position: 'topright',
+                onCreated: this._onCreated
+              })
+            )
+          );
+        }
+      }
     }
+    //    draw={{
+    //      rectangle: false
+    //    }}
 
     return window.map;
   }
@@ -23420,8 +23543,12 @@ const ma = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(MapComp, 
 
 const mapComp = __WEBPACK_IMPORTED_MODULE_1_react_dom___default.a.render(ma, document.getElementById('map-container'));
 window.mapCom = mapComp;
-document.getElementById('map-container').style.width = "600px";
+//document.getElementById('map-container').style.width = "600px";
+//document.getElementById('map-container').style.height = "500px";
+document.getElementById('map-container').style.width = "100%";
 document.getElementById('map-container').style.height = "500px";
+//document.getElementById('map-container').style.width = "800px";
+//document.getElementById('map-container').style.height = "400px";
 
 /***/ }),
 /* 141 */
