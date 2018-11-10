@@ -231,10 +231,129 @@ export default class MapComp extends React.Component {
         "geometry": this.state.studyGeomJson
       };
     }
+    var allLayers = null;
 
+    if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
+      if (!(this.state.layer == null || this.state.layer2 == null || this.state.currentStep != '83')) {
+        allLayers = React.createElement(
+          React.Fragment,
+          null,
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'agricultural areas', checked: 'true' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_agricultural_areas',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'buildings', checked: 'true' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_biuldings',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'dense urban fabric', checked: 'false' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'low urban fabric', checked: 'false' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_low_urban_fabric',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'medium urban fabric', checked: 'false' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'public military industrial', checked: 'false' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_public_military_industrial',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'railways', checked: 'true' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_railways',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'roads', checked: 'true' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_roads',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'trees', checked: 'false' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_trees',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'vegetation', checked: 'true' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_vegetation',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          React.createElement(
+            LayersControl.Overlay,
+            { name: 'water', checked: 'false' },
+            React.createElement(WMSTileLayer, {
+              layers: 'it003l3_napoli_ua2012_water',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          )
+        );
+      }
+    }
     //    if (this.state.geom == null || this.state.layer != null) {
     if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
-      if (this.state.layer == null || this.state.currentStep != '83') {
+      if (this.state.layer == null || this.state.layer2 == null || this.state.currentStep != '83') {
         if (this.state.studyGeomJson != null) {
           window.map = React.createElement(
             Map,
@@ -273,7 +392,117 @@ export default class MapComp extends React.Component {
               ),
               React.createElement(
                 LayersControl.Overlay,
-                { name: 'naple', checked: 'true' },
+                { name: 'agricultural areas', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_agricultural_areas',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'buildings', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_biuldings',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'dense urban fabric', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'low urban fabric', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_low_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'medium urban fabric', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'public military industrial', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_public_military_industrial',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'railways', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_railways',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'roads', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_roads',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'trees', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_trees',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'vegetation', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_vegetation',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'water', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_water',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'Population Density', checked: 'true' },
                 React.createElement(WMSTileLayer, {
                   layers: this.state.layer,
                   url: this.state.url,
@@ -300,7 +529,117 @@ export default class MapComp extends React.Component {
               ),
               React.createElement(
                 LayersControl.Overlay,
-                { name: 'naple', checked: 'true' },
+                { name: 'agricultural areas', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_agricultural_areas',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'buildings', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_biuldings',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'dense urban fabric', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'low urban fabric', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_low_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'medium urban fabric', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'public military industrial', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_public_military_industrial',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'railways', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_railways',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'roads', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_roads',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'trees', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_trees',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'vegetation', checked: 'true' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_vegetation',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'water', checked: 'false' },
+                React.createElement(WMSTileLayer, {
+                  layers: 'it003l3_napoli_ua2012_water',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              React.createElement(
+                LayersControl.Overlay,
+                { name: 'Population Density', checked: 'true' },
                 React.createElement(WMSTileLayer, {
                   layers: this.state.layer,
                   url: this.state.url,

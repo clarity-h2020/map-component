@@ -23369,10 +23369,129 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
         "geometry": this.state.studyGeomJson
       };
     }
+    var allLayers = null;
 
+    if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
+      if (!(this.state.layer == null || this.state.layer2 == null || this.state.currentStep != '83')) {
+        allLayers = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.Fragment,
+          null,
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'agricultural areas', checked: 'true' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_agricultural_areas',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'buildings', checked: 'true' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_biuldings',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'dense urban fabric', checked: 'false' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'low urban fabric', checked: 'false' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_low_urban_fabric',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'medium urban fabric', checked: 'false' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'public military industrial', checked: 'false' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_public_military_industrial',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'railways', checked: 'true' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_railways',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'roads', checked: 'true' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_roads',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'trees', checked: 'false' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_trees',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'vegetation', checked: 'true' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_vegetation',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+            { name: 'water', checked: 'false' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+              layers: 'it003l3_napoli_ua2012_water',
+              url: this.state.url2,
+              transparent: 'true',
+              opacity: '0.5'
+            })
+          )
+        );
+      }
+    }
     //    if (this.state.geom == null || this.state.layer != null) {
     if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
-      if (this.state.layer == null || this.state.currentStep != '83') {
+      if (this.state.layer == null || this.state.layer2 == null || this.state.currentStep != '83') {
         if (this.state.studyGeomJson != null) {
           window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
@@ -23411,7 +23530,117 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
               ),
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
-                { name: 'naple', checked: 'true' },
+                { name: 'agricultural areas', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_agricultural_areas',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'buildings', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_biuldings',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'dense urban fabric', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'low urban fabric', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_low_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'medium urban fabric', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'public military industrial', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_public_military_industrial',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'railways', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_railways',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'roads', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_roads',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'trees', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_trees',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'vegetation', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_vegetation',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'water', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_water',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'Population Density', checked: 'true' },
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
                   layers: this.state.layer,
                   url: this.state.url,
@@ -23438,7 +23667,117 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
               ),
               __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
-                { name: 'naple', checked: 'true' },
+                { name: 'agricultural areas', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_agricultural_areas',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'buildings', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_biuldings',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'dense urban fabric', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'low urban fabric', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_low_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'medium urban fabric', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'public military industrial', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_public_military_industrial',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'railways', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_railways',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'roads', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_roads',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'trees', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_trees',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'vegetation', checked: 'true' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_vegetation',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'water', checked: 'false' },
+                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
+                  layers: 'it003l3_napoli_ua2012_water',
+                  url: this.state.url2,
+                  transparent: 'true',
+                  opacity: '0.5'
+                })
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["LayersControl"].Overlay,
+                { name: 'Population Density', checked: 'true' },
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["WMSTileLayer"], {
                   layers: this.state.layer,
                   url: this.state.url,

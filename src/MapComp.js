@@ -249,10 +249,107 @@ _onFeatureGroupReady(reactFGref) {
         "geometry": this.state.studyGeomJson
       };
     }
-  
+    var allLayers = null;
+
+    if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
+      if (!((this.state.layer == null || this.state.layer2 == null)  || this.state.currentStep != '83')) {
+        allLayers =  (
+        <React.Fragment>
+        <LayersControl.Overlay name="agricultural areas" checked="true">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_agricultural_areas"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="buildings" checked="true">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_biuldings"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="dense urban fabric" checked="false">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_dense_urban_fabric"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="low urban fabric" checked="false">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_low_urban_fabric"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="medium urban fabric" checked="false">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_medium_urban_fabric"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="public military industrial" checked="false">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_public_military_industrial"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="railways" checked="true">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_railways"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="roads" checked="true">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_roads"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="trees" checked="false">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_trees"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="vegetation" checked="true">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_vegetation"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      <LayersControl.Overlay name="water" checked="false">    
+        <WMSTileLayer
+          layers="it003l3_napoli_ua2012_water"
+          url={this.state.url2}
+          transparent="true"
+          opacity="0.5"
+        />
+      </LayersControl.Overlay>
+      </React.Fragment>
+      )
+    }
+  }  
 //    if (this.state.geom == null || this.state.layer != null) {
     if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
-      if (this.state.layer == null || this.state.currentStep != '83') {
+      if ((this.state.layer == null || this.state.layer2 == null) || this.state.currentStep != '83') {
         if (this.state.studyGeomJson != null) {
           window.map =  (
             <Map ref='map' touchExtend="false" bounds={this.getBoundsFromArea(this.state.studyGeomJson)}>
@@ -284,7 +381,95 @@ _onFeatureGroupReady(reactFGref) {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
               </LayersControl.BaseLayer>
-              <LayersControl.Overlay name="naple" checked="true">    
+              <LayersControl.Overlay name="agricultural areas" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_agricultural_areas"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="buildings" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_biuldings"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="dense urban fabric" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_dense_urban_fabric"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="low urban fabric" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_low_urban_fabric"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="medium urban fabric" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_medium_urban_fabric"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="public military industrial" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_public_military_industrial"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="railways" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_railways"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="roads" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_roads"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="trees" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_trees"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="vegetation" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_vegetation"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="water" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_water"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="Population Density" checked="true">    
                 <WMSTileLayer
                   layers={this.state.layer}
                   url={this.state.url}
@@ -305,7 +490,95 @@ _onFeatureGroupReady(reactFGref) {
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
               </LayersControl.BaseLayer>
-              <LayersControl.Overlay name="naple" checked="true">    
+              <LayersControl.Overlay name="agricultural areas" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_agricultural_areas"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="buildings" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_biuldings"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="dense urban fabric" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_dense_urban_fabric"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="low urban fabric" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_low_urban_fabric"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="medium urban fabric" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_medium_urban_fabric"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="public military industrial" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_public_military_industrial"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="railways" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_railways"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="roads" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_roads"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="trees" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_trees"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="vegetation" checked="true">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_vegetation"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="water" checked="false">    
+                <WMSTileLayer
+                  layers="it003l3_napoli_ua2012_water"
+                  url={this.state.url2}
+                  transparent="true"
+                  opacity="0.5"
+                />
+              </LayersControl.Overlay>
+              <LayersControl.Overlay name="Population Density" checked="true">    
                 <WMSTileLayer
                   layers={this.state.layer}
                   url={this.state.url}
