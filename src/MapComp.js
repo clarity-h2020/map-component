@@ -216,7 +216,7 @@ _onFeatureGroupReady(reactFGref) {
           color: 'black',
           dashArray: '3',
           fillOpacity: 0.1,
-          fillColor: '#0000ff'
+          fillColor: '#ff0000'
       };
 }
 
@@ -241,9 +241,9 @@ _onFeatureGroupReady(reactFGref) {
             "style": {
                 weight: 2,
                 color: "black",
-                opacity: 0.5,
+                opacity: 0.3,
                 fillColor: "#ff0000",
-                fillOpacity: 0.2
+                fillOpacity: 0.1
             }
         },
         "geometry": this.state.studyGeomJson
@@ -594,14 +594,15 @@ _onFeatureGroupReady(reactFGref) {
       }
     } else {
         const pol = this.state.geom;
-        var st = {
-          weight: 2,
-          opacity: 1,
-          color: 'white',
-          dashArray: '3',
-          fillOpacity: 0.2,
-          fillColor: '#FF0000'
-      };
+//        var st = {
+//          weight: 2,
+//          opacity: 1,
+//          color: 'white',
+//          dashArray: '3',
+//          fillOpacity: 0.1,
+//          fillColor: '#FF0000'
+//      };
+
 //      <Polygon positions={pol} setStyle={this.countryPolygonStyle}/>
      if (this.state.geomJson == null) {
       window.map =  (
@@ -620,9 +621,9 @@ _onFeatureGroupReady(reactFGref) {
             "style": {
                 weight: 2,
                 color: "black",
-                opacity: 0.5,
+                opacity: 0.3,
                 fillColor: "#ff0000",
-                fillOpacity: 0.2
+                fillOpacity: 0.1
             }
         },
         "geometry": this.state.geomJson
@@ -632,12 +633,11 @@ _onFeatureGroupReady(reactFGref) {
       if (study != null) {
         window.map =  (
               <Map ref='map' touchExtend="false" bounds={this.getBoundsFromArea(this.state.geomJson)}>
-                <GeoJSON data={p} style={this.countryPolygonStyle} />
                 <TileLayer
                   attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <GeoJSON data={p} />
+                <GeoJSON data={p} style={this.countryPolygonStyle}/>
                 <GeoJSON data={study} style={this.countryPolygonStyle} />
                 <FeatureGroup>
                   <EditControl
@@ -650,12 +650,11 @@ _onFeatureGroupReady(reactFGref) {
         } else {
           window.map =  (
             <Map ref='map' touchExtend="false" bounds={this.getBoundsFromArea(this.state.geomJson)}>
-              <GeoJSON data={p} style={this.countryPolygonStyle} />
               <TileLayer
                 attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <GeoJSON data={p} />
+              <GeoJSON data={p} style={this.countryPolygonStyle}/>
               <FeatureGroup>
                 <EditControl
                   position='topright'

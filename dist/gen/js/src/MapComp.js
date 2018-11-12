@@ -198,7 +198,7 @@ export default class MapComp extends React.Component {
       color: 'black',
       dashArray: '3',
       fillOpacity: 0.1,
-      fillColor: '#0000ff'
+      fillColor: '#ff0000'
     };
   }
 
@@ -223,9 +223,9 @@ export default class MapComp extends React.Component {
           "style": {
             weight: 2,
             color: "black",
-            opacity: 0.5,
+            opacity: 0.3,
             fillColor: "#ff0000",
-            fillOpacity: 0.2
+            fillOpacity: 0.1
           }
         },
         "geometry": this.state.studyGeomJson
@@ -654,14 +654,15 @@ export default class MapComp extends React.Component {
       }
     } else {
       const pol = this.state.geom;
-      var st = {
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.2,
-        fillColor: '#FF0000'
-      };
+      //        var st = {
+      //          weight: 2,
+      //          opacity: 1,
+      //          color: 'white',
+      //          dashArray: '3',
+      //          fillOpacity: 0.1,
+      //          fillColor: '#FF0000'
+      //      };
+
       //      <Polygon positions={pol} setStyle={this.countryPolygonStyle}/>
       if (this.state.geomJson == null) {
         window.map = React.createElement(
@@ -680,9 +681,9 @@ export default class MapComp extends React.Component {
             "style": {
               weight: 2,
               color: "black",
-              opacity: 0.5,
+              opacity: 0.3,
               fillColor: "#ff0000",
-              fillOpacity: 0.2
+              fillOpacity: 0.1
             }
           },
           "geometry": this.state.geomJson
@@ -692,12 +693,11 @@ export default class MapComp extends React.Component {
           window.map = React.createElement(
             Map,
             { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
-            React.createElement(GeoJSON, { data: p, style: this.countryPolygonStyle }),
             React.createElement(TileLayer, {
               attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
               url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             }),
-            React.createElement(GeoJSON, { data: p }),
+            React.createElement(GeoJSON, { data: p, style: this.countryPolygonStyle }),
             React.createElement(GeoJSON, { data: study, style: this.countryPolygonStyle }),
             React.createElement(
               FeatureGroup,
@@ -712,12 +712,11 @@ export default class MapComp extends React.Component {
           window.map = React.createElement(
             Map,
             { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
-            React.createElement(GeoJSON, { data: p, style: this.countryPolygonStyle }),
             React.createElement(TileLayer, {
               attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
               url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             }),
-            React.createElement(GeoJSON, { data: p }),
+            React.createElement(GeoJSON, { data: p, style: this.countryPolygonStyle }),
             React.createElement(
               FeatureGroup,
               null,

@@ -23336,7 +23336,7 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
       color: 'black',
       dashArray: '3',
       fillOpacity: 0.1,
-      fillColor: '#0000ff'
+      fillColor: '#ff0000'
     };
   }
 
@@ -23361,9 +23361,9 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
           "style": {
             weight: 2,
             color: "black",
-            opacity: 0.5,
+            opacity: 0.3,
             fillColor: "#ff0000",
-            fillOpacity: 0.2
+            fillOpacity: 0.1
           }
         },
         "geometry": this.state.studyGeomJson
@@ -23792,14 +23792,15 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
       }
     } else {
       const pol = this.state.geom;
-      var st = {
-        weight: 2,
-        opacity: 1,
-        color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.2,
-        fillColor: '#FF0000'
-      };
+      //        var st = {
+      //          weight: 2,
+      //          opacity: 1,
+      //          color: 'white',
+      //          dashArray: '3',
+      //          fillOpacity: 0.1,
+      //          fillColor: '#FF0000'
+      //      };
+
       //      <Polygon positions={pol} setStyle={this.countryPolygonStyle}/>
       if (this.state.geomJson == null) {
         window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
@@ -23818,9 +23819,9 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
             "style": {
               weight: 2,
               color: "black",
-              opacity: 0.5,
+              opacity: 0.3,
               fillColor: "#ff0000",
-              fillOpacity: 0.2
+              fillOpacity: 0.1
             }
           },
           "geometry": this.state.geomJson
@@ -23830,12 +23831,11 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
           window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
             { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p, style: this.countryPolygonStyle }),
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
               attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
               url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             }),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p, style: this.countryPolygonStyle }),
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: study, style: this.countryPolygonStyle }),
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["FeatureGroup"],
@@ -23850,12 +23850,11 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
           window.map = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["Map"],
             { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p, style: this.countryPolygonStyle }),
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], {
               attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
               url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             }),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p }),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { data: p, style: this.countryPolygonStyle }),
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               __WEBPACK_IMPORTED_MODULE_2_react_leaflet__["FeatureGroup"],
               null,
