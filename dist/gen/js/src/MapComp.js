@@ -75,8 +75,10 @@ export default class MapComp extends React.Component {
     });
     fetch(hostName + '/study/' + id + '?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       var wktVar = new Wkt.Wkt();
-      wktVar.read(data.field_area[0].value);
-      window.mapCom.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
+      if (data.field_area != null && data.field_area[0] != null && data.field_area[0].value != null) {
+        wktVar.read(data.field_area[0].value);
+        window.mapCom.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
+      }
       fetch(hostName + data.field_country[0].url + '?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
         var wkt = new Wkt.Wkt();
         wkt.read(data.field_boundaries[0].value);
