@@ -165,22 +165,31 @@ export default class MapComp extends React.Component {
   }
 
   _onCreated(e) {
-    fetch(window.mapCom.getTokenUrl(), { credentials: 'include' }).then(resp => resp.text()).then(function (key) {
-      var hostWithoutProt = window.mapCom.getHostnameWithoutProtocol();
-      var wkt = new Wkt.Wkt();
-      wkt.fromJson(e.layer.toGeoJSON());
-      var data = '{"_links":{"type":{"href":"' + 'http://' + hostWithoutProt.substring(0, hostWithoutProt.length) + '/rest/type/group/study"}}, "field_area":[{"value":"' + wkt.write() + '"}],"type":[{"target_id":"study"}]}';
-      var mimeType = "application/hal+json"; //hal+json
-      var xmlHttp = new XMLHttpRequest();
-      xmlHttp.open('PATCH', window.mapCom.getHostname().substring(0, window.mapCom.getHostname().length) + '/study/' + window.mapCom.getStudyId() + '?_format=hal_json', true); // true : asynchrone false: synchrone
-      xmlHttp.setRequestHeader('Content-Type', mimeType);
-      xmlHttp.setRequestHeader('X-CSRF-Token', key);
-      xmlHttp.send(data);
-      window.mapCom.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
-      //      window.mapCom.invokeCallbackFunction(wkt.write());
-    }).catch(function (error) {
-      console.log(JSON.stringify(error));
-    });
+    var qmToQkm = 1000000;
+    var area = turf.area(e.layer.toGeoJSON());
+
+    if (area > 100 * qmToQkm) {
+      //remove the layer, if it is too large
+      alert('The selected area is too large');
+      window.mapCom.removeLayer(e.layer);
+    } else {
+      fetch(window.mapCom.getTokenUrl(), { credentials: 'include' }).then(resp => resp.text()).then(function (key) {
+        var hostWithoutProt = window.mapCom.getHostnameWithoutProtocol();
+        var wkt = new Wkt.Wkt();
+        wkt.fromJson(e.layer.toGeoJSON());
+        var data = '{"_links":{"type":{"href":"' + 'http://' + hostWithoutProt.substring(0, hostWithoutProt.length) + '/rest/type/group/study"}}, "field_area":[{"value":"' + wkt.write() + '"}],"type":[{"target_id":"study"}]}';
+        var mimeType = "application/hal+json"; //hal+json
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open('PATCH', window.mapCom.getHostname().substring(0, window.mapCom.getHostname().length) + '/study/' + window.mapCom.getStudyId() + '?_format=hal_json', true); // true : asynchrone false: synchrone
+        xmlHttp.setRequestHeader('Content-Type', mimeType);
+        xmlHttp.setRequestHeader('X-CSRF-Token', key);
+        xmlHttp.send(data);
+        window.mapCom.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
+        //      window.mapCom.invokeCallbackFunction(wkt.write());
+      }).catch(function (error) {
+        console.log(JSON.stringify(error));
+      });
+    }
   }
   _onFeatureGroupReady(reactFGref) {}
   componentDidMount() {
@@ -188,8 +197,14 @@ export default class MapComp extends React.Component {
     map.invalidateSize();
   }
 
+  removeLayer(layer) {
+    this.refs.map.leafletElement.removeLayer(layer);
+  }
+
   init() {
     const map = this.refs.map.leafletElement;
+    map.options.minZoom = 10;
+    //    map.options.maxZoom = 15;
     map.invalidateSize();
   }
 
