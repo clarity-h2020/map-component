@@ -15,7 +15,8 @@
     "react-scripts": "1.1.5",
     "turf": "latest",
     "webpack": "^3.11.0",
-    "wicket": "latest"
+    "wicket": "latest",
+    "leaflet-groupedlayercontrol": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
