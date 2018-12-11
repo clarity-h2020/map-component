@@ -23188,6 +23188,10 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     this.setState({
       currentStep: step
     });
+    if (step != null && Number.isInteger(Number(step))) {
+      const map = this.refs.map.leafletElement;
+      map.options.minZoom = 11;
+    }
   }
 
   setCreationCallback(callbackfunc) {
@@ -23206,20 +23210,34 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     });
   }
 
+  setUUId(id) {
+    this.setState({
+      uuid: id
+    });
+  }
+
+  getUUId() {
+    return this.state.uuid;
+  }
+
   setStudyURL(id, hostName) {
     this.setState({
       studyId: id,
       hname: hostName
     });
-    fetch(hostName + '/study/' + id + '?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+    //    fetch(hostName + '/study/' + id + '?_format=json', {credentials: 'include'})
+    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       var wktVar = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
-      if (data.field_area != null && data.field_area[0] != null && data.field_area[0].value != null) {
-        wktVar.read(data.field_area[0].value);
+      if (data.data[0] != null) {
+        window.mapCom.setUUId(data.data[0].id);
+      }
+      if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
+        wktVar.read(data.data[0].attributes.field_area.value);
         window.mapCom.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      fetch(hostName + data.field_country[0].url + '?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      fetch(data.data[0].relationships.field_country.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
         var wkt = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
-        wkt.read(data.field_boundaries[0].value);
+        wkt.read(data.data.attributes.field_boundaries.value);
         window.mapCom.setCountryGeom(JSON.stringify(wkt.toJson()));
       }).catch(function (error) {
         console.log(JSON.stringify(error));
@@ -23315,10 +23333,11 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
         var hostWithoutProt = window.mapCom.getHostnameWithoutProtocol();
         var wkt = new __WEBPACK_IMPORTED_MODULE_6_wicket___default.a.Wkt();
         wkt.fromJson(e.layer.toGeoJSON());
-        var data = '{"_links":{"type":{"href":"' + 'http://' + hostWithoutProt.substring(0, hostWithoutProt.length) + '/rest/type/group/study"}}, "field_area":[{"value":"' + wkt.write() + '"}],"type":[{"target_id":"study"}]}';
-        var mimeType = "application/hal+json"; //hal+json
+        var data = '{"data": {"type": "group--study","id": "' + window.mapCom.getUUId() + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
+        var mimeType = "application/vnd.api+json"; //hal+json
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open('PATCH', window.mapCom.getHostname().substring(0, window.mapCom.getHostname().length) + '/study/' + window.mapCom.getStudyId() + '?_format=hal_json', true); // true : asynchrone false: synchrone
+        xmlHttp.open('PATCH', window.mapCom.getHostname().substring(0, window.mapCom.getHostname().length) + '/jsonapi/group/study/' + window.mapCom.getUUId(), true); // true : asynchrone false: synchrone
+        xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');
         xmlHttp.setRequestHeader('Content-Type', mimeType);
         xmlHttp.setRequestHeader('X-CSRF-Token', key);
         xmlHttp.send(data);
@@ -23341,7 +23360,7 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
   init() {
     const map = this.refs.map.leafletElement;
-    map.options.minZoom = 10;
+    //    map.options.minZoom = 10;
     //    map.options.maxZoom = 15;
     map.invalidateSize();
   }
@@ -23365,6 +23384,8 @@ class MapComp extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
     return bounds;
   }
+
+  addLayer() {}
 
   render() {
     const position = [this.state.lat, this.state.lng];
