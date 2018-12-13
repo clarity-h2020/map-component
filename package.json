@@ -23,8 +23,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "babel": "babel src/MapComp.js --presets babel-preset-react --out-dir dist/gen/js",
-    "webpack": "webpack dist/gen/js/src/MapComp.js"
+    "babel": "babel src/MapComp.js src/*/*.js --presets babel-preset-react --out-dir dist/gen/js",
+    "webpack": "webpack dist/gen/js/src/MapComp.js dist/gen/js/src/*/*.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -33,6 +33,7 @@
     "babel-preset-es2015": "^6.18.0",
     "css-loader": "^1.0.1",
     "style-loader": "^0.23.1",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.1.2",
+    "image-webpack-loader": "latest"
   }
 }

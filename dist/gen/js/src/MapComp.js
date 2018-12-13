@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Map, Marker, Popup, TileLayer, WMSTileLayer, Polygon, MultiPolygon, FeatureGroup, Circle, LayersControl, GeoJSON } from 'react-leaflet';
+import { Map, Marker, Popup, TileLayer, WMSTileLayer, Polygon, MultiPolygon, FeatureGroup, Circle, GeoJSON } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
+import L from 'leaflet';
+import { LayersControl } from 'leaflet-groupedlayercontrol';
 import html2canvas from 'html2canvas';
 import turf from 'turf';
 import Wkt from 'wicket';
@@ -14,13 +16,53 @@ export default class MapComp extends React.Component {
   constructor(props) {
     super(props);
 
+    var dataPackage = {
+      "basemaps": [{
+        "name": "buildings",
+        "server": "http://5.79.69.33:8080/geoserver/clarity/wms",
+        "layer": "it003l3_napoli_ua2012_buildings",
+        "type": "wms"
+      }],
+      "hazardmaps": [{
+        "name": "hazard buildings",
+        "server": "http://5.79.69.33:8080/geoserver/clarity/wms",
+        "layer": "it003l3_napoli_ua2012_buildings",
+        "type": "wms"
+      }],
+      "exposure": [{
+        "name": "population",
+        "type": "folder",
+        "children": [{
+          "name": "population 1758",
+          "server": "https://service.emikat.at/geoserver/clarity/wms",
+          "layer": "CLY_POPULATION_1758",
+          "type": "wms"
+        }]
+      }, {
+        "name": "infrastructure",
+        "type": "folder",
+        "children": [{
+          "name": "buildings",
+          "server": "http://5.79.69.33:8080/geoserver/clarity/wms",
+          "layer": "it003l3_napoli_ua2012_buildings",
+          "type": "wms"
+        }, {
+          "name": "railways",
+          "server": "http://5.79.69.33:8080/geoserver/clarity/wms",
+          "layer": "it003l3_napoli_ua2012_railways",
+          "type": "wms"
+        }]
+      }]
+    };
+
     this.state = {
       lat: 48.505,
       lng: 2.09,
       zoom: 4,
       geom: null,
       creationCallback: null,
-      currentStep: null
+      currentStep: null,
+      data: dataPackage
     };
   }
 
@@ -29,20 +71,6 @@ export default class MapComp extends React.Component {
       lat: la,
       lng: ln,
       zoom: zo
-    });
-  }
-
-  setLayers(urls, layers) {
-    this.setState({
-      layer: layers,
-      url: urls
-    });
-  }
-
-  setLayers2(urls, layers) {
-    this.setState({
-      layer2: layers,
-      url2: urls
     });
   }
 
@@ -87,7 +115,6 @@ export default class MapComp extends React.Component {
       studyId: id,
       hname: hostName
     });
-    //    fetch(hostName + '/study/' + id + '?_format=json', {credentials: 'include'})
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       var wktVar = new Wkt.Wkt();
       if (data.data[0] != null) {
@@ -127,7 +154,7 @@ export default class MapComp extends React.Component {
   setPolygonName(name) {
     fetch('http://localhost:8080/selectedCountryNodes?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       for (var co in data) {
-        if (data[co].field_country == name) {
+        if (data[co].field_country === name) {
           window.mapCom.setPolygonURL('http://localhost:8080/taxonomy/term/' + data[co].tid + '?_format=json', { credentials: 'include' });
         }
       }
@@ -150,6 +177,20 @@ export default class MapComp extends React.Component {
       geomJson: turf.flip(JSON.parse(geome)),
       zoom: 5
     });
+    var p = {
+      "type": "Feature",
+      "properties": {
+        "popupContent": "country",
+        "style": {
+          weight: 2,
+          color: "black",
+          opacity: 0.3,
+          fillColor: "#ff0000",
+          fillOpacity: 0.1
+        }
+      },
+      "geometry": turf.flip(JSON.parse(geome))
+    };
   }
 
   setStudyAreaGeom(geome) {
@@ -163,6 +204,22 @@ export default class MapComp extends React.Component {
         studyGeom: JSON.parse(geome).coordinates,
         studyGeomJson: JSON.parse(geome)
       });
+
+      var study = {
+        "type": "Feature",
+        "properties": {
+          "popupContent": "study",
+          "style": {
+            weight: 2,
+            color: "black",
+            opacity: 0.3,
+            fillColor: "#ff0000",
+            fillOpacity: 0.1
+          }
+        },
+        "geometry": JSON.parse(geome)
+      };
+      L.geoJSON(study).addTo(this.refs.map.leafletElement);
     }
   }
 
@@ -214,6 +271,66 @@ export default class MapComp extends React.Component {
   componentDidMount() {
     const map = this.refs.map.leafletElement;
     map.invalidateSize();
+    var layerControl = this.state.control;
+
+    if (layerControl == null) {
+      this.setLayerFromModel();
+    }
+  }
+
+  componentDidUpdate() {
+    const map = this.refs.map.leafletElement;
+    map.invalidateSize();
+    var layerControl = this.state.control;
+
+    if (layerControl == null) {
+      this.setLayerFromModel();
+    }
+  }
+
+  //Add the layer to the map and considers the current step
+  setLayerFromModel() {
+    var basemaps = {};
+    var groupedOverlays = {};
+    var dataPackage = this.state.data;
+    var options = {
+      //      exclusiveGroups: ["Exposure"],
+      // Show a checkbox next to non-exclusive group labels for toggling all
+      groupCheckboxes: false
+    };
+    //todo: depends on the current step
+    var usedDataSubSet = dataPackage.exposure;
+
+    var layerControl = L.control.groupedLayers(basemaps, groupedOverlays, options);
+    this.setState({
+      control: layerControl
+    });
+    layerControl.addTo(this.refs.map.leafletElement);
+
+    for (var i = 0; i < usedDataSubSet.length; ++i) {
+      if (usedDataSubSet[i].type === 'wms') {
+        var layer = new L.tileLayer.wms(usedDataSubSet[i].server, { layers: usedDataSubSet[i].layer });
+        groupedOverlays.exposure[usedDataSubSet[i].name] = layer;
+      } else if (usedDataSubSet[i].type === 'folder') {
+        this.addFolderFromModel(usedDataSubSet[i], layerControl);
+      }
+    }
+  }
+
+  addFolderFromModel(folder, layerControl) {
+    var layerFolder;
+    var foldername = folder.name;
+
+    for (var i = 0; i < folder.children.length; ++i) {
+      var child = folder.children[i];
+
+      if (child.type === 'wms') {
+        var layer = new L.tileLayer.wms(child.server, { layers: child.layer, transparent: 'true', format: "image/png" });
+        layerControl.addOverlay(layer, child.name, foldername);
+      } else if (child.type === 'folder') {
+        this.addFolderFromModel(folder, layerControl);
+      }
+    }
   }
 
   removeLayer(layer) {
@@ -247,8 +364,6 @@ export default class MapComp extends React.Component {
     return bounds;
   }
 
-  addLayer() {}
-
   render() {
     const position = [this.state.lat, this.state.lng];
     var study = null;
@@ -269,439 +384,47 @@ export default class MapComp extends React.Component {
         "geometry": this.state.studyGeomJson
       };
     }
-    var allLayers = null;
 
     if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
-      if (!(this.state.layer == null || this.state.layer2 == null || this.state.currentStep != '83')) {
-        allLayers = React.createElement(
-          React.Fragment,
-          null,
+      if (this.state.studyGeomJson == null) {
+        window.map = React.createElement(
+          Map,
+          { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
           React.createElement(
-            LayersControl.Overlay,
-            { name: 'agricultural areas', checked: 'true' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_agricultural_areas',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
+            LayersControl,
+            { position: 'topright' },
+            React.createElement(
+              LayersControl.BaseLayer,
+              { name: 'OpenStreetMap.Mapnik', checked: 'true' },
+              React.createElement(TileLayer, {
+                attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              })
+            )
+          )
+        );
+      } else {
+        window.map = React.createElement(
+          Map,
+          { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.studyGeomJson) },
           React.createElement(
-            LayersControl.Overlay,
-            { name: 'buildings', checked: 'true' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_biuldings',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'dense urban fabric', checked: 'false' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'low urban fabric', checked: 'false' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_low_urban_fabric',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'medium urban fabric', checked: 'false' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'public military industrial', checked: 'false' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_public_military_industrial',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'railways', checked: 'true' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_railways',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'roads', checked: 'true' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_roads',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'trees', checked: 'false' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_trees',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'vegetation', checked: 'true' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_vegetation',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
-          ),
-          React.createElement(
-            LayersControl.Overlay,
-            { name: 'water', checked: 'false' },
-            React.createElement(WMSTileLayer, {
-              layers: 'it003l3_napoli_ua2012_water',
-              url: this.state.url2,
-              transparent: 'true',
-              opacity: '0.5'
-            })
+            LayersControl,
+            { position: 'topright' },
+            React.createElement(
+              LayersControl.BaseLayer,
+              { name: 'OpenStreetMap.Mapnik', checked: 'true' },
+              React.createElement(TileLayer, {
+                attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+              })
+            ),
+            React.createElement(GeoJSON, { data: study, style: this.countryPolygonStyle })
           )
         );
       }
-    }
-    //    if (this.state.geom == null || this.state.layer != null) {
-    if (this.state.currentStep != null && Number.isInteger(Number(this.state.currentStep))) {
-      if (this.state.layer == null || this.state.layer2 == null || this.state.currentStep != '83') {
-        if (this.state.studyGeomJson != null) {
-          window.map = React.createElement(
-            Map,
-            { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.studyGeomJson) },
-            React.createElement(TileLayer, {
-              attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-              url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            }),
-            React.createElement(GeoJSON, { data: study, style: this.countryPolygonStyle })
-          );
-        } else {
-          window.map = React.createElement(
-            Map,
-            { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
-            React.createElement(TileLayer, {
-              attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-              url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            })
-          );
-        }
-      } else {
-        if (this.state.studyGeomJson == null) {
-          window.map = React.createElement(
-            Map,
-            { ref: 'map', touchExtend: 'false', center: position, zoom: this.state.zoom },
-            React.createElement(
-              LayersControl,
-              { position: 'topright' },
-              React.createElement(
-                LayersControl.BaseLayer,
-                { name: 'OpenStreetMap.Mapnik', checked: 'true' },
-                React.createElement(TileLayer, {
-                  attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'agricultural areas', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_agricultural_areas',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'buildings', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_biuldings',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'dense urban fabric', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'low urban fabric', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_low_urban_fabric',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'medium urban fabric', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'public military industrial', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_public_military_industrial',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'railways', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_railways',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'roads', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_roads',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'trees', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_trees',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'vegetation', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_vegetation',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'water', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_water',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'Population Density', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: this.state.layer,
-                  url: this.state.url,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              )
-            )
-          );
-        } else {
-          window.map = React.createElement(
-            Map,
-            { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.studyGeomJson) },
-            React.createElement(
-              LayersControl,
-              { position: 'topright' },
-              React.createElement(
-                LayersControl.BaseLayer,
-                { name: 'OpenStreetMap.Mapnik', checked: 'true' },
-                React.createElement(TileLayer, {
-                  attribution: '&copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                  url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'agricultural areas', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_agricultural_areas',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'buildings', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_biuldings',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'dense urban fabric', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_dense_urban_fabric',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'low urban fabric', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_low_urban_fabric',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'medium urban fabric', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_medium_urban_fabric',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'public military industrial', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_public_military_industrial',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'railways', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_railways',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'roads', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_roads',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'trees', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_trees',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'vegetation', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_vegetation',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'water', checked: 'false' },
-                React.createElement(WMSTileLayer, {
-                  layers: 'it003l3_napoli_ua2012_water',
-                  url: this.state.url2,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(
-                LayersControl.Overlay,
-                { name: 'Population Density', checked: 'true' },
-                React.createElement(WMSTileLayer, {
-                  layers: this.state.layer,
-                  url: this.state.url,
-                  transparent: 'true',
-                  opacity: '0.5'
-                })
-              ),
-              React.createElement(GeoJSON, { data: study, style: this.countryPolygonStyle })
-            )
-          );
-        }
-      }
     } else {
       const pol = this.state.geom;
-      //        var st = {
-      //          weight: 2,
-      //          opacity: 1,
-      //          color: 'white',
-      //          dashArray: '3',
-      //          fillOpacity: 0.1,
-      //          fillColor: '#FF0000'
-      //      };
 
-      //      <Polygon positions={pol} setStyle={this.countryPolygonStyle}/>
       if (this.state.geomJson == null) {
         window.map = React.createElement(
           Map,
@@ -725,9 +448,9 @@ export default class MapComp extends React.Component {
             }
           },
           "geometry": this.state.geomJson
+        };
 
-          //    <Map ref='map' touchExtend="false" center={position} zoom={zoom}>
-        };if (study != null) {
+        if (study != null) {
           window.map = React.createElement(
             Map,
             { ref: 'map', touchExtend: 'false', bounds: this.getBoundsFromArea(this.state.geomJson) },
@@ -767,21 +490,23 @@ export default class MapComp extends React.Component {
         }
       }
     }
-    //    draw={{
-    //      rectangle: false
-    //    }}
 
     return window.map;
   }
 }
 
-const ma = React.createElement(MapComp, null);
+if (document.getElementById('map-container') != null) {
+  const ma = React.createElement(MapComp, null);
 
-const mapComp = ReactDOM.render(ma, document.getElementById('map-container'));
-window.mapCom = mapComp;
-//document.getElementById('map-container').style.width = "600px";
-//document.getElementById('map-container').style.height = "500px";
-document.getElementById('map-container').style.width = "100%";
-document.getElementById('map-container').style.height = "500px";
-//document.getElementById('map-container').style.width = "800px";
-//document.getElementById('map-container').style.height = "400px";
+  const mapComp = ReactDOM.render(ma, document.getElementById('map-container'));
+  window.mapCom = mapComp;
+  window.mapCom.init();
+  //document.getElementById('map-container').style.width = "600px";
+  //document.getElementById('map-container').style.height = "500px";
+  document.getElementById('map-container').style.width = "100%";
+  document.getElementById('map-container').style.height = "500px";
+  //document.getElementById('map-container').style.width = "800px";
+  //document.getElementById('map-container').style.height = "400px";
+}if (document.getElementById('characteriseHazard-map-container') != null) {
+  ReactDOM.render(React.createElement(CharacteriseHazardMap, null), document.getElementById('characteriseHazard-map-container'));
+}
