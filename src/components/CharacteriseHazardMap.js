@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 
 const CharacteriseHazardMap = () => {
-    return (<img width={1008} height={578} src='../../../../../../modules/custom/map-component/src/img/CharacteriseHazard.png' />);
+    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/CharacteriseHazard.png' />);
 };
 
 

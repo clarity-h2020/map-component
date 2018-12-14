@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 
 const RiskAndImpactMap = () => {
-    return (<img src='../../../../../../modules/custom/map-component/src/img/RiskAndImpact.png' />);
+    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/RiskAndImpact.png' />);
 };
 
 

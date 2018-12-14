@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 
 const StudyAreaMap = () => {
-    return (<img src='../../../../../../modules/custom/map-component/src/img/StudyArea.png' />);
+    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/StudyArea.png' />);
 };
 
 export default StudyAreaMap;

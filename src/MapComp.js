@@ -519,6 +519,8 @@ if (document.getElementById('map-container') != null) {
   //document.getElementById('map-container').style.height = "500px";
   document.getElementById('map-container').style.width = "100%";
   document.getElementById('map-container').style.height = "500px";
+  document.getElementById('exposure-map-container').style.width = "100%";
+  document.getElementById('exposure-map-container').style.height = "500px";
   //document.getElementById('map-container').style.width = "800px";
   //document.getElementById('map-container').style.height = "400px";
 }
