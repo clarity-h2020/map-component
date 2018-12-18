@@ -507,6 +507,4 @@ if (document.getElementById('map-container') != null) {
   document.getElementById('map-container').style.height = "500px";
   //document.getElementById('map-container').style.width = "800px";
   //document.getElementById('map-container').style.height = "400px";
-}if (document.getElementById('characteriseHazard-map-container') != null) {
-  ReactDOM.render(React.createElement(CharacteriseHazardMap, null), document.getElementById('characteriseHazard-map-container'));
 }

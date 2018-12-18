@@ -68,6 +68,12 @@ const ExposureMap = () => {
       title:"4.5G-Sites"
     }
   ]
+  var tileLayerUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var maps = [
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'http://www.google.cn/maps/vt?lyrs=s@189&gl=tr&x={x}&y={y}&z={z}',
+    'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+  ];
   const corner1 = [39.853294, 13.305573];
   const corner2 = [41.853294, 15.305573];
   var bounds = [corner1, corner2];
@@ -78,12 +84,19 @@ const ExposureMap = () => {
       baseLayers={baseLayers}
       checkedBaseLayer={checkedBaseLayer}
       exclusiveGroups={{}}
-      overlays={overlays} />
+      overlays={overlays}
+      tileLayerUrl={tileLayerUrl}
+      maps={maps} />
     );
 };
 
 export default ExposureMap;
 
 if (document.getElementById('exposure-map-container') != null) {
+//  var expMap = <ExposureMap />;
+//  ReactDOM.render(expMap, document.getElementById('exposure-map-container'));
   ReactDOM.render(<ExposureMap />, document.getElementById('exposure-map-container'));
+  document.getElementById('exposure-map-container').style.width = "100%";
+  document.getElementById('exposure-map-container').style.height = "500px";
+//window.mapCom = expMap;
 }
