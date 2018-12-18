@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { Map, TileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
@@ -8,12 +9,12 @@ import StudyAreaMap from './commons/StudyAreaMap';
 export default class StudyArea extends React.Component {
   constructor(props) {
     super(props);
-    this.props.geometry = { "type": "Polygon",
+    var geom  = { "type": "Polygon",
       "coordinates": [
           [[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]
       ]
     };
-    this.setState({
+    this.state ={
       countryPolygon: {
         "type": "Feature",
         "properties": {
@@ -26,21 +27,11 @@ export default class StudyArea extends React.Component {
                 fillOpacity: 0.1
             }
         },
-        "geometry": this.props.geometry
+        "geometry": geom
       }
-    });
+    };
   }
   
-  componentDidMount () {
-    const map = this.refs.map.leafletElement
-    map.invalidateSize();
-  }
-
-  componentDidUpdate () {
-    const map = this.refs.map.leafletElement
-    map.invalidateSize();
-  }
-
   setStudyURL(id, hostName) {
     this.setState({
         studyId: id,
@@ -135,15 +126,13 @@ export default class StudyArea extends React.Component {
   }
 
   init() {
-    const map = this.refs.map.leafletElement
-    map.invalidateSize();
-
     this.setState({
       init: true
     });
   }
 
   render() {
+    window.studyArea = this;
     return (
       <StudyAreaMap 
         countryPolygon={this.state.countryPolygon}
@@ -154,3 +143,8 @@ export default class StudyArea extends React.Component {
   }
 };
 
+if (document.getElementById('study-area-map-container') != null) {
+  ReactDOM.render(<StudyArea />, document.getElementById('study-area-map-container'));
+  document.getElementById('study-area-map-container').style.width = "100%";
+  document.getElementById('study-area-map-container').style.height = "500px";
+}

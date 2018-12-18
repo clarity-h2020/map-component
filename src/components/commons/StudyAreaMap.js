@@ -1,6 +1,6 @@
 import React from 'react';
-import { Map, TileLayer } from 'react-leaflet';
-import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
+import { Map, TileLayer, GeoJSON, FeatureGroup } from 'react-leaflet';
+import { EditControl } from 'react-leaflet-draw';
 import Wkt from 'wicket';
 import turf from 'turf';
 import '../../MapComp.css';
@@ -23,7 +23,7 @@ export default class StudyAreaMap extends React.Component {
     if (area > (100 * qmToQkm)) {
       //remove the layer, if it is too large
       alert('The selected area is too large');
-      window.mapCom.removeLayer(e.layer);
+      this.refs.map.leafletElement.removeLayer(layer);
     } else {
       fetch(this.getTokenUrl(), {credentials: 'include'})
       .then((resp) => resp.text())
@@ -84,7 +84,7 @@ export default class StudyAreaMap extends React.Component {
             <FeatureGroup>
             <EditControl
                 position='topright'
-                onCreated={this._onCreated}
+                onCreated={this._onCreated.bind(this)}
             />
             </FeatureGroup>                    
         </Map>

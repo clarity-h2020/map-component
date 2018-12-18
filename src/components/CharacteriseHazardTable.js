@@ -6,7 +6,7 @@ const CharacteriseHazardTable = () => {
 };
 
 
-export default CharacteriseHazardMap;
+export default CharacteriseHazardTable;
 
 if (document.getElementById('characteriseHazard-table-container') != null) {
     ReactDOM.render(<CharacteriseHazardTable />, document.getElementById('characteriseHazard-table-container'));

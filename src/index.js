@@ -5,7 +5,7 @@ import MapComp from './MapComp';
 import CharacteriseHazardMap from './components/CharacteriseHazardMap';
 import ExposureMap from './components/ExposureMap';
 import HazardLocalEffectsMap from './components/HazardLocalEffectsMap';
-import RiskAndImpactMap from './components/RiskAndImpact';
+import RiskAndImpactMap from './components/RiskAndImpactMap';
 import StudyAreaMap from './components/StudyAreaMap';
 import VulnerabilityMap from './components/VulnerabilityMap';
 //import styledLayerControl from './styledLayerControl';

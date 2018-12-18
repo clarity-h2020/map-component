@@ -6,7 +6,7 @@ const RiskAndImpactTable = () => {
 };
 
 
-export default RiskAndImpactMap;
+export default RiskAndImpactTable;
 
 if (document.getElementById('riskAndImpact-table-container') != null) {
     ReactDOM.render(<RiskAndImpactTable />, document.getElementById('riskAndImpact-table-container'));
