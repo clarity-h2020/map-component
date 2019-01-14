@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Map, TileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
+import Wkt from 'wicket';
 import StudyAreaMap from './commons/StudyAreaMap';
 
 
@@ -37,23 +38,24 @@ export default class StudyArea extends React.Component {
         studyId: id,
         hname: hostName
     });
+    const comp = this;
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
     .then((resp) => resp.json())
     .then(function(data) {
       var wktVar = new Wkt.Wkt();
       if (data.data[0] != null) {
-        this.setUUId(data.data[0].id)
+        comp.setUUId(data.data[0].id)
       }
       if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
         wktVar.read(data.data[0].attributes.field_area.value);
-        this.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
+        comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
       fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
           wkt.read(data.data.attributes.field_boundaries.value);
-          this.setCountryGeom(JSON.stringify(wkt.toJson()));
+          comp.setCountryGeom(JSON.stringify(wkt.toJson()));
       })
       .catch(function(error) {
         console.log(JSON.stringify(error));
@@ -75,7 +77,7 @@ export default class StudyArea extends React.Component {
   }
 
   setCountryGeom(geome) {
-    var centroid = turf.centroid(JSON.parse(geome));
+//    var centroid = turf.centroid(JSON.parse(geome));
     var p = {
       "type": "Feature",
       "properties": {
@@ -91,20 +93,17 @@ export default class StudyArea extends React.Component {
       "geometry": turf.flip(JSON.parse(geome))
     }
     this.setState({
-      lat: centroid.geometry.coordinates[0],
-      lng: centroid.geometry.coordinates[1],
+            countryPolygon: null
+          });
+    this.setState({
+//      lat: centroid.geometry.coordinates[0],
+//      lng: centroid.geometry.coordinates[1],
       countryPolygon: p
     });
   }
 
   setStudyAreaGeom(geome) {
-    this.setState({
-      studyGeom: null,
-      studyGeomJson: null
-    }); 
-  
     if (geome != null) {
-
         var study = {
           "type": "Feature",
           "properties": {
@@ -120,6 +119,9 @@ export default class StudyArea extends React.Component {
           "geometry": JSON.parse(geome)
         };
         this.setState({
+          studyAreaPolygon: null
+        });
+        this.setState({
           studyAreaPolygon: study
         });
     }
@@ -133,11 +135,13 @@ export default class StudyArea extends React.Component {
 
   render() {
     window.studyArea = this;
+
     return (
       <StudyAreaMap 
         countryPolygon={this.state.countryPolygon}
         studyAreaPolygon={this.state.studyAreaPolygon}
         hostname={this.state.hname}
+        uuid={this.state.uuid}
       />
     );
   }

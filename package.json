@@ -17,15 +17,16 @@
     "webpack": "^3.11.0",
     "wicket": "latest",
     "leaflet-groupedlayercontrol": "latest",
-    "react-leaflet-grouped-layer-control": "latest"
+    "react-leaflet-grouped-layer-control": "latest",
+    "react-router-dom": "latest",
+    "react-table": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "babel": "babel src/MapComp.js src/*/*.js src/*/*/*.js --presets babel-preset-react --out-dir dist/gen/js",
-    "webpack": "webpack dist/gen/js/src/MapComp.js dist/gen/js/src/*/*.js dist/gen/js/src/*/*/*.js"
+    "babel": "babel src/*.js src/*/*.js src/*/*/*.js --presets babel-preset-react --out-dir dist/gen/js",
+    "webpack": "webpack dist/gen/js/src/*.js dist/gen/js/src/*/*.js dist/gen/js/src/*/*/*.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

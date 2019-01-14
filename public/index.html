@@ -29,7 +29,9 @@
     </noscript>
     <!--div id="root"></div-->
     <!--div id="map-container"></div-->
-    <div id="exposure-map-container"></div>
+    <!--div id="exposure-map-container"></div-->
+    <!--div id="risk-and impact-table-container"></div-->
+    <div id="root" class="root"></div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
@@ -41,7 +43,7 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
     <script type="text/javascript" href="./styledLayerControl.js" ></script>
-    <script type="text/javascript">
+    <!--script type="text/javascript">
       function go(la, ln) {
         window.mapCom.init();
         window.mapCom.setView(la, ln, 13);
@@ -60,12 +62,12 @@
           window.mapCom.print();
       }
       
-    </script>
-      <input onclick="go(48.858093, 2.294694)" style="margin-right: 20px;" type="button" value="Paris" />
+    </script-->
+      <!--input onclick="go(48.858093, 2.294694)" style="margin-right: 20px;" type="button" value="Paris" />
       <input onclick="go(51.509865, -0.118092)" type="button" value="London" />
       <input onclick="go(40.853294, 14.305573)" type="button" value="Neapel" />
       <input onclick="addPo('http://localhost:8080/taxonomy/term/93?_format=json')" type="button" value="test" />
       <input onclick="pr()" type="button" value="print" />
-      <input onclick="window.mapCom.addLayer()" type="button" value="add" />
+      <input onclick="window.mapCom.addLayer()" type="button" value="add" /-->
   </body>
 </html>
