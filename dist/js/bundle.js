@@ -30594,7 +30594,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       data: [{
         hazard: 'HW',
         elementAtRisk: "Population",
-        classes: "Age group 0-14",
+        vulnerabilityClasses: "Age group 0-14",
         unit: "pop/km2",
         d1: "1",
         d2: "3",
@@ -30603,7 +30603,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'HW',
         elementAtRisk: "Population",
-        classes: "Age group 15-64",
+        vulnerabilityClasses: "Age group 15-64",
         unit: "pop/km2",
         d1: "1",
         d2: "3",
@@ -30612,7 +30612,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'HW',
         elementAtRisk: "Population",
-        classes: ">65",
+        vulnerabilityClasses: ">65",
         unit: "pop/km2",
         d1: "1",
         d2: "3",
@@ -30621,7 +30621,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Population",
-        classes: "Age group 0-14",
+        vulnerabilityClasses: "Age group 0-14",
         unit: "pop/km2",
         d1: "1",
         d2: "3",
@@ -30630,7 +30630,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Population",
-        classes: "Age group 15-64",
+        vulnerabilityClasses: "Age group 15-64",
         unit: "pop/km2",
         d1: "1",
         d2: "3",
@@ -30639,7 +30639,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Population",
-        classes: ">65",
+        vulnerabilityClasses: ">65",
         unit: "pop/km2",
         d1: "1",
         d2: "3",
@@ -30648,7 +30648,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Buildings",
-        classes: "Continuous Residential (S.L. > 80%)",
+        vulnerabilityClasses: "Continuous Residential (S.L. > 80%)",
         unit: "m3/m2",
         d1: "1",
         d2: "3",
@@ -30657,7 +30657,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Buildings",
-        classes: "Med-Hi Density Discontinuous Res. (30% < S.L. < 80%)",
+        vulnerabilityClasses: "Med-Hi Density Discontinuous Res. (30% < S.L. < 80%)",
         unit: "m3/m2",
         d1: "1",
         d2: "3",
@@ -30666,7 +30666,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Buildings",
-        classes: "Low Density Discontinuous Res. (S.L. < 30%)",
+        vulnerabilityClasses: "Low Density Discontinuous Res. (S.L. < 30%)",
         unit: "m3/m2",
         d1: "1",
         d2: "3",
@@ -30675,7 +30675,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Buildings",
-        classes: "Non Residential",
+        vulnerabilityClasses: "Non Residential",
         unit: "m3/m2",
         d1: "1",
         d2: "3",
@@ -30684,7 +30684,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Infrastructure",
-        classes: "Roads",
+        vulnerabilityClasses: "Roads",
         unit: "ml",
         d1: "1",
         d2: "3",
@@ -30693,7 +30693,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
       }, {
         hazard: 'FL',
         elementAtRisk: "Infrastructure",
-        classes: "Railways",
+        vulnerabilityClasses: "Railways",
         unit: "ml",
         d1: "1",
         d2: "3",
@@ -30710,7 +30710,7 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
         accessor: 'elementAtRisk'
       }, {
         Header: 'Vulnerability classes',
-        accessor: 'classes'
+        accessor: 'vulnerabilityClasses'
       }, {
         Header: 'Unit',
         accessor: 'unit'
@@ -30730,7 +30730,8 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
           accessor: 'd4'
         }]
       }],
-      expanded: ["Hazards", "ElementAtRisk"]
+      expanded: ["Hazards", "ElementAtRisk"],
+      pivot: ["Hazards", "ElementAtRisk"]
     };
   }
 
@@ -30753,8 +30754,8 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
         null,
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_TableComponent__["default"], {
           data: this.state.data,
-          columns: this.state.columns
-          //              pivotBy={["Hazards", "ElementAtRisk"]}
+          columns: this.state.columns,
+          pivotBy: this.state.pivot //{["Hazards", "ElementAtRisk"]}
           //              expanded={["Hazards", "ElementAtRisk"]}
         })
       )
@@ -30763,17 +30764,6 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
 
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = RiskAndImpactTable;
-
-
-//const RiskAndImpactTable = () => {
-//    var tableData = [
-//        {Hazards: "HW", "Element at Risk": "Population", "Vulnarability Classes": "Age groupo 0-14"},
-//        {Hazards: "HW", "Element at Risk": "Population", "Vulnarability Classes": "Age groupo 15-64"},
-//        {Hazards: "HW", "Element at Risk": "Population", "Vulnarability Classes": "Age groupo 15-64"}
-//      ];
-
-//    return (<TableComponent data={tableData} />);
-//};
 
 
 //const RiskAndImpactTable = () => {
@@ -30853,7 +30843,7 @@ class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component 
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      fetch(data.data[0].relationships.field_country.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
         var wkt = new __WEBPACK_IMPORTED_MODULE_5_wicket___default.a.Wkt();
         wkt.read(data.data.attributes.field_boundaries.value);
         comp.setCountryGeom(JSON.stringify(wkt.toJson()));
