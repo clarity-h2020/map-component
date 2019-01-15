@@ -18036,7 +18036,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
 
   getUrl(name) {
     for (var i = 0; i < this.props.overlays.length; i++) {
-      if (this.props.overlays[i].name == name) {
+      if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].url;
       }
     }
@@ -18046,7 +18046,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
 
   getLayers(name) {
     for (var i = 0; i < this.props.overlays.length; i++) {
-      if (this.props.overlays[i].name == name) {
+      if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].layers;
       }
     }
@@ -18054,8 +18054,26 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     return " ";
   }
 
-  render() {
+  createLayer(d) {
+    var layerArray = [];
     var opac = 0.5;
+
+    for (var i = 0; i < d.length; ++i) {
+      var obj = d[i];
+      if (obj.checked) {
+        layerArray.push(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["WMSTileLayer"], {
+          layers: this.getLayers(obj.name),
+          url: this.getUrl(obj.name),
+          transparent: 'true',
+          opacity: opac
+        }));
+      }
+    }
+
+    return layerArray;
+  }
+
+  render() {
     var mapElement = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       __WEBPACK_IMPORTED_MODULE_1_react_leaflet__["Map"],
       { ref: 'map',
@@ -18065,24 +18083,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
       },
       this.props.studyAreaPolygon != null && __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["GeoJSON"], { data: this.props.studyAreaPolygon }),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["TileLayer"], { noWrap: true, url: this.props.tileLayerUrl }),
-      this.state.overlays.filter(e => e.name === 'pop-1980')[0].checked ? __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["WMSTileLayer"], {
-        layers: this.getLayers('pop-1980'),
-        url: this.getUrl('pop-1980'),
-        transparent: 'true',
-        opacity: opac
-      }) : null,
-      this.state.overlays.filter(e => e.name === 'buildings_naple')[0].checked ? __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["WMSTileLayer"], {
-        layers: this.getLayers('buildings_naple'),
-        url: this.getUrl('buildings_naple'),
-        transparent: 'true',
-        opacity: opac
-      }) : null,
-      this.state.overlays.filter(e => e.name === 'streets_naple')[0].checked ? __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["WMSTileLayer"], {
-        layers: this.getLayers('streets_naple'),
-        url: this.getUrl('streets_naple'),
-        transparent: 'true',
-        opacity: opac
-      }) : null,
+      this.createLayer(this.state.overlays),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet_grouped_layer_control__["ReactLeafletGroupedLayerControl"], {
         position: 'topright',
         baseLayers: this.props.baseLayers,

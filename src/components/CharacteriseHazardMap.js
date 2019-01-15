@@ -29,7 +29,7 @@ export default class CharacteriseHazardMap extends React.Component {
       overlays: [
         {
           checked: true,
-          groupTitle: 'population',
+          groupTitle: 'Population',
           name: 'pop-1980',
           title: 'population 1980',
           layers: 'clarity:CLY_POPULATION_1758',
