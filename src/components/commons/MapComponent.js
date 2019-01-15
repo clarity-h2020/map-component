@@ -56,7 +56,7 @@ export default class MapComponent extends React.Component {
 
   getUrl(name) {
     for (var i = 0;i <  this.props.overlays.length; i++) {
-      if (this.props.overlays[i].name == name) {
+      if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].url;
       }
     }
@@ -66,7 +66,7 @@ export default class MapComponent extends React.Component {
 
   getLayers(name) {
     for (var i = 0;i <  this.props.overlays.length; i++) {
-      if (this.props.overlays[i].name == name) {
+      if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].layers;
       }
     }
@@ -74,8 +74,26 @@ export default class MapComponent extends React.Component {
     return " ";
   }
 
-  render() {
+  createLayer(d) {
+    var layerArray = [];
     var opac = 0.5;
+
+    for (var i = 0; i < d.length; ++i) {
+      var obj = d[i];
+      if ( obj.checked ) {
+        layerArray.push(<WMSTileLayer
+          layers={this.getLayers(obj.name)}
+          url={this.getUrl(obj.name)}
+          transparent="true"
+          opacity={opac}
+        />);
+      }
+    }
+
+    return layerArray;
+  }  
+
+  render() {
     var mapElement = (
     <Map ref='map'
         className="simpleMap"
@@ -87,31 +105,7 @@ export default class MapComponent extends React.Component {
       }
       <TileLayer noWrap={true} url={this.props.tileLayerUrl} />
       {
-          this.state.overlays.filter(e => e.name === 'pop-1980')[0].checked ? 
-            <WMSTileLayer
-              layers={this.getLayers('pop-1980')}
-              url={this.getUrl('pop-1980')}
-              transparent="true"
-              opacity={opac}
-            /> : null
-      }
-      {
-          this.state.overlays.filter(e => e.name === 'buildings_naple')[0].checked ? 
-          <WMSTileLayer
-            layers={this.getLayers('buildings_naple')}
-            url={this.getUrl('buildings_naple')}
-            transparent="true"
-            opacity={opac}
-          /> : null
-      }
-      {
-          this.state.overlays.filter(e => e.name === 'streets_naple')[0].checked ? 
-          <WMSTileLayer
-            layers={this.getLayers('streets_naple')}
-            url={this.getUrl('streets_naple')}
-            transparent="true"
-            opacity={opac}
-          /> : null
+        this.createLayer(this.state.overlays)
       }
       <ReactLeafletGroupedLayerControl
         position="topright"
