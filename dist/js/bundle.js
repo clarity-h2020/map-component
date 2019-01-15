@@ -26859,7 +26859,7 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.
       checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: true,
-        groupTitle: 'population',
+        groupTitle: 'Population',
         name: 'pop-1980',
         title: 'population 1980',
         layers: 'clarity:CLY_POPULATION_1758',
@@ -29932,7 +29932,7 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Componen
       checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: true,
-        groupTitle: 'population',
+        groupTitle: 'Population',
         name: 'pop-1980',
         title: 'population 1980',
         layers: 'clarity:CLY_POPULATION_1758',
@@ -30249,7 +30249,7 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.
       checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: true,
-        groupTitle: 'population',
+        groupTitle: 'Population',
         name: 'pop-1980',
         title: 'population 1980',
         layers: 'clarity:CLY_POPULATION_1758',
@@ -30443,7 +30443,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Com
       checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: true,
-        groupTitle: 'population',
+        groupTitle: 'Population',
         name: 'pop-1980',
         title: 'population 1980',
         layers: 'clarity:CLY_POPULATION_1758',
@@ -30755,8 +30755,8 @@ class RiskAndImpactTable extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.C
         null,
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_TableComponent__["default"], {
           data: this.state.data,
-          columns: this.state.columns,
-          pivotBy: this.state.pivot //{["Hazards", "ElementAtRisk"]}
+          columns: this.state.columns
+          //              pivotBy={this.state.pivot} //{["Hazards", "ElementAtRisk"]}
           //              expanded={["Hazards", "ElementAtRisk"]}
         })
       )
@@ -34370,7 +34370,7 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Com
       checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: true,
-        groupTitle: 'population',
+        groupTitle: 'Population',
         name: 'pop-1980',
         title: 'population 1980',
         layers: 'clarity:CLY_POPULATION_1758',

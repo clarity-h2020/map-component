@@ -177,7 +177,7 @@ export default class RiskAndImpactTable extends React.Component {
               <TableComponent
               data={this.state.data}
               columns={this.state.columns}
-              pivotBy={this.state.pivot} //{["Hazards", "ElementAtRisk"]}
+//              pivotBy={this.state.pivot} //{["Hazards", "ElementAtRisk"]}
 //              expanded={["Hazards", "ElementAtRisk"]}
               />
             </div>
