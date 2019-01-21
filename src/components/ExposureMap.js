@@ -23,7 +23,7 @@ export default class ExposureMap extends React.Component {
         baseLayers: [
           {
             name: 'tile-texture-1',
-            title: 'OpenStreetMap'
+            title: 'OpenStreetMap' 
           }
         ],
         checkedBaseLayer: 'tile-texture-1',
