@@ -1,0 +1,20 @@
+ Datentr„ger in Laufwerk C: ist Windows
+ Volumeseriennummer: E677-F77C
+
+ Verzeichnis von C:\Users\petersj\docker\clarity\map-component
+
+22.01.2019  10:25    <DIR>          .
+22.01.2019  10:25    <DIR>          ..
+22.01.2019  09:46               306 .gitignore
+22.01.2019  09:46    <DIR>          dist
+22.01.2019  09:46                96 map_app.info.yml
+22.01.2019  10:21               132 map_app.libraries.yml
+22.01.2019  10:21           487.833 package-lock.json
+22.01.2019  10:21             1.093 package.json
+22.01.2019  10:21    <DIR>          public
+22.01.2019  10:21    <DIR>          src
+22.01.2019  10:26                 0 test.txt
+22.01.2019  09:46               925 webpack.config.js
+22.01.2019  09:46           390.822 yarn.lock
+               8 Datei(en),        881.207 Bytes
+               5 Verzeichnis(se), 622.546.051.072 Bytes frei
