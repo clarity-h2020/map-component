@@ -7,3 +7,7 @@ body {
 .rt-td > span > span {
   display: none;
 }
+
+.leaflet-container {
+  height: 500px;
+}

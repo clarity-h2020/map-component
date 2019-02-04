@@ -22,11 +22,13 @@ export default class MapComponent extends React.Component {
   componentDidMount () {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
+    // map.flyToBounds(this.props.bounds, null);
   }
 
   componentDidUpdate () {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
+    map.flyToBounds(this.props.bounds, null);
   }
 
   init() {
@@ -91,14 +93,18 @@ export default class MapComponent extends React.Component {
     }
 
     return layerArray;
-  }  
+  }
 
   render() {
+    const corner1 = [35.746512, -30.234375];
+    const corner2 = [71.187754, 39.199219];
+    var bbox = [corner1, corner2];
     var mapElement = (
     <Map ref='map'
         className="simpleMap"
         scrollWheelZoom={false}
-        bounds={this.props.bounds}
+        bounds={bbox}
+//        bounds={this.props.bounds}
         >
       {this.props.studyAreaPolygon != null &&
         <GeoJSON data={this.props.studyAreaPolygon} />

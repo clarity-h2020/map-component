@@ -23,21 +23,26 @@ export default class StudyAreaMap extends React.Component {
     this.setState({count: ++this.state.count})
   }
 
+  _onEditResize(e) {
+    var area = turf.area(e.layer.toGeoJSON());
+    console.log(area);
+  }
+
   _onCreated(e) {
-    var qmToQkm = 1000000;
+    const qkmToQm = 1000000;
+    const allowedSize = 500;
     var area = turf.area(e.layer.toGeoJSON());
     const comp = this;
 
-    if (area > (100 * qmToQkm)) {
+    if (area > (allowedSize * qkmToQm)) {
       //remove the layer, if it is too large
-      alert('The selected area is too large');
+      alert('The selected area is too large. The allowed size is ' + allowedSize + ' km²');
       this.refs.map.leafletElement.removeLayer(e.layer);
     } else {
       fetch(comp.getTokenUrl(), {credentials: 'include'})
       .then((resp) => resp.text())
       .then(function(key) {
           //set the new study area
-          var hostWithoutProt = comp.getHostnameWithoutProtocol();
           var wkt = new Wkt.Wkt();
           wkt.fromJson(e.layer.toGeoJSON());
           var data = '{"data": {"type": "group--study","id": "' + comp.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
@@ -89,9 +94,21 @@ export default class StudyAreaMap extends React.Component {
     return this.props.hostname.substring( this.props.hostname.indexOf(':') + 3);
   }
 
+  setReadOnly(ro) {
+    this.setState(
+      {
+        readOnly: ro
+      }
+    );
+  }
+
+  componentDidMount () {
+    const map = this.refs.map.leafletElement;
+    map.bindTooltip
+  }
+
+
   render() {
-    const country = this.props.countryPolygon;
-    const study = this.props.studyAreaPolygon;
     var geometry = (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null);
 
     if (geometry == null) {
@@ -106,6 +123,7 @@ export default class StudyAreaMap extends React.Component {
         ]]
       };
     }
+    var area = true;
 
     var mapElement = (
         <Map ref='map' touchExtend="false" bounds={this.getBoundsFromArea(geometry)}>
@@ -116,14 +134,27 @@ export default class StudyAreaMap extends React.Component {
             {this.props.countryPolygon != null &&
               <GeoJSON data={this.props.countryPolygon} />
             }
-            {this.props.studyAreaPolygon != null &&
-              <GeoJSON data={this.props.studyAreaPolygon} />
+            {this.state.studyAreaPolygon != null &&
+              <GeoJSON data={this.state.studyAreaPolygon} />
             }
             <FeatureGroup>
-            <EditControl
-                position='topright'
-                onCreated={this._onCreated.bind(this)}
-            />
+              { (this.state.readOnly == null || this.state.readOnly == false) &&
+                <EditControl 
+                    position='topright'
+                    onCreated={this._onCreated.bind(this)}
+                    draw={{
+                      polygon: {
+                        showArea: true,
+                        metric: ['km', 'm'],
+                      },
+                      rectangle: {
+                        showArea: true,
+                        metric: ['km', 'm']
+                      }
+                  }}
+                    onEditResize={this._onEditResize.bind(this)}
+                />
+              }
             </FeatureGroup>                    
         </Map>
     )
