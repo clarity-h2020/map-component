@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from 'react-dom';
 import 'react-table/react-table.css'
-import ReactTable from "react-table";
 import TableComponent from './commons/TableComponent';
 import SimpleLegendComponent from './commons/SimpleLegendComponent';
 
@@ -94,7 +93,7 @@ export default class CharacteriseHazardTable extends React.Component {
       
       for (var i = 0; i < d.length; ++i) {
         var obj = d[i];
-        if ( periods.findIndex((val)=>{return val == obj.period;}) == -1) {
+        if ( periods.findIndex((val)=>{return val === obj.period;}) === -1) {
           options.push(<option value={obj.period}>{obj.period}</option>);
           periods.push(obj.period);
         }
@@ -115,7 +114,6 @@ export default class CharacteriseHazardTable extends React.Component {
     }
 
     componentDidMount () {
-      const map = this.changeFutureScenario();
     }
 
     changeFutureScenario() {
@@ -125,7 +123,7 @@ export default class CharacteriseHazardTable extends React.Component {
 
       for (var i = 0; i < this.state.allData.length; ++i) {
         var obj = this.state.allData[i];
-        if (obj.period == combo.value) {
+        if (obj.period === combo.value) {
           selectedData.push(obj);
         }
       }

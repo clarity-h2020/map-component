@@ -30,26 +30,106 @@ export default class CharacteriseHazardMap extends React.Component {
         {
           checked: true,
           groupTitle: 'Population',
-          name: 'pop-1980',
-          title: 'population 1980',
-          layers: 'clarity:CLY_POPULATION_1758',
-          url: 'https://service.emikat.at/geoserver/clarity/wms'
+          name: 'pop-15-65',
+          title: 'population 15-65',
+          layers: 'clarity:Population_15to65_naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
         },
         {
-          checked: true,
-          groupTitle: "Infrastructure",
-          name: "buildings_naple",
-          title: "buildings",
-          layers: "it003l3_napoli_ua2012_biuldings",
-          url: "http://5.79.69.33:8080/geoserver/clarity"
+          checked: false,
+          groupTitle: 'Population',
+          name: 'pop-65',
+          title: 'population >65',
+          layers: 'clarity:Population_mayor65_naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: 'Population',
+          name: 'pop-15',
+          title: 'population >15',
+          layers: '	clarity:Population_men15_naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: "Heat Wave",
+          name: "Heat_Waves_1971_-_2001",
+          title: "Heat Waves 1971 - 2001 RCP26",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
         },
         {
           checked:false,
-          groupTitle:"Infrastructure",
-          name:"streets_naple",
-          title:"streets",
-          layers: "it003l3_napoli_ua2012_roads",
-          url: "http://5.79.69.33:8080/geoserver/clarity"
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2011_-_2040",
+          title:"Heat Waves 2011 - 2040 RCP26",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2041_-_2070",
+          title:"Heat Waves 2041 - 2070 RCP26",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2071_-_2100",
+          title:"Heat Waves 2071 - 2100 RCP26",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2011_-_2040_rcp_45",
+          title:"Heat_Waves 2011 - 2040 RCP45",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2041_-_2070_rcp_45",
+          title:"Heat_Waves 2041 - 2070 RCP45",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2071_-_2100_rcp_45",
+          title:"Heat_Waves 2071 - 2100 RCP45",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2011_-_2040_rcp_85",
+          title:"Heat_Waves 2011 - 2040 RCP85",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2041_-_2070_rcp_85",
+          title:"Heat_Waves 2041 - 2070 RCP85",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        },
+        {
+          checked:false,
+          groupTitle:"Heat Wave",
+          name:"Heat_Waves_2071_-_2100_rcp_85",
+          title:"Heat_Waves 2071 - 2100 RCP85",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
         }
       ],
       tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',

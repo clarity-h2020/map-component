@@ -1,7 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Map, TileLayer } from 'react-leaflet';
-import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
 import Wkt from 'wicket';
 import StudyAreaMap from './commons/StudyAreaMap';
@@ -51,6 +49,7 @@ export default class StudyArea extends React.Component {
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
       fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), {credentials: 'include'})
+//      fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
