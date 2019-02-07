@@ -45,3 +45,11 @@
 .rt-td > span > span {
   display: none;
 }
+
+.leaflet-container {
+  height: 500px;
+}
+
+.rlglc-active {
+  height: 500px !important;
+}
