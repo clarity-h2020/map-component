@@ -53,3 +53,7 @@
 .rlglc-active {
   height: 500px !important;
 }
+
+.hiddenGroup {
+  display: none !important;
+}

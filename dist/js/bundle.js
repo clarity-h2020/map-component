@@ -18005,6 +18005,30 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     const map = this.refs.map.leafletElement;
     map.invalidateSize();
     map.flyToBounds(this.props.bounds, null);
+    var groupTitles = document.getElementsByClassName("rlglc-grouptitle");
+    const self = this;
+
+    for (var i = 0; i < groupTitles.length; ++i) {
+      const el = groupTitles[i];
+      groupTitles[i].addEventListener("click", function () {
+        self.showHide(el);
+      });
+    }
+  }
+
+  showHide(el) {
+    var parent = el.parentElement;
+    var sibling = el.nextElementSibling;
+
+    while (sibling != null) {
+      if (sibling.classList.contains('hiddenGroup')) {
+        sibling.classList.remove('hiddenGroup');
+      } else {
+        sibling.classList.add('hiddenGroup');
+      }
+
+      sibling = sibling.nextElementSibling;
+    }
   }
 
   init() {
