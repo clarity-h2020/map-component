@@ -17,6 +17,12 @@ export default class StudyAreaMap extends React.Component {
    this._onCreated.bind(this);
   }
   
+  componentWillReceiveProps(nextProps){
+    if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
+      this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon })
+    }
+  }
+
   init() {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
@@ -67,8 +73,12 @@ export default class StudyAreaMap extends React.Component {
             },
             "geometry": wkt.toJson()
           };
+          if (comp.state.newLayer != null) {
+            comp.refs.map.leafletElement.removeLayer(comp.state.newLayer);
+          }
           comp.setState({
-            studyAreaPolygon: study
+            studyAreaPolygon: null,
+            newLayer: e.layer
           });
       })
       .catch(function(error) {
@@ -124,6 +134,11 @@ export default class StudyAreaMap extends React.Component {
       };
     }
     var area = true;
+    var studyAreaStyle = {
+      "color": "#ff0000",
+      "weight": 2,
+      "opacity": 0.20
+    };
 
     var mapElement = (
         <Map ref='map' touchExtend="false" bounds={this.getBoundsFromArea(geometry)}>
@@ -135,7 +150,7 @@ export default class StudyAreaMap extends React.Component {
               <GeoJSON data={this.props.countryPolygon} />
             }
             {this.state.studyAreaPolygon != null &&
-              <GeoJSON data={this.state.studyAreaPolygon} />
+              <GeoJSON style={studyAreaStyle} data={this.state.studyAreaPolygon} />
             }
             <FeatureGroup>
               { (this.state.readOnly == null || this.state.readOnly == false) &&
