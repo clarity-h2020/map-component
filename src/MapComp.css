@@ -45,3 +45,50 @@
 .rt-td > span > span {
   display: none;
 }
+
+.leaflet-container {
+  height: 500px;
+}
+
+.rlglc-active {
+  height: 500px !important;
+}
+
+.hiddenGroup {
+  display: none !important;
+}
+
+.hiddenGroupHeader {
+  background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpent.png) !important;
+  float: left;
+  background-repeat: no-repeat;
+  padding-left: 15px;
+  background-size: 8px 8px;
+  background-position: left center;
+}
+
+.rlglc-group {
+  background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpens.png);
+  float: left;
+  background-repeat: no-repeat;
+  padding-left: 10px;
+  background-size: 8px 8px;
+  background-position: left 10px;
+}
+
+.adaptationText {
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid;
+  display: inline-block;
+  height: 50px;
+  white-space: normal;
+}
+
+.adaptationImage {
+  float: left;
+}
+
+.rt-resizable-header-content {
+  white-space: normal !important;
+}
