@@ -176,7 +176,7 @@ export default class MapComponent extends React.Component {
       "weight": 2,
       "opacity": 0.2,
       "fillOpacity": 0.0,
-      "dashArray": "4 1";
+      "dashArray": "4 1"
     };
 
     var mapElement = (

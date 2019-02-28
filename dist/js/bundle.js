@@ -18159,7 +18159,8 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
       "color": "#ff0000",
       "weight": 2,
       "opacity": 0.2,
-      "fillOpacity": 0.0
+      "fillOpacity": 0.0,
+      "dashArray": "4 1"
     };
 
     var mapElement = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
