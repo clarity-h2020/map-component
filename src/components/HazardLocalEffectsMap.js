@@ -28,43 +28,35 @@ export default class HazardLocalEffectsMap extends React.Component {
         checkedBaseLayer: 'tile-texture-1',
         overlays: [
           {
-            checked: true,
-            groupTitle: 'Population',
-            name: 'pop-15-65',
-            title: 'population 15-65',
-            layers: 'clarity:Population_15to65_naples',
+            checked: false,
+            groupTitle: 'Heat Wave',
+            name: 'Heat_wave_temperature_historical_hight_hazard_Naples',
+            title: 'Heat Wave Temperature Historical Hight Hazard Naples',
+            layers: 'Heat_wave_temperature_historical_hight_hazard_Naples',
             url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
           },
           {
             checked: false,
-            groupTitle: 'Population',
-            name: 'pop-65',
-            title: 'population >65',
-            layers: 'clarity:Population_mayor65_naples',
+            groupTitle: 'Heat Wave',
+            name: 'Heat_wave_temperature_historical_low_hazard_Naples',
+            title: 'Heat Wave Temperature Historical Low Hazard Naples',
+            layers: 'Heat_wave_temperature_historical_low_hazard_Naples',
             url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
           },
           {
             checked: false,
-            groupTitle: 'Population',
-            name: 'pop-15',
-            title: 'population >15',
-            layers: '	clarity:Population_men15_naples',
+            groupTitle: 'Heat Wave',
+            name: 'Heat_wave_temperature_historical_medium_hazard_Naples',
+            title: 'Heat Wave Temperature Historical Medium Hazard Naples',
+            layers: 'Heat_wave_temperature_historical_medium_hazard_Naples',
             url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
           },
           {
             checked: false,
             groupTitle: "Heat Wave",
-            name: "Heat_Waves_1971_-_2001",
-            title: "Heat Waves 1971 - 2001",
-            layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
-            url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-          },
-          {
-            checked:false,
-            groupTitle:"Heat Wave",
-            name:"Heat_Waves_2011_-_2040",
-            title:"Heat Waves 2011 - 2040",
-            layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+            name: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
+            title: "Heat Wave Temperature Historical Very Hight Hazard Naples",
+            layers: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
             url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
           }
         ],

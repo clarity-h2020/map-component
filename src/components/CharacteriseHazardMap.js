@@ -28,30 +28,6 @@ export default class CharacteriseHazardMap extends React.Component {
       checkedBaseLayer: 'tile-texture-1',
       overlays: [
         {
-          checked: true,
-          groupTitle: 'Population',
-          name: 'pop-15-65',
-          title: 'population 15-65',
-          layers: 'clarity:Population_15to65_naples',
-          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-        },
-        {
-          checked: false,
-          groupTitle: 'Population',
-          name: 'pop-65',
-          title: 'population >65',
-          layers: 'clarity:Population_mayor65_naples',
-          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-        },
-        {
-          checked: false,
-          groupTitle: 'Population',
-          name: 'pop-15',
-          title: 'population >15',
-          layers: '	clarity:Population_men15_naples',
-          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-        },
-        {
           checked: false,
           groupTitle: "Heat Wave",
           name: "Heat_Waves_1971_-_2001",
@@ -80,7 +56,7 @@ export default class CharacteriseHazardMap extends React.Component {
           groupTitle:"Heat Wave",
           name:"Heat_Waves_2071_-_2100",
           title:"Heat Waves 2071 - 2100 RCP26",
-          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+          layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
           url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
         },
         {

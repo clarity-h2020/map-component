@@ -51,22 +51,6 @@ export default class ExposureMap extends React.Component {
             title: 'population >15',
             layers: '	clarity:Population_men15_naples',
             url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          },
-          {
-            checked: false,
-            groupTitle: "Heat Wave",
-            name: "Heat_Waves_1971_-_2001",
-            title: "Heat Waves 1971 - 2001",
-            layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
-            url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-          },
-          {
-            checked:false,
-            groupTitle:"Heat Wave",
-            name:"Heat_Waves_2011_-_2040",
-            title:"Heat Waves 2011 - 2040",
-            layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
-            url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
           }
         ],
         tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -134,7 +118,7 @@ export default class ExposureMap extends React.Component {
                 "popupContent": "study",
                 "style": {
                     weight: 2,
-                    color: "black",
+                    color: "red",
                     opacity: 0.3,
                     fillColor: "#ff0000",
                     fillOpacity: 0.1

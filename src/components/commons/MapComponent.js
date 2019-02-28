@@ -1,6 +1,7 @@
 import React from 'react';
 import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
+import turf from 'turf';
 import '../../MapComp.css';
 
 
@@ -11,7 +12,8 @@ export default class MapComponent extends React.Component {
       studyAreaPolygon: props.studyAreaPolygon,
       bounds: props.bounds,
       checkedBaseLayer: props.checkedBaseLayer,
-      overlays: props.overlays
+      overlays: props.overlays,
+      fly: true
     }
     this.baseLayers = props.baseLayers;
     this.maps = props.maps;
@@ -22,13 +24,15 @@ export default class MapComponent extends React.Component {
   componentDidMount () {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
-    // map.flyToBounds(this.props.bounds, null);
   }
 
   componentDidUpdate () {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
-    map.flyToBounds(this.props.bounds, null);
+    var zoom = this.getLastZoom();
+    if ((zoom == null || zoom == 0) && (this.props.studyAreaPolygon != null)) {
+      map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
+    }
     var groupTitles = document.getElementsByClassName("rlglc-grouptitle");
     const self = this;
 
@@ -38,9 +42,26 @@ export default class MapComponent extends React.Component {
     }
   }
 
+  getBoundsFromArea(area) {
+    const bboxArray = turf.bbox(area);
+    const corner1 = [bboxArray[1], bboxArray[0]];
+    const corner2 = [bboxArray[3], bboxArray[2]];
+    var bounds = [corner1, corner2];
+
+    return bounds;
+  }
+
   showHide(el) {
     var parent = el.parentElement;
     var sibling = el.nextElementSibling
+
+    if (parent != null) {
+      if (parent.classList.contains('hiddenGroupHeader')) {
+        parent.classList.remove('hiddenGroupHeader');
+      } else {
+        parent.classList.add('hiddenGroupHeader');
+      }
+    }
 
     while (sibling != null) {
       if (sibling.classList.contains('hiddenGroup')) {
@@ -110,6 +131,7 @@ export default class MapComponent extends React.Component {
           url={this.getUrl(obj.name)}
           transparent="true"
           opacity={opac}
+          styles={obj.style != null ? obj.style : ""}
         />);
       }
     }
@@ -117,19 +139,54 @@ export default class MapComponent extends React.Component {
     return layerArray;
   }
 
+  getLastBounds() {
+    if (this.refs != null && this.refs.map != null) {
+      const map = this.refs.map.leafletElement
+
+      if (map != null) {
+        return map.getBounds();
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  getLastZoom() {
+    if (this.refs != null && this.refs.map != null) {
+      const map = this.refs.map.leafletElement
+
+      if (map != null) {
+        return map.getZoom();
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   render() {
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
     var bbox = [corner1, corner2];
+    var studyAreaStyle = {
+      "color": "#ff0000",
+      "weight": 2,
+      "opacity": 0.2,
+      "fillOpacity": 0.0,
+      "dashArray": "4 1";
+    };
+
     var mapElement = (
     <Map ref='map'
         className="simpleMap"
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
         bounds={bbox}
-//        bounds={this.props.bounds}
         >
       {this.props.studyAreaPolygon != null &&
-        <GeoJSON data={this.props.studyAreaPolygon} />
+        <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
       }
       <TileLayer noWrap={true} url={this.props.tileLayerUrl} />
       {
