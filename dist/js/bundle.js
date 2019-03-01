@@ -17989,16 +17989,14 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     this.state = {
       studyAreaPolygon: props.studyAreaPolygon,
       bounds: props.bounds,
-      checkedBaseLayer: props.checkedBaseLayer,
+      checkedBaseLayer: props.baseLayers[0].name,
       overlays: props.overlays,
       fly: true
     };
     this.baseLayers = props.baseLayers;
-    this.maps = props.maps;
-    this.tileLayerUrl = props.tileLayerUrl;
+    this.tileLayerUrl = props.baseLayers[0].url;
   }
 
-  //  const MapComponent = ({ bounds, baseLayers, checkedBaseLayer, exclusiveGroups, overlays }) => {
   componentDidMount() {
     const map = this.refs.map.leafletElement;
     map.invalidateSize();
@@ -18068,10 +18066,10 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
       return false;
     }
     console.warn(baseTitle);
-    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => {
-      return e.name === baseTitle ? String(i) : false;
-    }).filter(e => e)[0] | 0] || this.props.maps[0];
-    //    this.checkedBaseLayer = baseTitle;
+    this.tileLayerUrl = this.props.baseLayers.map((e, i) => {
+      return e.name === baseTitle ? e.url : false;
+    }).filter(e => e != false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    //    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
     this.setState({ checkedBaseLayer: baseTitle });
     this.setState({ count: ++this.state.count });
   }
@@ -18087,6 +18085,16 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].url;
+      }
+    }
+
+    return " ";
+  }
+
+  getBaseUrl(name) {
+    for (var i = 0; i < this.props.baseLayers.length; i++) {
+      if (this.props.baseLayers[i].name === name) {
+        return this.props.baseLayers[i].url;
       }
     }
 
@@ -18151,6 +18159,22 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     }
   }
 
+  createBaseLayer(d) {
+    var layerArray = [];
+
+    for (var i = 0; i < d.length; ++i) {
+      var obj = d[i];
+      if (obj.checked) {
+        layerArray.push(__WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["WMSTileLayer"], {
+          url: this.getBaseUrl(obj.name),
+          noWrap: true
+        }));
+      }
+    }
+
+    return layerArray;
+  }
+
   render() {
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
@@ -18171,7 +18195,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         bounds: bbox
       },
       this.props.studyAreaPolygon != null && __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["GeoJSON"], { style: studyAreaStyle, data: this.props.studyAreaPolygon }),
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["TileLayer"], { noWrap: true, url: this.props.tileLayerUrl }),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["TileLayer"], { noWrap: true, url: this.tileLayerUrl }),
       this.createLayer(this.state.overlays),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet_grouped_layer_control__["ReactLeafletGroupedLayerControl"], {
         position: 'topright',
@@ -26988,17 +27012,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props) {
     super(props);
-    var geom = { "type": "Polygon",
-      "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
-    };
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
-        title: 'OpenStreetMap'
+        title: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+      }, {
+        name: 'tile-texture-2',
+        title: 'OpenStreetMap2',
+        url: 'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png'
       }],
-      checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: false,
         groupTitle: "Heat Wave",
@@ -27070,23 +27095,7 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       }],
-      tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maps: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 'http://www.google.cn/maps/vt?lyrs=s@189&gl=tr&x={x}&y={y}&z={z}', 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      bounds: [corner1, corner2],
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#ff0000",
-            fillOpacity: 0.1
-          }
-        },
-        "geometry": geom
-      }
+      bounds: [corner1, corner2]
     };
   }
 
@@ -27161,12 +27170,9 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
-      checkedBaseLayer: this.state.checkedBaseLayer,
       exclusiveGroups: {},
       overlays: this.state.overlays,
-      tileLayerUrl: this.state.tileLayerUrl,
-      studyAreaPolygon: this.state.studyAreaPolygon,
-      maps: this.state.maps });
+      studyAreaPolygon: this.state.studyAreaPolygon });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = CharacteriseHazardMap;
@@ -29219,17 +29225,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class ExposureMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props) {
     super(props);
-    var geom = { "type": "Polygon",
-      "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
-    };
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
-        title: 'OpenStreetMap'
+        title: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       }],
-      checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: false,
         groupTitle: 'Population',
@@ -29252,23 +29255,7 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Componen
         layers: '	clarity:Population_men15_naples',
         url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
       }],
-      tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maps: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 'http://www.google.cn/maps/vt?lyrs=s@189&gl=tr&x={x}&y={y}&z={z}', 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      bounds: [corner1, corner2],
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#ff0000",
-            fillOpacity: 0.1
-          }
-        },
-        "geometry": geom
-      }
+      bounds: [corner1, corner2]
     };
   }
 
@@ -29343,12 +29330,9 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Componen
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
-      checkedBaseLayer: this.state.checkedBaseLayer,
       exclusiveGroups: {},
       overlays: this.state.overlays,
-      tileLayerUrl: this.state.tileLayerUrl,
-      studyAreaPolygon: this.state.studyAreaPolygon,
-      maps: this.state.maps });
+      studyAreaPolygon: this.state.studyAreaPolygon });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = ExposureMap;
@@ -29536,17 +29520,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props) {
     super(props);
-    var geom = { "type": "Polygon",
-      "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
-    };
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
-        title: 'OpenStreetMap'
+        title: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       }],
-      checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: false,
         groupTitle: 'Heat Wave',
@@ -29576,23 +29557,7 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.
         layers: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       }],
-      tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maps: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 'http://www.google.cn/maps/vt?lyrs=s@189&gl=tr&x={x}&y={y}&z={z}', 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      bounds: [corner1, corner2],
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#ff0000",
-            fillOpacity: 0.1
-          }
-        },
-        "geometry": geom
-      }
+      bounds: [corner1, corner2]
     };
   }
 
@@ -29667,12 +29632,9 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
-      checkedBaseLayer: this.state.checkedBaseLayer,
       exclusiveGroups: {},
       overlays: this.state.overlays,
-      tileLayerUrl: this.state.tileLayerUrl,
-      studyAreaPolygon: this.state.studyAreaPolygon,
-      maps: this.state.maps });
+      studyAreaPolygon: this.state.studyAreaPolygon });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = HazardLocalEffectsMap;
@@ -29914,17 +29876,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props) {
     super(props);
-    var geom = { "type": "Polygon",
-      "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
-    };
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
-        title: 'OpenStreetMap'
+        title: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       }],
-      checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: false,
         groupTitle: 'Damage Level 1',
@@ -30054,23 +30013,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Com
         url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
         style: 'DamageLevel4Q'
       }],
-      tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maps: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 'http://www.google.cn/maps/vt?lyrs=s@189&gl=tr&x={x}&y={y}&z={z}', 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      bounds: [corner1, corner2],
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#ff0000",
-            fillOpacity: 0.1
-          }
-        },
-        "geometry": geom
-      }
+      bounds: [corner1, corner2]
     };
   }
 
@@ -30154,12 +30097,9 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Com
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
-      checkedBaseLayer: this.state.checkedBaseLayer,
       exclusiveGroups: {},
       overlays: this.state.overlays,
-      tileLayerUrl: this.state.tileLayerUrl,
-      studyAreaPolygon: this.state.studyAreaPolygon,
-      maps: this.state.maps });
+      studyAreaPolygon: this.state.studyAreaPolygon });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = RiskAndImpactMap;
@@ -30425,8 +30365,9 @@ class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component 
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      //      fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), {credentials: 'include'})
-      fetch(data.data[0].relationships.field_country.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), { credentials: 'include' })
+      //      fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
+      .then(resp => resp.json()).then(function (data) {
         var wkt = new __WEBPACK_IMPORTED_MODULE_3_wicket___default.a.Wkt();
         wkt.read(data.data.attributes.field_boundaries.value);
         comp.setCountryGeom(JSON.stringify(wkt.toJson()));
@@ -33980,17 +33921,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props) {
     super(props);
-    var geom = { "type": "Polygon",
-      "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
-    };
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
-        title: 'OpenStreetMap'
+        title: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       }],
-      checkedBaseLayer: 'tile-texture-1',
       overlays: [{
         checked: false,
         groupTitle: 'Population',
@@ -34027,23 +33965,7 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Com
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       }],
-      tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      maps: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 'http://www.google.cn/maps/vt?lyrs=s@189&gl=tr&x={x}&y={y}&z={z}', 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-      bounds: [corner1, corner2],
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#ff0000",
-            fillOpacity: 0.1
-          }
-        },
-        "geometry": geom
-      }
+      bounds: [corner1, corner2]
     };
   }
 
@@ -34118,12 +34040,9 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Com
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
-      checkedBaseLayer: this.state.checkedBaseLayer,
       exclusiveGroups: {},
       overlays: this.state.overlays,
-      tileLayerUrl: this.state.tileLayerUrl,
-      studyAreaPolygon: this.state.studyAreaPolygon,
-      maps: this.state.maps });
+      studyAreaPolygon: this.state.studyAreaPolygon });
   }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = VulnerabilityMap;

@@ -60,7 +60,6 @@
 
 .hiddenGroupHeader {
   background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpent.png) !important;
-  float: left;
   background-repeat: no-repeat;
   padding-left: 15px;
   background-size: 8px 8px;
@@ -69,7 +68,6 @@
 
 .rlglc-group {
   background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpens.png);
-  float: left;
   background-repeat: no-repeat;
   padding-left: 10px;
   background-size: 8px 8px;
