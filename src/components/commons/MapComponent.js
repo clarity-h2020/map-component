@@ -2,7 +2,6 @@ import React from 'react';
 import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
-import '../../MapComp.css';
 
 
 export default class MapComponent extends React.Component {
@@ -11,16 +10,14 @@ export default class MapComponent extends React.Component {
     this.state = {
       studyAreaPolygon: props.studyAreaPolygon,
       bounds: props.bounds,
-      checkedBaseLayer: props.checkedBaseLayer,
-      overlays: props.overlays,
-      fly: true
+      checkedBaseLayer: props.baseLayers[0].name,
+      overlays: props.overlays
     }
     this.baseLayers = props.baseLayers;
-    this.maps = props.maps;
-    this.tileLayerUrl = props.tileLayerUrl;
+    this.tileLayerUrl = props.baseLayers[0].url;
+    this.fly = true;
   }
   
-//  const MapComponent = ({ bounds, baseLayers, checkedBaseLayer, exclusiveGroups, overlays }) => {
   componentDidMount () {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
@@ -30,15 +27,33 @@ export default class MapComponent extends React.Component {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
     var zoom = this.getLastZoom();
-    if ((zoom == null || zoom == 0) && (this.props.studyAreaPolygon != null)) {
-      map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
+//    if ((zoom == null || zoom == 0) && (this.props.studyAreaPolygon != null)) {
+    if (this.fly && (this.props.studyAreaPolygon != null)) {
+        map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
+        this.fly = false;
     }
     var groupTitles = document.getElementsByClassName("rlglc-grouptitle");
     const self = this;
 
+    if (this.hideListener != null) {
+      for (var i = 0; i < groupTitles.length; ++i) {
+        if (this.hideListener.length > i) {
+          groupTitles[i].removeEventListener("click", this.hideListener[i])
+        }
+      }
+    }
+    this.hideListener = [];
     for (var i = 0; i < groupTitles.length; ++i) {
       const el = groupTitles[i];
-      groupTitles[i].addEventListener("click", function() {self.showHide(el)})
+      var listener = function() {self.showHide(el)};
+      this.hideListener.push(listener);
+      groupTitles[i].addEventListener("click", listener)
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.overlays !== this.props.overlays) {
+      this.setState({ overlays: nextProps.overlays });
     }
   }
 
@@ -86,8 +101,8 @@ export default class MapComponent extends React.Component {
   baseLayerChange(baseTitle) {
     if (baseTitle === this.state.checkedBaseLayer) { return false; }
     console.warn(baseTitle)
-    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
-//    this.checkedBaseLayer = baseTitle;
+    this.tileLayerUrl = this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? e.url : false }).filter(e => e != false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+//    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
     this.setState({checkedBaseLayer: baseTitle})
     this.setState({count: ++this.state.count})
   }
@@ -103,6 +118,16 @@ export default class MapComponent extends React.Component {
     for (var i = 0;i <  this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].url;
+      }
+    }
+
+    return " ";
+  }
+
+  getBaseUrl(name) {
+    for (var i = 0;i <  this.props.baseLayers.length; i++) {
+      if (this.props.baseLayers[i].name === name) {
+        return this.props.baseLayers[i].url;
       }
     }
 
@@ -167,6 +192,23 @@ export default class MapComponent extends React.Component {
     }
   }
 
+  createBaseLayer(d) {
+    var layerArray = [];
+
+    for (var i = 0; i < d.length; ++i) {
+      var obj = d[i];
+      if ( obj.checked ) {
+        layerArray.push(<WMSTileLayer
+          url={this.getBaseUrl(obj.name)}
+          noWrap={true}
+        />);
+      }
+    }
+
+    return layerArray;
+  }
+
+
   render() {
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
@@ -188,7 +230,7 @@ export default class MapComponent extends React.Component {
       {this.props.studyAreaPolygon != null &&
         <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
       }
-      <TileLayer noWrap={true} url={this.props.tileLayerUrl} />
+      <TileLayer noWrap={true} url={this.tileLayerUrl} />
       {
         this.createLayer(this.state.overlays)
       }

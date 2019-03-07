@@ -1,16 +1,17 @@
 import React from "react";
 import ReactDOM from 'react-dom';
 import MapComponent from './commons/MapComponent';
-import Wkt from 'wicket';
-import turf from 'turf';
+import BasicMap from './commons/BasicMap';
+import html2canvas from 'html2canvas';
+
 
 //const RiskAndImpactMap = () => {
 //    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/RiskAndImpact.png' />);
 //};
 
-export default class RiskAndImpactMap extends React.Component {
+export default class RiskAndImpactMap extends BasicMap {
     constructor(props) {
-      super(props);
+      super(props, 'eu-gl:risk-and-impact-assessment');
       const corner1 = [39.853294, 13.305573];
       const corner2 = [41.853294, 15.305573];
       this.state ={
@@ -19,8 +20,13 @@ export default class RiskAndImpactMap extends React.Component {
             name: 'tile-texture-1',
             title: 'OpenStreetMap',
             url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'tile-texture-2',
+            title: 'OpenTopoMap',
+            url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
           }
-        ],
+          ],
         overlays: [
           {
             checked: false,
@@ -171,73 +177,6 @@ export default class RiskAndImpactMap extends React.Component {
       };
     }
 
-    setStudyURL(id, hostName) {
-      this.setState({
-          studyId: id,
-          hname: hostName
-      });
-      const comp = this;
-      fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
-      .then((resp) => resp.json())
-      .then(function(data) {
-        var wktVar = new Wkt.Wkt();
-        if (data.data[0] != null) {
-          comp.setUUId(data.data[0].id)
-        }
-        if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-          wktVar.read(data.data[0].attributes.field_area.value);
-          comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-        }
-      })
-      .catch(function(error) {
-        console.log(JSON.stringify(error));
-      });         
-    }
-  
-    getTokenUrl() {
-      return this.state.hname + '/rest/session/token';
-    }
-  
-    setUUId(id) {
-      this.setState({
-        uuid: id
-      });
-    }
-
-    setStudyAreaGeom(geome) {
-      if (geome != null) {
-          var study = {
-            "type": "Feature",
-            "properties": {
-                "popupContent": "study",
-                "style": {
-                    weight: 2,
-                    color: "black",
-                    opacity: 0.3,
-                    fillColor: "#ff0000",
-                    fillOpacity: 0.1
-                }
-            },
-            "geometry": JSON.parse(geome)
-          };
-          this.setState({
-            studyAreaPolygon: null
-          });
-          this.setState({
-            bounds: this.getBoundsFromArea(JSON.parse(geome)),
-            studyAreaPolygon: study
-          });
-      }
-    }
-
-    getBoundsFromArea(area) {
-      const bboxArray = turf.bbox(area);
-      const corner1 = [bboxArray[1], bboxArray[0]];
-      const corner2 = [bboxArray[3], bboxArray[2]];
-      var bounds = [corner1, corner2];
-  
-      return bounds;
-    }
 
     print() {
       var callback = function (b) {
