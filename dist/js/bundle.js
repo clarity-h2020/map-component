@@ -17823,12 +17823,12 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
     fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-        fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'http://'), { credentials: 'include' })
-        //          fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'https://'), {credentials: 'include'})
-        .then(resp => resp.json()).then(function (data) {
+        //          fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'http://'), {credentials: 'include'})
+        fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
           if (data.data.relationships.field_resources.links.related != null) {
-            //              fetch(data.relationships.field_resources.links.related.replace('http://', 'https://'), {credentials: 'include'})
-            fetch(data.data.relationships.field_resources.links.related.replace('http://', 'http://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+            fetch(data.relationships.field_resources.links.related.replace('http://', 'https://'), { credentials: 'include' })
+            //              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'http://'), {credentials: 'include'})
+            .then(resp => resp.json()).then(function (data) {
               obj.convertDataFromServer(data, obj.mapSelectionId);
             }).catch(function (error) {
               console.log(JSON.stringify(error));
@@ -29568,8 +29568,9 @@ class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component 
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      //     fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), {credentials: 'include'})
-      fetch(data.data[0].relationships.field_country.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), { credentials: 'include' })
+      //     fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
+      .then(resp => resp.json()).then(function (data) {
         var wkt = new __WEBPACK_IMPORTED_MODULE_3_wicket___default.a.Wkt();
         wkt.read(data.data.attributes.field_boundaries.value);
         comp.setCountryGeom(JSON.stringify(wkt.toJson()));
