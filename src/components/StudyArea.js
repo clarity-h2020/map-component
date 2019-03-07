@@ -48,8 +48,8 @@ export default class StudyArea extends React.Component {
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), {credentials: 'include'})
-//      fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
+//     fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), {credentials: 'include'})
+     fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
@@ -76,7 +76,6 @@ export default class StudyArea extends React.Component {
   }
 
   setCountryGeom(geome) {
-//    var centroid = turf.centroid(JSON.parse(geome));
     var p = {
       "type": "Feature",
       "properties": {
@@ -95,8 +94,6 @@ export default class StudyArea extends React.Component {
             countryPolygon: null
           });
     this.setState({
-//      lat: centroid.geometry.coordinates[0],
-//      lng: centroid.geometry.coordinates[1],
       countryPolygon: p
     });
   }

@@ -10,7 +10,7 @@ import Wkt from 'wicket';
 //import "leaflet/dist/leaflet.css"
 //import "leaflet-draw/dist/leaflet-draw.css"
 //import logo from './logo.svg';
-import './MapComp.css';
+//import './MapComp.css';
 
 export default class MapComp extends React.Component {
   constructor(props) {

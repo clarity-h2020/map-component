@@ -4,7 +4,6 @@ import { Map, TileLayer, GeoJSON, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import Wkt from 'wicket';
 import turf from 'turf';
-import '../../MapComp.css';
 
 
 export default class StudyAreaMap extends React.Component {

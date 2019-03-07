@@ -1,16 +1,16 @@
 import React from "react";
 import ReactDOM from 'react-dom';
 import MapComponent from './commons/MapComponent';
-import Wkt from 'wicket';
-import turf from 'turf';
+import BasicMap from './commons/BasicMap';
+
 
 //const CharacteriseHazardMap = () => {
 //    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/CharacteriseHazard.png' />);
 //};
 
-export default class CharacteriseHazardMap extends React.Component {
+export default class CharacteriseHazardMap extends BasicMap {
   constructor(props) {
-    super(props);
+    super(props, 'eu_gl:hazard-characterization');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.state ={
@@ -22,8 +22,8 @@ export default class CharacteriseHazardMap extends React.Component {
         },
         {
           name: 'tile-texture-2',
-          title: 'OpenStreetMap2',
-          url: 'https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png'
+          title: 'Open Topo Map',
+          url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
         }
       ],
       overlays: [
@@ -111,74 +111,6 @@ export default class CharacteriseHazardMap extends React.Component {
       bounds: [corner1, corner2]
     };
   }  
-
-  setStudyURL(id, hostName) {
-    this.setState({
-        studyId: id,
-        hname: hostName
-    });
-    const comp = this;
-    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
-    .then((resp) => resp.json())
-    .then(function(data) {
-      var wktVar = new Wkt.Wkt();
-      if (data.data[0] != null) {
-        comp.setUUId(data.data[0].id)
-      }
-      if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-        wktVar.read(data.data[0].attributes.field_area.value);
-        comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-      }
-    })
-    .catch(function(error) {
-      console.log(JSON.stringify(error));
-    });         
-  }
-
-  getTokenUrl() {
-    return this.state.hname + '/rest/session/token';
-  }
-
-  setUUId(id) {
-    this.setState({
-      uuid: id
-    });
-  }
-
-  setStudyAreaGeom(geome) {
-    if (geome != null) {
-        var study = {
-          "type": "Feature",
-          "properties": {
-              "popupContent": "study",
-              "style": {
-                  weight: 2,
-                  color: "black",
-                  opacity: 0.3,
-                  fillColor: "#ff0000",
-                  fillOpacity: 0.1
-              }
-          },
-          "geometry": JSON.parse(geome)
-        };
-        this.setState({
-          studyAreaPolygon: null
-        });
-        this.setState({
-          studyAreaPolygon: study,
-          bounds: this.getBoundsFromArea(JSON.parse(geome))
-        });
-    }
-  }
-
-  getBoundsFromArea(area) {
-    const bboxArray = turf.bbox(area);
-    const corner1 = [bboxArray[1], bboxArray[0]];
-    const corner2 = [bboxArray[3], bboxArray[2]];
-    var bounds = [corner1, corner2];
-
-    return bounds;
-  }
 
 
   render() {
