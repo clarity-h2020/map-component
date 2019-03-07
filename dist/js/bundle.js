@@ -17853,13 +17853,13 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     for (var i = 0; i < resourceArray.length; ++i) {
       const resource = resourceArray[i];
 
-      fetch(resource.relationships.field_analysis_context.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      fetch(resource.relationships.field_analysis_context.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
         if (data.data.relationships.field_field_eu_gl_methodology.links.related != null) {
-          fetch(data.data.relationships.field_field_eu_gl_methodology.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+          fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
             console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
             if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
               if (resource.relationships.field_map_view.links.related != null) {
-                fetch(resource.relationships.field_map_view.links.related, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+                fetch(resource.relationships.field_map_view.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
                   var refObj = new Object();
                   refObj.url = data.data.attributes.field_url;
                   refObj.title = resource.attributes.field_title;
