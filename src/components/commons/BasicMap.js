@@ -122,17 +122,17 @@ export default class BasicMap extends React.Component {
       for (var i = 0; i < resourceArray.length; ++i) {
         const resource = resourceArray[i];
 
-        fetch(resource.relationships.field_analysis_context.links.related, {credentials: 'include'})
+        fetch(resource.relationships.field_analysis_context.links.related.replace('http://', 'https://'), {credentials: 'include'})
         .then((resp) => resp.json())
         .then(function(data) {
           if (data.data.relationships.field_field_eu_gl_methodology.links.related != null) {
-              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related, {credentials: 'include'})
+              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.replace('http://', 'https://'), {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
                 if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
                   if (resource.relationships.field_map_view.links.related != null) {
-                    fetch(resource.relationships.field_map_view.links.related, {credentials: 'include'})
+                    fetch(resource.relationships.field_map_view.links.related.replace('http://', 'https://'), {credentials: 'include'})
                     .then((resp) => resp.json())
                     .then(function(data) {
                       var refObj = new Object();
