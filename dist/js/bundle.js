@@ -17826,7 +17826,7 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
         //          fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'http://'), {credentials: 'include'})
         fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
           if (data.data.relationships.field_resources.links.related != null) {
-            fetch(data.relationships.field_resources.links.related.replace('http://', 'https://'), { credentials: 'include' })
+            fetch(data.data.relationships.field_resources.links.related.replace('http://', 'https://'), { credentials: 'include' })
             //              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'http://'), {credentials: 'include'})
             .then(resp => resp.json()).then(function (data) {
               obj.convertDataFromServer(data, obj.mapSelectionId);
