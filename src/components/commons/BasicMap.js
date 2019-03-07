@@ -90,7 +90,7 @@ export default class BasicMap extends React.Component {
           .then((resp) => resp.json())
           .then(function(data) {
             if (data.data.relationships.field_resources.links.related != null) {
-              fetch(data.relationships.field_resources.links.related.replace('http://', 'https://'), {credentials: 'include'})
+              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'https://'), {credentials: 'include'})
 //              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'http://'), {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
