@@ -10,7 +10,9 @@ export default class StudyAreaMap extends React.Component {
   constructor(props) {
    super(props);
    this.state = {
-     count: 1,
+    readOnly: true,
+    canWrite: false,
+    count: 1,
      studyAreaPolygon: props.studyAreaPolygon
     };
    this._onCreated.bind(this);
@@ -20,6 +22,7 @@ export default class StudyAreaMap extends React.Component {
     if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
       this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon })
     }
+    this.writeStudyArea();
   }
 
   init() {
@@ -58,20 +61,7 @@ export default class StudyAreaMap extends React.Component {
           xmlHttp.setRequestHeader('Content-Type', mimeType);  
           xmlHttp.setRequestHeader('X-CSRF-Token', key);  
           xmlHttp.send(data);
-          var study = {
-            "type": "Feature",
-            "properties": {
-                "popupContent": "study",
-                "style": {
-                    weight: 2,
-                    color: "black",
-                    opacity: 0.3,
-                    fillColor: "#ff0000",
-                    fillOpacity: 0.1
-                }
-            },
-            "geometry": wkt.toJson()
-          };
+
           if (comp.state.newLayer != null) {
             comp.refs.map.leafletElement.removeLayer(comp.state.newLayer);
           }
@@ -83,6 +73,30 @@ export default class StudyAreaMap extends React.Component {
       .catch(function(error) {
         console.log(JSON.stringify(error));
       });
+    }
+  }
+
+  writeStudyArea() {
+    try {
+      var data = '{"data": {"type": "group--study","id": "' + this.props.uuid + '"}}';
+      var mimeType = "application/vnd.api+json";      //hal+json
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open('PATCH', this.props.hostname.substring(0, this.props.hostname.length) + '/jsonapi/group/study/' + comp.props.uuid, true);  // true : asynchrone false: synchrone
+      xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');  
+      xmlHttp.setRequestHeader('Content-Type', mimeType);  
+      xmlHttp.setRequestHeader('X-CSRF-Token', key);  
+      xmlHttp.send(data);
+      this.setState(
+        {
+          canWrite: true
+        }
+      );
+    } catch (ex) {
+      this.setState(
+        {
+          canWrite: false
+        }
+      );
     }
   }
 
@@ -115,7 +129,6 @@ export default class StudyAreaMap extends React.Component {
     const map = this.refs.map.leafletElement;
     map.bindTooltip
   }
-
 
   render() {
     var geometry = (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null);

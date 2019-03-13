@@ -17820,14 +17820,14 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
   loadDataFromServer(server, id) {
     const obj = this;
-
+    //      fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
     fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-        //          fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'http://'), {credentials: 'include'})
-        fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+        //          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+        fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
           if (data.data.relationships.field_resources.links.related != null) {
-            fetch(data.data.relationships.field_resources.links.related.replace('http://', 'https://'), { credentials: 'include' })
-            //              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'http://'), {credentials: 'include'})
+            fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'https://'), { credentials: 'include' })
+            //              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
             .then(resp => resp.json()).then(function (data) {
               obj.convertDataFromServer(data, obj.mapSelectionId);
             }).catch(function (error) {
@@ -17853,46 +17853,72 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     for (var i = 0; i < resourceArray.length; ++i) {
       const resource = resourceArray[i];
 
-      fetch(resource.relationships.field_analysis_context.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
-        if (data.data.relationships.field_field_eu_gl_methodology.links.related != null) {
-          fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      //        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+      fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+        const hazardLink = data.data.relationships.field_hazard.links.related.href;
+
+        if (data.data.relationships.field_field_eu_gl_methodology.links.related.href != null) {
+          //              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+          fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
             console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
             if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
-              if (resource.relationships.field_map_view.links.related != null) {
-                fetch(resource.relationships.field_map_view.links.related.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
-                  var refObj = new Object();
-                  refObj.url = data.data.attributes.field_url;
-                  refObj.title = resource.attributes.field_title;
-                  tmpMapData.push(refObj);
-                  thisObj.finishMapExtraction(tmpMapData, resourceLength);
+              if (resource.relationships.field_map_view.links.related.href != null) {
+                //                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+                fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+
+                  if (hazardLink != null) {
+                    //                        fetch(hazardLink.replace('http://', 'http://'), {credentials: 'include'})
+                    fetch(hazardLink.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (hazardData) {
+                      var refObj = new Object();
+                      refObj.url = data.data.attributes.field_url;
+                      refObj.title = resource.attributes.field_title;
+                      refObj.group = hazardData.data[0].attributes.name;
+                      tmpMapData.push(refObj);
+                      thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                    }).catch(function (error) {
+                      var refObj = new Object();
+                      refObj.url = data.data.attributes.field_url;
+                      refObj.title = resource.attributes.field_title;
+                      tmpMapData.push(refObj);
+                      thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                      console.log(JSON.stringify(error));
+                    });
+                  } else {
+                    var refObj = new Object();
+                    refObj.url = data.data.attributes.field_url;
+                    refObj.title = resource.attributes.field_title;
+                    tmpMapData.push(refObj);
+                    thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                  }
                 }).catch(function (error) {
+                  thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
                   console.log(JSON.stringify(error));
                 });
               } else {
-                var refObj = new Object();
-                refObj.url = null;
-                tmpMapData.push(refObj);
-                thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
               }
             } else {
-              var refObj = new Object();
-              refObj.url = null;
-              tmpMapData.push(refObj);
-              thisObj.finishMapExtraction(tmpMapData, resourceLength);
+              thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
             }
           }).catch(function (error) {
+            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
             console.log(JSON.stringify(error));
           });
         } else {
-          var refObj = new Object();
-          refObj.url = null;
-          tmpMapData.push(refObj);
-          thisObj.finishMapExtraction(tmpMapData, resourceLength);
+          thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
         }
       }).catch(function (error) {
+        thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
         console.log(JSON.stringify(error));
       });
     }
+  }
+
+  addEmptyMapDataElement(tmpMapData, resourceLength) {
+    var refObj = new Object();
+    refObj.url = null;
+    tmpMapData.push(refObj);
+    this.finishMapExtraction(tmpMapData, resourceLength);
   }
 
   finishMapExtraction(mapData, resourceLength) {
@@ -17902,7 +17928,7 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
         if (mapData[i].url != null) {
           var obj = new Object();
           obj.checked = false;
-          obj.groupTitle = 'group';
+          obj.groupTitle = mapData[i].group == null ? 'relevant layer' : mapData[i].group;
           obj.name = this.titleToName(mapData[i].title);
           obj.title = mapData[i].title;
           obj.layers = this.extractLayers(mapData[i].url);
@@ -29559,6 +29585,7 @@ class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component 
       hname: hostName
     });
     const comp = this;
+    //    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       var wktVar = new __WEBPACK_IMPORTED_MODULE_3_wicket___default.a.Wkt();
       if (data.data[0] != null) {
@@ -29568,8 +29595,8 @@ class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component 
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      fetch(data.data[0].relationships.field_country.links.related.replace('http:', 'https:'), { credentials: 'include' })
-      //     fetch(data.data[0].relationships.field_country.links.related, {credentials: 'include'})
+      fetch(data.data[0].relationships.field_country.links.related.href.replace('http:', 'https:'), { credentials: 'include' })
+      //     fetch(data.data[0].relationships.field_country.links.related.href, {credentials: 'include'})
       .then(resp => resp.json()).then(function (data) {
         var wkt = new __WEBPACK_IMPORTED_MODULE_3_wicket___default.a.Wkt();
         wkt.read(data.data.attributes.field_boundaries.value);
@@ -29694,6 +29721,8 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
   constructor(props) {
     super(props);
     this.state = {
+      readOnly: true,
+      canWrite: false,
       count: 1,
       studyAreaPolygon: props.studyAreaPolygon
     };
@@ -29704,6 +29733,7 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
       this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon });
     }
+    this.writeStudyArea();
   }
 
   init() {
@@ -29740,20 +29770,7 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         xmlHttp.setRequestHeader('Content-Type', mimeType);
         xmlHttp.setRequestHeader('X-CSRF-Token', key);
         xmlHttp.send(data);
-        var study = {
-          "type": "Feature",
-          "properties": {
-            "popupContent": "study",
-            "style": {
-              weight: 2,
-              color: "black",
-              opacity: 0.3,
-              fillColor: "#ff0000",
-              fillOpacity: 0.1
-            }
-          },
-          "geometry": wkt.toJson()
-        };
+
         if (comp.state.newLayer != null) {
           comp.refs.map.leafletElement.removeLayer(comp.state.newLayer);
         }
@@ -29763,6 +29780,26 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         });
       }).catch(function (error) {
         console.log(JSON.stringify(error));
+      });
+    }
+  }
+
+  writeStudyArea() {
+    try {
+      var data = '{"data": {"type": "group--study","id": "' + this.props.uuid + '"}}';
+      var mimeType = "application/vnd.api+json"; //hal+json
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open('PATCH', this.props.hostname.substring(0, this.props.hostname.length) + '/jsonapi/group/study/' + comp.props.uuid, true); // true : asynchrone false: synchrone
+      xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');
+      xmlHttp.setRequestHeader('Content-Type', mimeType);
+      xmlHttp.setRequestHeader('X-CSRF-Token', key);
+      xmlHttp.send(data);
+      this.setState({
+        canWrite: true
+      });
+    } catch (ex) {
+      this.setState({
+        canWrite: false
       });
     }
   }

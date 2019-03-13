@@ -80,18 +80,18 @@ export default class BasicMap extends React.Component {
 
     loadDataFromServer(server, id) {
       const obj = this;
-
+//      fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
       fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
         if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-//          fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'http://'), {credentials: 'include'})
-          fetch(data.data[0].relationships.field_data_package.links.related.replace('http://', 'https://'), {credentials: 'include'})
+//          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
           .then((resp) => resp.json())
           .then(function(data) {
             if (data.data.relationships.field_resources.links.related != null) {
-              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'https://'), {credentials: 'include'})
-//              fetch(data.data.relationships.field_resources.links.related.replace('http://', 'http://'), {credentials: 'include'})
+              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
+//              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 obj.convertDataFromServer(data, obj.mapSelectionId);
@@ -122,57 +122,86 @@ export default class BasicMap extends React.Component {
       for (var i = 0; i < resourceArray.length; ++i) {
         const resource = resourceArray[i];
 
-        fetch(resource.relationships.field_analysis_context.links.related.replace('http://', 'https://'), {credentials: 'include'})
+//        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
         .then((resp) => resp.json())
         .then(function(data) {
-          if (data.data.relationships.field_field_eu_gl_methodology.links.related != null) {
-              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.replace('http://', 'https://'), {credentials: 'include'})
+          const hazardLink = data.data.relationships.field_hazard.links.related.href;
+
+          if (data.data.relationships.field_field_eu_gl_methodology.links.related.href != null) {
+//              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
                 if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
-                  if (resource.relationships.field_map_view.links.related != null) {
-                    fetch(resource.relationships.field_map_view.links.related.replace('http://', 'https://'), {credentials: 'include'})
+                  if (resource.relationships.field_map_view.links.related.href != null) {
+//                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
                     .then((resp) => resp.json())
                     .then(function(data) {
-                      var refObj = new Object();
-                      refObj.url = data.data.attributes.field_url;
-                      refObj.title = resource.attributes.field_title;
-                      tmpMapData.push(refObj);
-                      thisObj.finishMapExtraction(tmpMapData, resourceLength);
+
+                      if (hazardLink != null) {
+//                        fetch(hazardLink.replace('http://', 'http://'), {credentials: 'include'})
+                        fetch(hazardLink.replace('http://', 'https://'), {credentials: 'include'})
+                        .then((resp) => resp.json())
+                        .then(function(hazardData) {
+                            var refObj = new Object();
+                            refObj.url = data.data.attributes.field_url;
+                            refObj.title = resource.attributes.field_title;
+                            refObj.group = hazardData.data[0].attributes.name;
+                            tmpMapData.push(refObj);
+                            thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                        })
+                        .catch(function(error) {
+                          var refObj = new Object();
+                          refObj.url = data.data.attributes.field_url;
+                          refObj.title = resource.attributes.field_title;
+                          tmpMapData.push(refObj);
+                          thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                          console.log(JSON.stringify(error));
+                        });         
+                      } else {
+                        var refObj = new Object();
+                        refObj.url = data.data.attributes.field_url;
+                        refObj.title = resource.attributes.field_title;
+                        tmpMapData.push(refObj);
+                        thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                      }
                     })
                     .catch(function(error) {
+                      thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                       console.log(JSON.stringify(error));
                     });         
       
                   } else {
-                    var refObj = new Object();
-                    refObj.url = null;
-                    tmpMapData.push(refObj);
-                    thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                    thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                   }
                 } else {
-                  var refObj = new Object();
-                  refObj.url = null;
-                  tmpMapData.push(refObj);
-                  thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                  thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                 }
             })
               .catch(function(error) {
+                thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                 console.log(JSON.stringify(error));
               });         
             } else {
-              var refObj = new Object();
-              refObj.url = null;
-              tmpMapData.push(refObj);
-              thisObj.finishMapExtraction(tmpMapData, resourceLength);
+              thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
             }
         })
         .catch(function(error) {
+          thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
           console.log(JSON.stringify(error));
         });         
       }
     }
+
+  addEmptyMapDataElement(tmpMapData, resourceLength) {
+    var refObj = new Object();
+    refObj.url = null;
+    tmpMapData.push(refObj);
+    this.finishMapExtraction(tmpMapData, resourceLength);
+  }
 
   finishMapExtraction(mapData, resourceLength) {
     if (mapData.length == resourceLength) {
@@ -181,7 +210,7 @@ export default class BasicMap extends React.Component {
         if (mapData[i].url != null) {
           var obj = new Object();
           obj.checked = false;
-          obj.groupTitle = 'group';
+          obj.groupTitle = (mapData[i].group == null ? 'relevant layer' : mapData[i].group);
           obj.name = this.titleToName(mapData[i].title);
           obj.title = mapData[i].title;
           obj.layers = this.extractLayers(mapData[i].url);
