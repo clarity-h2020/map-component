@@ -19,41 +19,47 @@ export default class MapComponent extends React.Component {
   }
   
   componentDidMount () {
-    const map = this.refs.map.leafletElement
-    map.invalidateSize();
+    this.map.leafletElement.invalidateSize();
   }
 
   componentDidUpdate () {
-    const map = this.refs.map.leafletElement
+    const map = this.map.leafletElement;
     map.invalidateSize();
     var zoom = this.getLastZoom();
-//    if ((zoom == null || zoom == 0) && (this.props.studyAreaPolygon != null)) {
+
     if (this.fly && (this.props.studyAreaPolygon != null)) {
         map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
         this.fly = false;
     }
-    var groupTitles = document.getElementsByClassName("rlglc-grouptitle");
-    const self = this;
 
-    if (this.hideListener != null) {
-      for (var i = 0; i < groupTitles.length; ++i) {
-        if (this.hideListener.length > i) {
-          groupTitles[i].removeEventListener("click", this.hideListener[i])
+    if (this.layerControl != null) {
+      var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
+      const self = this;
+
+      if (this.hideListener != null) {
+        for (var i = 0; i < groupTitles.length; ++i) {
+          if (this.hideListener.length > i) {
+            groupTitles[i].removeEventListener("click", this.hideListener[i])
+          }
         }
       }
-    }
-    this.hideListener = [];
-    for (var i = 0; i < groupTitles.length; ++i) {
-      const el = groupTitles[i];
-      var listener = function() {self.showHide(el)};
-      this.hideListener.push(listener);
-      groupTitles[i].addEventListener("click", listener)
+      this.hideListener = [];
+      for (var i = 0; i < groupTitles.length; ++i) {
+        const el = groupTitles[i];
+        var listener = function() {self.showHide(el)};
+        this.hideListener.push(listener);
+        el.addEventListener("click", listener)
+      }
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.overlays !== this.props.overlays) {
       this.setState({ overlays: nextProps.overlays });
+      const thisObj = this;
+      setTimeout(function() {
+        thisObj.setState({ overlays: nextProps.overlays });
+      }, 100);
     }
   }
 
@@ -68,7 +74,8 @@ export default class MapComponent extends React.Component {
 
   showHide(el) {
     var parent = el.parentElement;
-    var sibling = el.nextElementSibling
+    var sibling = el.nextElementSibling;
+    var maxWidth = 0;
 
     if (parent != null) {
       if (parent.classList.contains('hiddenGroupHeader')) {
@@ -82,16 +89,22 @@ export default class MapComponent extends React.Component {
       if (sibling.classList.contains('hiddenGroup')) {
         sibling.classList.remove('hiddenGroup');
       } else {
+        if (sibling.offsetWidth > maxWidth) {
+          maxWidth = sibling.offsetWidth;
+        }
         sibling.classList.add('hiddenGroup');
       }
 
       sibling = sibling.nextElementSibling;
     }
+
+    if (maxWidth > 0) {
+      parent.style.width = (maxWidth + 10) + "px";
+    }
   }
 
   init() {
-    const map = this.refs.map.leafletElement
-    map.invalidateSize();
+    this.map.leafletElement.invalidateSize();
 
     this.setState({
       init: true
@@ -210,6 +223,7 @@ export default class MapComponent extends React.Component {
 
 
   render() {
+//    console.log("this.layerControl", this.layerControl);
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
     var bbox = [corner1, corner2];
@@ -222,7 +236,7 @@ export default class MapComponent extends React.Component {
     };
 
     var mapElement = (
-    <Map ref='map'
+    <Map ref={(comp)=>this.map=comp}
         className="simpleMap"
         scrollWheelZoom={true}
         bounds={bbox}
@@ -235,6 +249,7 @@ export default class MapComponent extends React.Component {
         this.createLayer(this.state.overlays)
       }
       <ReactLeafletGroupedLayerControl
+        ref={(comp)=>this.layerControl=comp}
         position="topright"
         baseLayers={this.props.baseLayers}
         checkedBaseLayer={this.state.checkedBaseLayer}

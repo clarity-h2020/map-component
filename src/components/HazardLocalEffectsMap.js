@@ -13,6 +13,40 @@ export default class HazardLocalEffectsMap extends BasicMap {
       super(props, 'eu-gl:hazard-characterization:local-effects');
       const corner1 = [39.853294, 13.305573];
       const corner2 = [41.853294, 15.305573];
+      this.overlaysBackup = [
+        {
+          checked: false,
+          groupTitle: 'Heat Wave',
+          name: 'Heat_wave_temperature_historical_hight_hazard_Naples',
+          title: 'Heat Wave Temperature Historical Hight Hazard Naples',
+          layers: 'Heat_wave_temperature_historical_hight_hazard_Naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: 'Heat Wave',
+          name: 'Heat_wave_temperature_historical_low_hazard_Naples',
+          title: 'Heat Wave Temperature Historical Low Hazard Naples',
+          layers: 'Heat_wave_temperature_historical_low_hazard_Naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: 'Heat Wave',
+          name: 'Heat_wave_temperature_historical_medium_hazard_Naples',
+          title: 'Heat Wave Temperature Historical Medium Hazard Naples',
+          layers: 'Heat_wave_temperature_historical_medium_hazard_Naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: "Heat Wave",
+          name: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
+          title: "Heat Wave Temperature Historical Very Hight Hazard Naples",
+          layers: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
+          url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+        }
+      ];
       this.state ={
         baseLayers: [
           {
@@ -26,41 +60,8 @@ export default class HazardLocalEffectsMap extends BasicMap {
             url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
           }
           ],
-        overlays: [
-          {
-            checked: false,
-            groupTitle: 'Heat Wave',
-            name: 'Heat_wave_temperature_historical_hight_hazard_Naples',
-            title: 'Heat Wave Temperature Historical Hight Hazard Naples',
-            layers: 'Heat_wave_temperature_historical_hight_hazard_Naples',
-            url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          },
-          {
-            checked: false,
-            groupTitle: 'Heat Wave',
-            name: 'Heat_wave_temperature_historical_low_hazard_Naples',
-            title: 'Heat Wave Temperature Historical Low Hazard Naples',
-            layers: 'Heat_wave_temperature_historical_low_hazard_Naples',
-            url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          },
-          {
-            checked: false,
-            groupTitle: 'Heat Wave',
-            name: 'Heat_wave_temperature_historical_medium_hazard_Naples',
-            title: 'Heat Wave Temperature Historical Medium Hazard Naples',
-            layers: 'Heat_wave_temperature_historical_medium_hazard_Naples',
-            url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          },
-          {
-            checked: false,
-            groupTitle: "Heat Wave",
-            name: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
-            title: "Heat Wave Temperature Historical Very Hight Hazard Naples",
-            layers: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
-            url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-          }
-        ],
-        bounds: [corner1, corner2]
+          overlays: [],
+          bounds: [corner1, corner2]
       };
     }  
 

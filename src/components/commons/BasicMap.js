@@ -7,6 +7,7 @@ export default class BasicMap extends React.Component {
   constructor(props, mapSelectionId) {
     super(props);
     this.mapSelectionId = mapSelectionId;
+    this.protocol = 'http://';
   }  
   
   setStudyURL(id, hostName) {
@@ -26,14 +27,14 @@ export default class BasicMap extends React.Component {
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      if (data.data[0].attributes.field_map_layer_ch != null) {
+      // if (data.data[0].attributes.field_map_layer_ch != null) {
 
-        var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
-        comp.setState({
-          baseLayers: layer.baselayers,
-          overlays: layer.overlays
-        });
-      }
+      //   var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
+      //   comp.setState({
+      //     baseLayers: layer.baselayers,
+      //     overlays: layer.overlays
+      //   });
+      // }
   })
     .catch(function(error) {
       console.log(JSON.stringify(error));
@@ -80,18 +81,15 @@ export default class BasicMap extends React.Component {
 
     loadDataFromServer(server, id) {
       const obj = this;
-//      fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
       fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
         if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-//          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
+          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), {credentials: 'include'})
           .then((resp) => resp.json())
           .then(function(data) {
             if (data.data.relationships.field_resources.links.related != null) {
-              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
-//              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
+              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol), {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 obj.convertDataFromServer(data, obj.mapSelectionId);
@@ -122,28 +120,24 @@ export default class BasicMap extends React.Component {
       for (var i = 0; i < resourceArray.length; ++i) {
         const resource = resourceArray[i];
 
-//        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
+        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', thisObj.protocol), {credentials: 'include'})
         .then((resp) => resp.json())
         .then(function(data) {
           const hazardLink = data.data.relationships.field_hazard.links.related.href;
 
           if (data.data.relationships.field_field_eu_gl_methodology.links.related.href != null) {
-//              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
+              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', thisObj.protocol), {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
                 if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
                   if (resource.relationships.field_map_view.links.related.href != null) {
-//                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'https://'), {credentials: 'include'})
+                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', thisObj.protocol), {credentials: 'include'})
                     .then((resp) => resp.json())
                     .then(function(data) {
 
                       if (hazardLink != null) {
-//                        fetch(hazardLink.replace('http://', 'http://'), {credentials: 'include'})
-                        fetch(hazardLink.replace('http://', 'https://'), {credentials: 'include'})
+                        fetch(hazardLink.replace('http://', thisObj.protocol), {credentials: 'include'})
                         .then((resp) => resp.json())
                         .then(function(hazardData) {
                             var refObj = new Object();
@@ -222,6 +216,10 @@ export default class BasicMap extends React.Component {
       if (mapModel.length > 0) {
         this.setState({
           overlays: mapModel
+        });
+      } else if (this.overlaysBackup != null) {
+        this.setState({
+          overlays: this.overlaysBackup
         });
       }
     }

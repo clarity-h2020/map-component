@@ -125,6 +125,14 @@ export default class StudyAreaMap extends React.Component {
     );
   }
 
+  changeReadOnly() {
+    this.setState(
+      {
+        readOnly: !this.state.readOnly
+      }
+    );
+  }
+  
   componentDidMount () {
     const map = this.refs.map.leafletElement;
     map.bindTooltip
