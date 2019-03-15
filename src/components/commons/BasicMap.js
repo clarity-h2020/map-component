@@ -7,7 +7,7 @@ export default class BasicMap extends React.Component {
   constructor(props, mapSelectionId) {
     super(props);
     this.mapSelectionId = mapSelectionId;
-    this.protocol = 'http://';
+    this.protocol = 'https://';
   }  
   
   setStudyURL(id, hostName) {
