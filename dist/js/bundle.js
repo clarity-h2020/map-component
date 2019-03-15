@@ -17025,43 +17025,49 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
   }
 
   componentDidMount() {
-    const map = this.refs.map.leafletElement;
-    map.invalidateSize();
+    this.map.leafletElement.invalidateSize();
   }
 
   componentDidUpdate() {
-    const map = this.refs.map.leafletElement;
+    const map = this.map.leafletElement;
     map.invalidateSize();
     var zoom = this.getLastZoom();
-    //    if ((zoom == null || zoom == 0) && (this.props.studyAreaPolygon != null)) {
+
     if (this.fly && this.props.studyAreaPolygon != null) {
       map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
       this.fly = false;
     }
-    var groupTitles = document.getElementsByClassName("rlglc-grouptitle");
-    const self = this;
 
-    if (this.hideListener != null) {
-      for (var i = 0; i < groupTitles.length; ++i) {
-        if (this.hideListener.length > i) {
-          groupTitles[i].removeEventListener("click", this.hideListener[i]);
+    if (this.layerControl != null) {
+      var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
+      const self = this;
+
+      if (this.hideListener != null) {
+        for (var i = 0; i < groupTitles.length; ++i) {
+          if (this.hideListener.length > i) {
+            groupTitles[i].removeEventListener("click", this.hideListener[i]);
+          }
         }
       }
-    }
-    this.hideListener = [];
-    for (var i = 0; i < groupTitles.length; ++i) {
-      const el = groupTitles[i];
-      var listener = function () {
-        self.showHide(el);
-      };
-      this.hideListener.push(listener);
-      groupTitles[i].addEventListener("click", listener);
+      this.hideListener = [];
+      for (var i = 0; i < groupTitles.length; ++i) {
+        const el = groupTitles[i];
+        var listener = function () {
+          self.showHide(el);
+        };
+        this.hideListener.push(listener);
+        el.addEventListener("click", listener);
+      }
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.overlays !== this.props.overlays) {
       this.setState({ overlays: nextProps.overlays });
+      const thisObj = this;
+      setTimeout(function () {
+        thisObj.setState({ overlays: nextProps.overlays });
+      }, 100);
     }
   }
 
@@ -17077,6 +17083,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
   showHide(el) {
     var parent = el.parentElement;
     var sibling = el.nextElementSibling;
+    var maxWidth = 0;
 
     if (parent != null) {
       if (parent.classList.contains('hiddenGroupHeader')) {
@@ -17090,16 +17097,22 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
       if (sibling.classList.contains('hiddenGroup')) {
         sibling.classList.remove('hiddenGroup');
       } else {
+        if (sibling.offsetWidth > maxWidth) {
+          maxWidth = sibling.offsetWidth;
+        }
         sibling.classList.add('hiddenGroup');
       }
 
       sibling = sibling.nextElementSibling;
     }
+
+    if (maxWidth > 0) {
+      parent.style.width = maxWidth + 10 + "px";
+    }
   }
 
   init() {
-    const map = this.refs.map.leafletElement;
-    map.invalidateSize();
+    this.map.leafletElement.invalidateSize();
 
     this.setState({
       init: true
@@ -17221,6 +17234,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
   }
 
   render() {
+    //    console.log("this.layerControl", this.layerControl);
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
     var bbox = [corner1, corner2];
@@ -17234,7 +17248,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
 
     var mapElement = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       __WEBPACK_IMPORTED_MODULE_1_react_leaflet__["Map"],
-      { ref: 'map',
+      { ref: comp => this.map = comp,
         className: 'simpleMap',
         scrollWheelZoom: true,
         bounds: bbox
@@ -17243,6 +17257,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1_react_leaflet__["TileLayer"], { noWrap: true, url: this.tileLayerUrl }),
       this.createLayer(this.state.overlays),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet_grouped_layer_control__["ReactLeafletGroupedLayerControl"], {
+        ref: comp => this.layerControl = comp,
         position: 'topright',
         baseLayers: this.props.baseLayers,
         checkedBaseLayer: this.state.checkedBaseLayer,
@@ -17750,6 +17765,7 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props, mapSelectionId) {
     super(props);
     this.mapSelectionId = mapSelectionId;
+    this.protocol = 'http://';
   }
 
   setStudyURL(id, hostName) {
@@ -17767,14 +17783,14 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
         wktVar.read(data.data[0].attributes.field_area.value);
         comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
       }
-      if (data.data[0].attributes.field_map_layer_ch != null) {
+      // if (data.data[0].attributes.field_map_layer_ch != null) {
 
-        var layer = JSON.parse(data.data[0].attributes.field_map_layer_ch);
-        comp.setState({
-          baseLayers: layer.baselayers,
-          overlays: layer.overlays
-        });
-      }
+      //   var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
+      //   comp.setState({
+      //     baseLayers: layer.baselayers,
+      //     overlays: layer.overlays
+      //   });
+      // }
     }).catch(function (error) {
       console.log(JSON.stringify(error));
     });
@@ -17820,15 +17836,11 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
   loadDataFromServer(server, id) {
     const obj = this;
-    //      fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
     fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
       if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-        //          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-        fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+        fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
           if (data.data.relationships.field_resources.links.related != null) {
-            fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'https://'), { credentials: 'include' })
-            //              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-            .then(resp => resp.json()).then(function (data) {
+            fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
               obj.convertDataFromServer(data, obj.mapSelectionId);
             }).catch(function (error) {
               console.log(JSON.stringify(error));
@@ -17853,22 +17865,18 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     for (var i = 0; i < resourceArray.length; ++i) {
       const resource = resourceArray[i];
 
-      //        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-      fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+      fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', thisObj.protocol), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
         const hazardLink = data.data.relationships.field_hazard.links.related.href;
 
         if (data.data.relationships.field_field_eu_gl_methodology.links.related.href != null) {
-          //              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-          fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+          fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', thisObj.protocol), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
             console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
             if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
               if (resource.relationships.field_map_view.links.related.href != null) {
-                //                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'http://'), {credentials: 'include'})
-                fetch(resource.relationships.field_map_view.links.related.href.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
+                fetch(resource.relationships.field_map_view.links.related.href.replace('http://', thisObj.protocol), { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
 
                   if (hazardLink != null) {
-                    //                        fetch(hazardLink.replace('http://', 'http://'), {credentials: 'include'})
-                    fetch(hazardLink.replace('http://', 'https://'), { credentials: 'include' }).then(resp => resp.json()).then(function (hazardData) {
+                    fetch(hazardLink.replace('http://', thisObj.protocol), { credentials: 'include' }).then(resp => resp.json()).then(function (hazardData) {
                       var refObj = new Object();
                       refObj.url = data.data.attributes.field_url;
                       refObj.title = resource.attributes.field_title;
@@ -17940,6 +17948,10 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
       if (mapModel.length > 0) {
         this.setState({
           overlays: mapModel
+        });
+      } else if (this.overlaysBackup != null) {
+        this.setState({
+          overlays: this.overlaysBackup
         });
       }
     }
@@ -26208,6 +26220,77 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
     super(props, 'eu_gl:hazard-characterization');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
+    this.overlaysBackup = [{
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_1971_-_2001",
+      title: "Heat Waves 1971 - 2001 RCP26",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2011_-_2040",
+      title: "Heat Waves 2011 - 2040 RCP26",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2041_-_2070",
+      title: "Heat Waves 2041 - 2070 RCP26",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2071_-_2100",
+      title: "Heat Waves 2071 - 2100 RCP26",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2011_-_2040_rcp_45",
+      title: "Heat_Waves 2011 - 2040 RCP45",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2041_-_2070_rcp_45",
+      title: "Heat_Waves 2041 - 2070 RCP45",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2071_-_2100_rcp_45",
+      title: "Heat_Waves 2071 - 2100 RCP45",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2011_-_2040_rcp_85",
+      title: "Heat_Waves 2011 - 2040 RCP85",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2041_-_2070_rcp_85",
+      title: "Heat_Waves 2041 - 2070 RCP85",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2071_-_2100_rcp_85",
+      title: "Heat_Waves 2071 - 2100 RCP85",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
@@ -26218,77 +26301,7 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
         title: 'Open Topo Map',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
-      overlays: [{
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_1971_-_2001",
-        title: "Heat Waves 1971 - 2001 RCP26",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2011_-_2040",
-        title: "Heat Waves 2011 - 2040 RCP26",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2041_-_2070",
-        title: "Heat Waves 2041 - 2070 RCP26",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2071_-_2100",
-        title: "Heat Waves 2071 - 2100 RCP26",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2011_-_2040_rcp_45",
-        title: "Heat_Waves 2011 - 2040 RCP45",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2041_-_2070_rcp_45",
-        title: "Heat_Waves 2041 - 2070 RCP45",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2071_-_2100_rcp_45",
-        title: "Heat_Waves 2071 - 2100 RCP45",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2011_-_2040_rcp_85",
-        title: "Heat_Waves 2011 - 2040 RCP85",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2041_-_2070_rcp_85",
-        title: "Heat_Waves 2041 - 2070 RCP85",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2071_-_2100_rcp_85",
-        title: "Heat_Waves 2071 - 2100 RCP85",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }],
+      overlays: [],
       bounds: [corner1, corner2]
     };
   }
@@ -28152,6 +28165,28 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["defau
     super(props, 'eu-gl:exposure-evaluation');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
+    this.overlaysBackup = [{
+      checked: false,
+      groupTitle: 'Population',
+      name: 'pop-15-65',
+      title: 'population 15-65',
+      layers: 'clarity:Population_15to65_naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: 'Population',
+      name: 'pop-65',
+      title: 'population >65',
+      layers: 'clarity:Population_mayor65_naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: 'Population',
+      name: 'pop-15',
+      title: 'population >15',
+      layers: '	clarity:Population_men15_naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
@@ -28162,28 +28197,7 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["defau
         title: 'OpenTopoMap',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
-      overlays: [{
-        checked: false,
-        groupTitle: 'Population',
-        name: 'pop-15-65',
-        title: 'population 15-65',
-        layers: 'clarity:Population_15to65_naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: 'Population',
-        name: 'pop-65',
-        title: 'population >65',
-        layers: 'clarity:Population_mayor65_naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: 'Population',
-        name: 'pop-15',
-        title: 'population >15',
-        layers: '	clarity:Population_men15_naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }],
+      overlays: [],
       bounds: [corner1, corner2]
     };
   }
@@ -28236,6 +28250,35 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
     super(props, 'eu-gl:hazard-characterization:local-effects');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
+    this.overlaysBackup = [{
+      checked: false,
+      groupTitle: 'Heat Wave',
+      name: 'Heat_wave_temperature_historical_hight_hazard_Naples',
+      title: 'Heat Wave Temperature Historical Hight Hazard Naples',
+      layers: 'Heat_wave_temperature_historical_hight_hazard_Naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: 'Heat Wave',
+      name: 'Heat_wave_temperature_historical_low_hazard_Naples',
+      title: 'Heat Wave Temperature Historical Low Hazard Naples',
+      layers: 'Heat_wave_temperature_historical_low_hazard_Naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: 'Heat Wave',
+      name: 'Heat_wave_temperature_historical_medium_hazard_Naples',
+      title: 'Heat Wave Temperature Historical Medium Hazard Naples',
+      layers: 'Heat_wave_temperature_historical_medium_hazard_Naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
+      title: "Heat Wave Temperature Historical Very Hight Hazard Naples",
+      layers: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
@@ -28246,35 +28289,7 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
         title: 'Open Topo Map',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
-      overlays: [{
-        checked: false,
-        groupTitle: 'Heat Wave',
-        name: 'Heat_wave_temperature_historical_hight_hazard_Naples',
-        title: 'Heat Wave Temperature Historical Hight Hazard Naples',
-        layers: 'Heat_wave_temperature_historical_hight_hazard_Naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: 'Heat Wave',
-        name: 'Heat_wave_temperature_historical_low_hazard_Naples',
-        title: 'Heat Wave Temperature Historical Low Hazard Naples',
-        layers: 'Heat_wave_temperature_historical_low_hazard_Naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: 'Heat Wave',
-        name: 'Heat_wave_temperature_historical_medium_hazard_Naples',
-        title: 'Heat Wave Temperature Historical Medium Hazard Naples',
-        layers: 'Heat_wave_temperature_historical_medium_hazard_Naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
-        title: "Heat Wave Temperature Historical Very Hight Hazard Naples",
-        layers: "Heat_wave_temperature_historical_very_hight_hazard_Naples",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }],
+      overlays: [],
       bounds: [corner1, corner2]
     };
   }
@@ -28330,6 +28345,135 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
     super(props, 'eu-gl:risk-and-impact-assessment');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
+    this.overlaysBackup = [{
+      checked: false,
+      groupTitle: 'Damage Level 1',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE1',
+      title: 'Map impact results over all vulnerability classes DM1 event 1',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
+      style: 'DamageLevel1Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 1',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE2',
+      title: 'Map impact results over all vulnerability classes DM1 event 2',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
+      style: 'DamageLevel1Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 1',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE3',
+      title: 'Map impact results over all vulnerability classes DM1 event 3',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
+      style: 'DamageLevel1Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 1',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE4',
+      title: 'Map impact results over all vulnerability classes DM1 event 4',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
+      style: 'DamageLevel1Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 2',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE1D2',
+      title: 'Map impact results over all vulnerability classes DM2 event 1',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
+      style: 'DamageLevel2Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 2',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE2D2',
+      title: 'Map impact results over all vulnerability classes DM2 event 2',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
+      style: 'DamageLevel2Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 2',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE3D2',
+      title: 'Map impact results over all vulnerability classes DM2 event 3',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
+      style: 'DamageLevel2Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 2',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE4D2',
+      title: 'Map impact results over all vulnerability classes DM2 event 4',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
+      style: 'DamageLevel2Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 3',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE1D3',
+      title: 'Map impact results over all vulnerability classes DM3 event 1',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
+      style: 'DamageLevel3Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 3',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE2D3',
+      title: 'Map impact results over all vulnerability classes DM3 event 2',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
+      style: 'DamageLevel3Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 3',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE3D3',
+      title: 'Map impact results over all vulnerability classes DM3 event 3',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
+      style: 'DamageLevel3Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 3',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE4D3',
+      title: 'Map impact results over all vulnerability classes DM3 event 4',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
+      style: 'DamageLevel3Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 4',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE1D4',
+      title: 'Map impact results over all vulnerability classes DM4 event 1',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
+      style: 'DamageLevel4Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 4',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE2D4',
+      title: 'Map impact results over all vulnerability classes DM4 event 2',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
+      style: 'DamageLevel4Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 4',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE3D4',
+      title: 'Map impact results over all vulnerability classes DM4 event 3',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
+      style: 'DamageLevel4Q'
+    }, {
+      checked: false,
+      groupTitle: 'Damage Level 4',
+      name: 'vMapImpactResultOverAllVulnerabilityClassesE4D4',
+      title: 'Map impact results over all vulnerability classes DM4 event 4',
+      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
+      style: 'DamageLevel4Q'
+    }];
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
@@ -28340,135 +28484,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
         title: 'OpenTopoMap',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
-      overlays: [{
-        checked: false,
-        groupTitle: 'Damage Level 1',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE1',
-        title: 'Map impact results over all vulnerability classes DM1 event 1',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
-        style: 'DamageLevel1Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 1',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE2',
-        title: 'Map impact results over all vulnerability classes DM1 event 2',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
-        style: 'DamageLevel1Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 1',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE3',
-        title: 'Map impact results over all vulnerability classes DM1 event 3',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
-        style: 'DamageLevel1Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 1',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE4',
-        title: 'Map impact results over all vulnerability classes DM1 event 4',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
-        style: 'DamageLevel1Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 2',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE1D2',
-        title: 'Map impact results over all vulnerability classes DM2 event 1',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
-        style: 'DamageLevel2Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 2',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE2D2',
-        title: 'Map impact results over all vulnerability classes DM2 event 2',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
-        style: 'DamageLevel2Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 2',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE3D2',
-        title: 'Map impact results over all vulnerability classes DM2 event 3',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
-        style: 'DamageLevel2Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 2',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE4D2',
-        title: 'Map impact results over all vulnerability classes DM2 event 4',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
-        style: 'DamageLevel2Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 3',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE1D3',
-        title: 'Map impact results over all vulnerability classes DM3 event 1',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
-        style: 'DamageLevel3Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 3',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE2D3',
-        title: 'Map impact results over all vulnerability classes DM3 event 2',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
-        style: 'DamageLevel3Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 3',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE3D3',
-        title: 'Map impact results over all vulnerability classes DM3 event 3',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
-        style: 'DamageLevel3Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 3',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE4D3',
-        title: 'Map impact results over all vulnerability classes DM3 event 4',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
-        style: 'DamageLevel3Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 4',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE1D4',
-        title: 'Map impact results over all vulnerability classes DM4 event 1',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
-        style: 'DamageLevel4Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 4',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE2D4',
-        title: 'Map impact results over all vulnerability classes DM4 event 2',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
-        style: 'DamageLevel4Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 4',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE3D4',
-        title: 'Map impact results over all vulnerability classes DM4 event 3',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
-        style: 'DamageLevel4Q'
-      }, {
-        checked: false,
-        groupTitle: 'Damage Level 4',
-        name: 'vMapImpactResultOverAllVulnerabilityClassesE4D4',
-        title: 'Map impact results over all vulnerability classes DM4 event 4',
-        layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
-        url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
-        style: 'DamageLevel4Q'
-      }],
+      overlays: [],
       bounds: [corner1, corner2]
     };
   }
@@ -29824,6 +29840,12 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
   setReadOnly(ro) {
     this.setState({
       readOnly: ro
+    });
+  }
+
+  changeReadOnly() {
+    this.setState({
+      readOnly: !this.state.readOnly
     });
   }
 
@@ -33153,6 +33175,43 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
     super(props, 'eu-gl:vulnerability-analysis');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
+    this.overlaysBackup = [{
+      checked: false,
+      groupTitle: 'Population',
+      name: 'pop-15-65',
+      title: 'population 15-65',
+      layers: 'clarity:Population_15to65_naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: 'Population',
+      name: 'pop-65',
+      title: 'population >65',
+      layers: 'clarity:Population_mayor65_naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: 'Population',
+      name: 'pop-15',
+      title: 'population >15',
+      layers: '	clarity:Population_men15_naples',
+      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_1971_-_2001",
+      title: "Heat Waves 1971 - 2001",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }, {
+      checked: false,
+      groupTitle: "Heat Wave",
+      name: "Heat_Waves_2011_-_2040",
+      title: "Heat Waves 2011 - 2040",
+      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
+      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
+    }];
+
     this.state = {
       baseLayers: [{
         name: 'tile-texture-1',
@@ -33163,42 +33222,7 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
         title: 'OpenTopoMap',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
-      overlays: [{
-        checked: false,
-        groupTitle: 'Population',
-        name: 'pop-15-65',
-        title: 'population 15-65',
-        layers: 'clarity:Population_15to65_naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: 'Population',
-        name: 'pop-65',
-        title: 'population >65',
-        layers: 'clarity:Population_mayor65_naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: 'Population',
-        name: 'pop-15',
-        title: 'population >15',
-        layers: '	clarity:Population_men15_naples',
-        url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_1971_-_2001",
-        title: "Heat Waves 1971 - 2001",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }, {
-        checked: false,
-        groupTitle: "Heat Wave",
-        name: "Heat_Waves_2011_-_2040",
-        title: "Heat Waves 2011 - 2040",
-        layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
-        url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-      }],
+      overlays: [],
       bounds: [corner1, corner2]
     };
   }

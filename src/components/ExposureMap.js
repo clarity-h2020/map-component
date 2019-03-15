@@ -14,6 +14,32 @@ export default class ExposureMap extends BasicMap {
       super(props, 'eu-gl:exposure-evaluation');
       const corner1 = [39.853294, 13.305573];
       const corner2 = [41.853294, 15.305573];
+      this.overlaysBackup = [
+        {
+          checked: false,
+          groupTitle: 'Population',
+          name: 'pop-15-65',
+          title: 'population 15-65',
+          layers: 'clarity:Population_15to65_naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: 'Population',
+          name: 'pop-65',
+          title: 'population >65',
+          layers: 'clarity:Population_mayor65_naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        },
+        {
+          checked: false,
+          groupTitle: 'Population',
+          name: 'pop-15',
+          title: 'population >15',
+          layers: '	clarity:Population_men15_naples',
+          url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
+        }
+      ];
       this.state ={
         baseLayers: [
           {
@@ -27,33 +53,8 @@ export default class ExposureMap extends BasicMap {
             url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
           }
           ],
-        overlays: [
-          {
-            checked: false,
-            groupTitle: 'Population',
-            name: 'pop-15-65',
-            title: 'population 15-65',
-            layers: 'clarity:Population_15to65_naples',
-            url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          },
-          {
-            checked: false,
-            groupTitle: 'Population',
-            name: 'pop-65',
-            title: 'population >65',
-            layers: 'clarity:Population_mayor65_naples',
-            url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          },
-          {
-            checked: false,
-            groupTitle: 'Population',
-            name: 'pop-15',
-            title: 'population >15',
-            layers: '	clarity:Population_men15_naples',
-            url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-          }
-        ],
-        bounds: [corner1, corner2]
+          overlays: [],
+          bounds: [corner1, corner2]
       };
     }  
 
