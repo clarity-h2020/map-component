@@ -17765,7 +17765,7 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props, mapSelectionId) {
     super(props);
     this.mapSelectionId = mapSelectionId;
-    this.protocol = 'http://';
+    this.protocol = 'https://';
   }
 
   setStudyURL(id, hostName) {
