@@ -14,21 +14,24 @@ export default class StudyArea extends React.Component {
       ]
     };
     this.state ={
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-            "popupContent": "country",
-            "style": {
-                weight: 2,
-                color: "black",
-                opacity: 0.3,
-                fillColor: "#ff0000",
-                fillOpacity: 0.1
-            }
-        },
-        "geometry": geom
-      }
+      countryPolygon: null
     };
+    // this.state ={
+    //   countryPolygon: {
+    //     "type": "Feature",
+    //     "properties": {
+    //         "popupContent": "country",
+    //         "style": {
+    //             weight: 2,
+    //             color: "black",
+    //             opacity: 0.3,
+    //             fillColor: "#ff0000",
+    //             fillOpacity: 0.1
+    //         }
+    //     },
+    //     "geometry": geom
+    //   }
+    // };
   }
   
   setStudyURL(id, hostName) {
