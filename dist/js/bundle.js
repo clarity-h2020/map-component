@@ -17884,12 +17884,16 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
                       tmpMapData.push(refObj);
                       thisObj.finishMapExtraction(tmpMapData, resourceLength);
                     }).catch(function (error) {
-                      var refObj = new Object();
-                      refObj.url = data.data.attributes.field_url;
-                      refObj.title = resource.attributes.field_title;
-                      tmpMapData.push(refObj);
-                      thisObj.finishMapExtraction(tmpMapData, resourceLength);
-                      console.log(JSON.stringify(error));
+                      // if (data.data != null) {
+                      //   var refObj = new Object();
+                      //   refObj.url = data.data.attributes.field_url;
+                      //   refObj.title = resource.attributes.field_title;
+                      //   tmpMapData.push(refObj);
+                      //   thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                      // } else {
+                      thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+                      // }
+                      //                          console.log(JSON.stringify(error));
                     });
                   } else {
                     var refObj = new Object();
@@ -29578,21 +29582,24 @@ class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component 
       "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
     };
     this.state = {
-      countryPolygon: {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#ff0000",
-            fillOpacity: 0.1
-          }
-        },
-        "geometry": geom
-      }
+      countryPolygon: null
     };
+    // this.state ={
+    //   countryPolygon: {
+    //     "type": "Feature",
+    //     "properties": {
+    //         "popupContent": "country",
+    //         "style": {
+    //             weight: 2,
+    //             color: "black",
+    //             opacity: 0.3,
+    //             fillColor: "#ff0000",
+    //             fillOpacity: 0.1
+    //         }
+    //     },
+    //     "geometry": geom
+    //   }
+    // };
   }
 
   setStudyURL(id, hostName) {
@@ -29860,7 +29867,7 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     if (geometry == null) {
       geometry = {
         "type": "Polygon",
-        "coordinates": [[[48.505, 2.09], [50.505, 2.09], [50.505, 4.09], [48.505, 4.09], [48.505, 2.09]]]
+        "coordinates": [[[34.597042, -23.378906], [69.534518, -23.378906], [69.534518, 48.691406], [34.597042, 48.691406], [34.597042, -23.378906]]]
       };
     }
     var area = true;

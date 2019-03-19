@@ -148,12 +148,16 @@ export default class BasicMap extends React.Component {
                             thisObj.finishMapExtraction(tmpMapData, resourceLength);
                         })
                         .catch(function(error) {
-                          var refObj = new Object();
-                          refObj.url = data.data.attributes.field_url;
-                          refObj.title = resource.attributes.field_title;
-                          tmpMapData.push(refObj);
-                          thisObj.finishMapExtraction(tmpMapData, resourceLength);
-                          console.log(JSON.stringify(error));
+                          // if (data.data != null) {
+                          //   var refObj = new Object();
+                          //   refObj.url = data.data.attributes.field_url;
+                          //   refObj.title = resource.attributes.field_title;
+                          //   tmpMapData.push(refObj);
+                          //   thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                          // } else {
+                            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+                          // }
+//                          console.log(JSON.stringify(error));
                         });         
                       } else {
                         var refObj = new Object();
