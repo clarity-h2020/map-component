@@ -61,7 +61,8 @@ export default class HazardLocalEffectsMap extends BasicMap {
           }
           ],
           overlays: [],
-          bounds: [corner1, corner2]
+          bounds: [corner1, corner2],
+          loading: true
       };
     }  
 
@@ -70,6 +71,7 @@ export default class HazardLocalEffectsMap extends BasicMap {
 
       return (
         <MapComponent 
+        loading={this.state.loading}
         bounds={this.state.bounds}
         baseLayers={this.state.baseLayers}
         exclusiveGroups={{}}

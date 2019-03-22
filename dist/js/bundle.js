@@ -17015,6 +17015,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     super(props);
     this.state = {
       studyAreaPolygon: props.studyAreaPolygon,
+      loading: props.loading,
       bounds: props.bounds,
       checkedBaseLayer: props.baseLayers[0].name,
       overlays: props.overlays
@@ -17039,6 +17040,20 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     }
 
     if (this.layerControl != null) {
+      var loader = document.getElementsByName("mapLoading");
+
+      if (loader.length > 0 && loader[0].parentElement != null) {
+        loader[0].parentElement.removeChild(loader[0]);
+      }
+      if (this.props.loading != null && this.props.loading) {
+        var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
+        if (groupTitles.length > 0 && groupTitles[0].parentElement != null) {
+          var element = groupTitles[0].parentElement;
+          var loadingEl = this.htmlToElement('<div style="text-align: center"><div name="mapLoading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>');
+          element.parentNode.appendChild(loadingEl, element);
+        }
+      }
+
       var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
       const self = this;
 
@@ -17059,6 +17074,13 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         el.addEventListener("click", listener);
       }
     }
+  }
+
+  htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim();
+    template.innerHTML = html;
+    return template.content.firstChild;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -17245,6 +17267,18 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
       "fillOpacity": 0.0,
       "dashArray": "4 1"
     };
+    var overlays = this.state.overlays;
+
+    // if (this.state.loading != null && this.state.loading) {
+    //   overlays = [{
+    //     checked: false,
+    //     groupTitle: "loading",
+    //     name: "",
+    //     title: "",
+    //     layers: "",
+    //     url: ""
+    //   }];
+    // }
 
     var mapElement = __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       __WEBPACK_IMPORTED_MODULE_1_react_leaflet__["Map"],
@@ -17261,7 +17295,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         position: 'topright',
         baseLayers: this.props.baseLayers,
         checkedBaseLayer: this.state.checkedBaseLayer,
-        overlays: this.state.overlays,
+        overlays: overlays,
         onBaseLayerChange: this.baseLayerChange.bind(this),
         onOverlayChange: this.overlayChange.bind(this)
       })
@@ -17951,14 +17985,25 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
       if (mapModel.length > 0) {
         this.setState({
-          overlays: mapModel
+          overlays: mapModel,
+          loading: false
         });
       } else if (this.overlaysBackup != null) {
         this.setState({
-          overlays: this.overlaysBackup
+          overlays: this.overlaysBackup,
+          loading: false
         });
       }
     }
+  }
+
+  print() {
+    var callback = function (b) {
+      prompt(b);
+    };
+    html2canvas(document.getElementById("riskAndImpact-map-container")).then(canvas => {
+      canvas.toBlob(callback);
+    });
   }
 
   titleToName(title) {
@@ -26306,7 +26351,8 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
       overlays: [],
-      bounds: [corner1, corner2]
+      bounds: [corner1, corner2],
+      loading: true
     };
   }
 
@@ -26314,6 +26360,7 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
     window.specificMapComponent = this;
 
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
+      loading: this.state.loading,
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
       exclusiveGroups: {},
@@ -28202,7 +28249,8 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["defau
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
       overlays: [],
-      bounds: [corner1, corner2]
+      bounds: [corner1, corner2],
+      loading: true
     };
   }
 
@@ -28210,6 +28258,7 @@ class ExposureMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["defau
     window.specificMapComponent = this;
 
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
+      loading: this.state.loading,
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
       exclusiveGroups: {},
@@ -28294,7 +28343,8 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
       overlays: [],
-      bounds: [corner1, corner2]
+      bounds: [corner1, corner2],
+      loading: true
     };
   }
 
@@ -28302,6 +28352,7 @@ class HazardLocalEffectsMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
     window.specificMapComponent = this;
 
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
+      loading: this.state.loading,
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
       exclusiveGroups: {},
@@ -28489,7 +28540,8 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
       overlays: [],
-      bounds: [corner1, corner2]
+      bounds: [corner1, corner2],
+      loading: true
     };
   }
 
@@ -28506,6 +28558,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
     window.specificMapComponent = this;
 
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
+      loading: this.state.loading,
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
       exclusiveGroups: {},
@@ -29578,28 +29631,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 class StudyArea extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   constructor(props) {
     super(props);
-    var geom = { "type": "Polygon",
-      "coordinates": [[[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]]
-    };
     this.state = {
       countryPolygon: null
     };
-    // this.state ={
-    //   countryPolygon: {
-    //     "type": "Feature",
-    //     "properties": {
-    //         "popupContent": "country",
-    //         "style": {
-    //             weight: 2,
-    //             color: "black",
-    //             opacity: 0.3,
-    //             fillColor: "#ff0000",
-    //             fillOpacity: 0.1
-    //         }
-    //     },
-    //     "geometry": geom
-    //   }
-    // };
   }
 
   setStudyURL(id, hostName) {
@@ -29867,7 +29901,7 @@ class StudyAreaMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     if (geometry == null) {
       geometry = {
         "type": "Polygon",
-        "coordinates": [[[34.597042, -23.378906], [69.534518, -23.378906], [69.534518, 48.691406], [34.597042, 48.691406], [34.597042, -23.378906]]]
+        "coordinates": [[[-23.378906, 34.597042], [-23.378906, 69.534518], [48.691406, 69.534518], [48.691406, 34.597042], [-23.378906, 34.597042]]]
       };
     }
     var area = true;
@@ -33230,7 +33264,8 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }],
       overlays: [],
-      bounds: [corner1, corner2]
+      bounds: [corner1, corner2],
+      loading: true
     };
   }
 
@@ -33238,6 +33273,7 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
     window.specificMapComponent = this;
 
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__commons_MapComponent__["default"], {
+      loading: this.state.loading,
       bounds: this.state.bounds,
       baseLayers: this.state.baseLayers,
       exclusiveGroups: {},
