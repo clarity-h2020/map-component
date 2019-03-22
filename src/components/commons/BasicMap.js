@@ -219,14 +219,24 @@ export default class BasicMap extends React.Component {
 
       if (mapModel.length > 0) {
         this.setState({
-          overlays: mapModel
+          overlays: mapModel,
+          loading: false
         });
       } else if (this.overlaysBackup != null) {
         this.setState({
-          overlays: this.overlaysBackup
+          overlays: this.overlaysBackup,
+          loading: false
         });
       }
     }
+  }
+
+  print() {
+    var callback = function (b) {
+            prompt(b);
+    }
+    html2canvas(document.getElementById("riskAndImpact-map-container")).then(canvas => {
+    canvas.toBlob(callback)});
   }
 
   titleToName(title) {

@@ -8,30 +8,9 @@ import StudyAreaMap from './commons/StudyAreaMap';
 export default class StudyArea extends React.Component {
   constructor(props) {
     super(props);
-    var geom  = { "type": "Polygon",
-      "coordinates": [
-          [[30, 10], [40, 40], [20, 40], [10, 20], [30, 10]]
-      ]
-    };
     this.state ={
       countryPolygon: null
     };
-    // this.state ={
-    //   countryPolygon: {
-    //     "type": "Feature",
-    //     "properties": {
-    //         "popupContent": "country",
-    //         "style": {
-    //             weight: 2,
-    //             color: "black",
-    //             opacity: 0.3,
-    //             fillColor: "#ff0000",
-    //             fillOpacity: 0.1
-    //         }
-    //     },
-    //     "geometry": geom
-    //   }
-    // };
   }
   
   setStudyURL(id, hostName) {

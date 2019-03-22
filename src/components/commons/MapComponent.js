@@ -3,12 +3,12 @@ import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
 
-
 export default class MapComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       studyAreaPolygon: props.studyAreaPolygon,
+      loading: props.loading,
       bounds: props.bounds,
       checkedBaseLayer: props.baseLayers[0].name,
       overlays: props.overlays
@@ -33,6 +33,20 @@ export default class MapComponent extends React.Component {
     }
 
     if (this.layerControl != null) {
+      var loader = document.getElementsByName("mapLoading");
+
+      if (loader.length > 0 && loader[0].parentElement != null) {
+        loader[0].parentElement.removeChild(loader[0]);
+      }
+      if (this.props.loading != null && this.props.loading) {
+        var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
+        if (groupTitles.length > 0 && groupTitles[0].parentElement != null) {
+          var element = groupTitles[0].parentElement;
+          var loadingEl = this.htmlToElement('<div style="text-align: center"><div name="mapLoading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>');
+          element.parentNode.appendChild(loadingEl, element);
+        }
+      }
+
       var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
       const self = this;
 
@@ -52,6 +66,13 @@ export default class MapComponent extends React.Component {
       }
     }
   }
+
+  htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim();
+    template.innerHTML = html;
+    return template.content.firstChild;
+  }  
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.overlays !== this.props.overlays) {
@@ -234,6 +255,18 @@ export default class MapComponent extends React.Component {
       "fillOpacity": 0.0,
       "dashArray": "4 1"
     };
+    var overlays = this.state.overlays;
+
+    // if (this.state.loading != null && this.state.loading) {
+    //   overlays = [{
+    //     checked: false,
+    //     groupTitle: "loading",
+    //     name: "",
+    //     title: "",
+    //     layers: "",
+    //     url: ""
+    //   }];
+    // }
 
     var mapElement = (
     <Map ref={(comp)=>this.map=comp}
@@ -248,12 +281,12 @@ export default class MapComponent extends React.Component {
       {
         this.createLayer(this.state.overlays)
       }
-      <ReactLeafletGroupedLayerControl
+      <ReactLeafletGroupedLayerControl 
         ref={(comp)=>this.layerControl=comp}
         position="topright"
         baseLayers={this.props.baseLayers}
         checkedBaseLayer={this.state.checkedBaseLayer}
-        overlays={this.state.overlays}
+        overlays={overlays}
         onBaseLayerChange={this.baseLayerChange.bind(this)}
         onOverlayChange={this.overlayChange.bind(this)}
       />
