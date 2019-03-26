@@ -18015,6 +18015,11 @@ class BasicMap extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
     return layerParam.indexOf('&') != -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam;
   }
 
+  extractStyle(url) {
+    var layerParam = url.substring(url.indexOf('style=') + 'style='.length);
+    return layerParam.indexOf('&') != -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam;
+  }
+
   extractUrl(url) {
     return url.indexOf('?') != -1 ? url.substring(0, url.indexOf('?')) : null;
   }
@@ -28405,7 +28410,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 1',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE1',
       title: 'Map impact results over all vulnerability classes DM1 event 1',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
       style: 'DamageLevel1Q'
     }, {
@@ -28413,7 +28418,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 1',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE2',
       title: 'Map impact results over all vulnerability classes DM1 event 2',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
       style: 'DamageLevel1Q'
     }, {
@@ -28421,7 +28426,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 1',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE3',
       title: 'Map impact results over all vulnerability classes DM1 event 3',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
       style: 'DamageLevel1Q'
     }, {
@@ -28429,7 +28434,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 1',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE4',
       title: 'Map impact results over all vulnerability classes DM1 event 4',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
       style: 'DamageLevel1Q'
     }, {
@@ -28437,7 +28442,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 2',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE1D2',
       title: 'Map impact results over all vulnerability classes DM2 event 1',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
       style: 'DamageLevel2Q'
     }, {
@@ -28445,7 +28450,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 2',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE2D2',
       title: 'Map impact results over all vulnerability classes DM2 event 2',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
       style: 'DamageLevel2Q'
     }, {
@@ -28453,7 +28458,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 2',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE3D2',
       title: 'Map impact results over all vulnerability classes DM2 event 3',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
       style: 'DamageLevel2Q'
     }, {
@@ -28461,7 +28466,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 2',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE4D2',
       title: 'Map impact results over all vulnerability classes DM2 event 4',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
       style: 'DamageLevel2Q'
     }, {
@@ -28469,7 +28474,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 3',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE1D3',
       title: 'Map impact results over all vulnerability classes DM3 event 1',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
       style: 'DamageLevel3Q'
     }, {
@@ -28477,7 +28482,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 3',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE2D3',
       title: 'Map impact results over all vulnerability classes DM3 event 2',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
       style: 'DamageLevel3Q'
     }, {
@@ -28485,7 +28490,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 3',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE3D3',
       title: 'Map impact results over all vulnerability classes DM3 event 3',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
       style: 'DamageLevel3Q'
     }, {
@@ -28493,7 +28498,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 3',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE4D3',
       title: 'Map impact results over all vulnerability classes DM3 event 4',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
       style: 'DamageLevel3Q'
     }, {
@@ -28501,7 +28506,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 4',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE1D4',
       title: 'Map impact results over all vulnerability classes DM4 event 1',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
       style: 'DamageLevel4Q'
     }, {
@@ -28509,7 +28514,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 4',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE2D4',
       title: 'Map impact results over all vulnerability classes DM4 event 2',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
       style: 'DamageLevel4Q'
     }, {
@@ -28517,7 +28522,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 4',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE3D4',
       title: 'Map impact results over all vulnerability classes DM4 event 3',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
       style: 'DamageLevel4Q'
     }, {
@@ -28525,7 +28530,7 @@ class RiskAndImpactMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
       groupTitle: 'Damage Level 4',
       name: 'vMapImpactResultOverAllVulnerabilityClassesE4D4',
       title: 'Map impact results over all vulnerability classes DM4 event 4',
-      layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+      layers: 'clarity:view.2813',
       url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
       style: 'DamageLevel4Q'
     }];
@@ -33216,42 +33221,7 @@ class VulnerabilityMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["
     super(props, 'eu-gl:vulnerability-analysis');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
-    this.overlaysBackup = [{
-      checked: false,
-      groupTitle: 'Population',
-      name: 'pop-15-65',
-      title: 'population 15-65',
-      layers: 'clarity:Population_15to65_naples',
-      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-    }, {
-      checked: false,
-      groupTitle: 'Population',
-      name: 'pop-65',
-      title: 'population >65',
-      layers: 'clarity:Population_mayor65_naples',
-      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-    }, {
-      checked: false,
-      groupTitle: 'Population',
-      name: 'pop-15',
-      title: 'population >15',
-      layers: '	clarity:Population_men15_naples',
-      url: 'https://clarity.meteogrid.com/geoserver/clarity/wms'
-    }, {
-      checked: false,
-      groupTitle: "Heat Wave",
-      name: "Heat_Waves_1971_-_2001",
-      title: "Heat Waves 1971 - 2001",
-      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_historical_r12i1p1_SMHI-RCA4_v1_day_19710101-20001231_netcdf3",
-      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-    }, {
-      checked: false,
-      groupTitle: "Heat Wave",
-      name: "Heat_Waves_2011_-_2040",
-      title: "Heat Waves 2011 - 2040",
-      layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
-      url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
-    }];
+    this.overlaysBackup = [];
 
     this.state = {
       baseLayers: [{

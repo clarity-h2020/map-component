@@ -248,6 +248,11 @@ export default class BasicMap extends React.Component {
     return (layerParam.indexOf('&') != -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
+  extractStyle(url) {
+    var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
+    return (layerParam.indexOf('&') != -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+  }
+
   extractUrl(url) {
     return (url.indexOf('?') != -1 ? url.substring(0, url.indexOf('?')) : null);
   }

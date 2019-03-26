@@ -20,7 +20,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 1',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE1',
           title: 'Map impact results over all vulnerability classes DM1 event 1',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
           style: 'DamageLevel1Q'
         },
@@ -29,7 +29,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 1',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE2',
           title: 'Map impact results over all vulnerability classes DM1 event 2',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
           style: 'DamageLevel1Q'
         },
@@ -38,7 +38,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 1',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE3',
           title: 'Map impact results over all vulnerability classes DM1 event 3',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
           style: 'DamageLevel1Q'
         },
@@ -47,7 +47,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 1',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE4',
           title: 'Map impact results over all vulnerability classes DM1 event 4',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
           style: 'DamageLevel1Q'
         },
@@ -56,7 +56,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 2',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE1D2',
           title: 'Map impact results over all vulnerability classes DM2 event 1',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
           style: 'DamageLevel2Q'
         },
@@ -65,7 +65,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 2',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE2D2',
           title: 'Map impact results over all vulnerability classes DM2 event 2',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
           style: 'DamageLevel2Q'
         },
@@ -74,7 +74,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 2',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE3D2',
           title: 'Map impact results over all vulnerability classes DM2 event 3',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
           style: 'DamageLevel2Q'
         },
@@ -83,7 +83,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 2',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE4D2',
           title: 'Map impact results over all vulnerability classes DM2 event 4',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
           style: 'DamageLevel2Q'
         },
@@ -92,7 +92,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 3',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE1D3',
           title: 'Map impact results over all vulnerability classes DM3 event 1',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
           style: 'DamageLevel3Q'
         },
@@ -101,7 +101,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 3',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE2D3',
           title: 'Map impact results over all vulnerability classes DM3 event 2',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
           style: 'DamageLevel3Q'
         },
@@ -110,7 +110,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 3',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE3D3',
           title: 'Map impact results over all vulnerability classes DM3 event 3',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
           style: 'DamageLevel3Q'
         },
@@ -119,7 +119,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 3',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE4D3',
           title: 'Map impact results over all vulnerability classes DM3 event 4',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
           style: 'DamageLevel3Q'
         },
@@ -128,7 +128,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 4',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE1D4',
           title: 'Map impact results over all vulnerability classes DM4 event 1',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=1',
           style: 'DamageLevel4Q'
         },
@@ -137,7 +137,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 4',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE2D4',
           title: 'Map impact results over all vulnerability classes DM4 event 2',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=2',
           style: 'DamageLevel4Q'
         },
@@ -146,7 +146,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 4',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE3D4',
           title: 'Map impact results over all vulnerability classes DM4 event 3',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=3',
           style: 'DamageLevel4Q'
         },
@@ -155,7 +155,7 @@ export default class RiskAndImpactMap extends BasicMap {
           groupTitle: 'Damage Level 4',
           name: 'vMapImpactResultOverAllVulnerabilityClassesE4D4',
           title: 'Map impact results over all vulnerability classes DM4 event 4',
-          layers: 'clarity:vMapImpactResultsOverAllVulnerabilityClasses',
+          layers: 'clarity:view.2813',
           url: 'https://service.emikat.at/geoserver/clarity/wms?cql_filter=HAZARD_EVENT_ID=4',
           style: 'DamageLevel4Q'
         }
