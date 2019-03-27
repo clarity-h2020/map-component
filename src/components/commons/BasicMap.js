@@ -89,7 +89,9 @@ export default class BasicMap extends React.Component {
           .then((resp) => resp.json())
           .then(function(data) {
             if (data.data.relationships.field_resources.links.related != null) {
-              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol), {credentials: 'include'})
+              var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard';
+
+              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + '?' + includes, {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 obj.convertDataFromServer(data, obj.mapSelectionId);
@@ -109,7 +111,6 @@ export default class BasicMap extends React.Component {
       });         
     }
 
-
     convertDataFromServer(originData, mapType) {
       this.mapData = new Array();
       var resourceArray = originData.data;
@@ -120,79 +121,69 @@ export default class BasicMap extends React.Component {
       for (var i = 0; i < resourceArray.length; ++i) {
         const resource = resourceArray[i];
 
-        fetch(resource.relationships.field_analysis_context.links.related.href.replace('http://', thisObj.protocol), {credentials: 'include'})
-        .then((resp) => resp.json())
-        .then(function(data) {
-          const hazardLink = data.data.relationships.field_hazard.links.related.href;
+        if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
+          var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
 
-          if (data.data.relationships.field_field_eu_gl_methodology.links.related.href != null) {
-              fetch(data.data.relationships.field_field_eu_gl_methodology.links.related.href.replace('http://', thisObj.protocol), {credentials: 'include'})
-              .then((resp) => resp.json())
-              .then(function(data) {
-                console.log(data.data[0].attributes.field_eu_gl_taxonomy_id.value);
-                if (data.data[0].attributes.field_eu_gl_taxonomy_id.value == mapType) {
-                  if (resource.relationships.field_map_view.links.related.href != null) {
-                    fetch(resource.relationships.field_map_view.links.related.href.replace('http://', thisObj.protocol), {credentials: 'include'})
-                    .then((resp) => resp.json())
-                    .then(function(data) {
+          if (analysisContext != null) {
+            const hazardLink = analysisContext.relationships.field_hazard.links.related.href;
 
-                      if (hazardLink != null) {
-                        fetch(hazardLink.replace('http://', thisObj.protocol), {credentials: 'include'})
-                        .then((resp) => resp.json())
-                        .then(function(hazardData) {
-                            var refObj = new Object();
-                            refObj.url = data.data.attributes.field_url;
-                            refObj.title = resource.attributes.field_title;
-                            refObj.group = hazardData.data[0].attributes.name;
-                            tmpMapData.push(refObj);
-                            thisObj.finishMapExtraction(tmpMapData, resourceLength);
-                        })
-                        .catch(function(error) {
-                          // if (data.data != null) {
-                          //   var refObj = new Object();
-                          //   refObj.url = data.data.attributes.field_url;
-                          //   refObj.title = resource.attributes.field_title;
-                          //   tmpMapData.push(refObj);
-                          //   thisObj.finishMapExtraction(tmpMapData, resourceLength);
-                          // } else {
-                            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
-                          // }
-//                          console.log(JSON.stringify(error));
-                        });         
-                      } else {
+            if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
+              var mythodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
+              console.log(mythodologyData.attributes.field_eu_gl_taxonomy_id.value);
+
+              if (mythodologyData.attributes.field_eu_gl_taxonomy_id.value == mapType) {
+                if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
+                  var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+
+                  if (mapView != null) {
+                    if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
+                      var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
+                      if (hazard != null) {
                         var refObj = new Object();
-                        refObj.url = data.data.attributes.field_url;
+                        refObj.url = mapView.attributes.field_url;
                         refObj.title = resource.attributes.field_title;
+                        refObj.group = hazard.attributes.name;
                         tmpMapData.push(refObj);
                         thisObj.finishMapExtraction(tmpMapData, resourceLength);
+                      } else {
+                        thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                       }
-                    })
-                    .catch(function(error) {
+                    } else {
                       thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
-                      console.log(JSON.stringify(error));
-                    });         
-      
+                    }
                   } else {
                     thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                   }
                 } else {
                   thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
                 }
-            })
-              .catch(function(error) {
+              } else {
                 thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
-                console.log(JSON.stringify(error));
-              });         
+              }
             } else {
               thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
             }
-        })
-        .catch(function(error) {
+          } else {
+            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+          }
+        } else {
           thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
-          console.log(JSON.stringify(error));
-        });         
+        }
       }
     }
+
+
+  getInculdedObject(type, id, includedArray) {
+    if (type != null && id != null) {
+        for (let i = 0; i < includedArray.length; ++i) {
+          if (includedArray[i].type === type && includedArray[i].id === id) {
+            return includedArray[i];
+          }
+        }
+    }
+
+    return null;
+  }
 
   addEmptyMapDataElement(tmpMapData, resourceLength) {
     var refObj = new Object();
