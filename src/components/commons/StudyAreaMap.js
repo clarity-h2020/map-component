@@ -139,7 +139,8 @@ export default class StudyAreaMap extends React.Component {
   }
 
   render() {
-    var geometry = (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null);
+//    var geometry = (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null);
+    var geometry = (this.state.studyAreaPolygon != null ? this.state.studyAreaPolygon.geometry : (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null));
 
     if (geometry == null) {
       geometry = {
