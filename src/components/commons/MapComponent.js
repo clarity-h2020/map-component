@@ -3,6 +3,7 @@ import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
 
+
 export default class MapComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -178,6 +179,20 @@ export default class MapComponent extends React.Component {
     return " ";
   }
 
+  getStyle(name) {
+    for (var i = 0;i <  this.props.overlays.length; i++) {
+      if (this.props.overlays[i].name === name) {
+        if (this.props.overlays[i].style != null) {
+          return this.props.overlays[i].style;
+        } else {
+          return "";
+        }
+      }
+    }
+
+    return "";
+  }
+  
   createLayer(d) {
     var layerArray = [];
     var opac = 0.5;
@@ -189,8 +204,10 @@ export default class MapComponent extends React.Component {
           layers={this.getLayers(obj.name)}
           url={this.getUrl(obj.name)}
           transparent="true"
+          format='image/png'
           opacity={opac}
-          styles={obj.style != null ? obj.style : ""}
+          styles={this.getStyle(obj.name)}
+          tileSize={1536}
         />);
       }
     }
