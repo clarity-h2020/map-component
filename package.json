@@ -17,7 +17,8 @@
     "wicket": "latest",
     "leaflet-groupedlayercontrol": "latest",
     "react-leaflet-grouped-layer-control": "latest",
-    "react-router-dom": "latest"
+    "react-router-dom": "latest",
+    "leaflet.nontiledlayer": "latest"
   },
   "scripts": {
     "start": "react-scripts start",

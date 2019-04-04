@@ -90,8 +90,9 @@ export default class BasicMap extends React.Component {
           .then(function(data) {
             if (data.data.relationships.field_resources.links.related != null) {
               var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard';
+              var separator = (data.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
-              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + '?' + includes, {credentials: 'include'})
+              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, {credentials: 'include'})
               .then((resp) => resp.json())
               .then(function(data) {
                 obj.convertDataFromServer(data, obj.mapSelectionId);
@@ -209,6 +210,21 @@ export default class BasicMap extends React.Component {
       }
 
       if (mapModel.length > 0) {
+        mapModel.sort(function(a, b) {
+          if ( (a == null || a.name == null) && (b == null || b.name == null) ) {
+            return 0;
+          } else if (a == null || a.name == null) {
+            return -1;
+          } else if (b == null || b.name == null) {
+            return 1;
+          } else if (a.name < b.name) {
+            return -1;
+          } else if (a.name > b.name) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
         this.setState({
           overlays: mapModel,
           loading: false
