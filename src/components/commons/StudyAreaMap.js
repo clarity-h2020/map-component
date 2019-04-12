@@ -22,13 +22,12 @@ export default class StudyAreaMap extends React.Component {
     if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
       this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon })
     }
-    this.writeStudyArea();
   }
 
   init() {
     const map = this.refs.map.leafletElement
     map.invalidateSize();
-    this.setState({count: ++this.state.count})
+    this.setState({count: this.state.count + 1})
   }
 
   _onEditResize(e) {
@@ -76,30 +75,6 @@ export default class StudyAreaMap extends React.Component {
     }
   }
 
-  writeStudyArea() {
-    try {
-      var data = '{"data": {"type": "group--study","id": "' + this.props.uuid + '"}}';
-      var mimeType = "application/vnd.api+json";      //hal+json
-      var xmlHttp = new XMLHttpRequest();
-      xmlHttp.open('PATCH', this.props.hostname.substring(0, this.props.hostname.length) + '/jsonapi/group/study/' + comp.props.uuid, true);  // true : asynchrone false: synchrone
-      xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');  
-      xmlHttp.setRequestHeader('Content-Type', mimeType);  
-      xmlHttp.setRequestHeader('X-CSRF-Token', key);  
-      xmlHttp.send(data);
-      this.setState(
-        {
-          canWrite: true
-        }
-      );
-    } catch (ex) {
-      this.setState(
-        {
-          canWrite: false
-        }
-      );
-    }
-  }
-
   getTokenUrl() {
     return this.props.hostname + '/rest/session/token';
   }
@@ -134,8 +109,6 @@ export default class StudyAreaMap extends React.Component {
   }
   
   componentDidMount () {
-    const map = this.refs.map.leafletElement;
-    map.bindTooltip
   }
 
   render() {
@@ -154,7 +127,6 @@ export default class StudyAreaMap extends React.Component {
         ]]
       };
     }
-    var area = true;
     var studyAreaStyle = {
       "color": "#ff0000",
       "weight": 2,
@@ -174,7 +146,7 @@ export default class StudyAreaMap extends React.Component {
               <GeoJSON style={studyAreaStyle} data={this.state.studyAreaPolygon} />
             }
             <FeatureGroup>
-              { (this.state.readOnly == null || this.state.readOnly == false) &&
+              { (this.state.readOnly == null || this.state.readOnly === false) &&
                 <EditControl 
                     position='topright'
                     onCreated={this._onCreated.bind(this)}

@@ -5,5 +5,6 @@ map_app:
      dist/css/leaflet-draw.css: {}
      src/MapComp.css: {}
      src/Loader.css: {}
+     dist/css/Control.Loading.css: {}
   js:
     dist/js/bundle.js: {}

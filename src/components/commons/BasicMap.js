@@ -113,7 +113,7 @@ export default class BasicMap extends React.Component {
     }
 
     convertDataFromServer(originData, mapType) {
-      this.mapData = new Array();
+      this.mapData = [];
       var resourceArray = originData.data;
       const tmpMapData = this.mapData;
       const resourceLength = resourceArray.length;
@@ -126,13 +126,11 @@ export default class BasicMap extends React.Component {
           var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
 
           if (analysisContext != null) {
-            const hazardLink = analysisContext.relationships.field_hazard.links.related.href;
-
             if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
               var mythodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
               console.log(mythodologyData.attributes.field_eu_gl_taxonomy_id.value);
 
-              if (mythodologyData.attributes.field_eu_gl_taxonomy_id.value == mapType) {
+              if (mythodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
                 if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
                   var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
@@ -140,7 +138,7 @@ export default class BasicMap extends React.Component {
                     if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
                       var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
                       if (hazard != null) {
-                        var refObj = new Object();
+                        var refObj = {};
                         refObj.url = mapView.attributes.field_url;
                         refObj.title = resource.attributes.field_title;
                         refObj.group = hazard.attributes.name;
@@ -187,18 +185,18 @@ export default class BasicMap extends React.Component {
   }
 
   addEmptyMapDataElement(tmpMapData, resourceLength) {
-    var refObj = new Object();
+    var refObj = {};
     refObj.url = null;
     tmpMapData.push(refObj);
     this.finishMapExtraction(tmpMapData, resourceLength);
   }
 
   finishMapExtraction(mapData, resourceLength) {
-    if (mapData.length == resourceLength) {
+    if (mapData.length === resourceLength) {
       var mapModel = [];
       for (var i = 0; i < mapData.length; ++i) {
         if (mapData[i].url != null) {
-          var obj = new Object();
+          var obj = {};
           obj.checked = false;
           obj.groupTitle = (mapData[i].group == null ? 'relevant layer' : mapData[i].group);
           obj.name = this.titleToName(mapData[i].title);
@@ -227,23 +225,36 @@ export default class BasicMap extends React.Component {
         });
         this.setState({
           overlays: mapModel,
-          loading: false
+          loading: false,
+          exclusiveGroups: this.extractGroups(mapModel)
         });
       } else if (this.overlaysBackup != null) {
         this.setState({
           overlays: this.overlaysBackup,
-          loading: false
+          loading: false,
+          exclusiveGroups: this.extractGroups(this.overlaysBackup)
         });
       }
     }
   }
 
-  print() {
-    var callback = function (b) {
-            prompt(b);
+  extractGroups(mapData) {
+    var groups = [];
+    for (var i = 0; i < mapData.length; ++i) {
+      if (!groups.includes(mapData[i].groupTitle)) {
+        groups.push(mapData[i].groupTitle);
+      }
     }
-    html2canvas(document.getElementById("riskAndImpact-map-container")).then(canvas => {
-    canvas.toBlob(callback)});
+
+    return groups;
+  }
+
+  print() {
+    // var callback = function (b) {
+    //         prompt(b);
+    // }
+    // html2canvas(document.getElementById("riskAndImpact-map-container")).then(canvas => {
+    // canvas.toBlob(callback)});
   }
 
   titleToName(title) {
@@ -252,16 +263,16 @@ export default class BasicMap extends React.Component {
 
   extractLayers(url) {
     var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
-    return (layerParam.indexOf('&') != -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
   extractStyle(url) {
     var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
-    return (layerParam.indexOf('&') != -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
   extractUrl(url) {
-    return (url.indexOf('?') != -1 ? url.substring(0, url.indexOf('?')) : null);
+    return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
   }
 
   getBoundsFromArea(area) {

@@ -29,7 +29,7 @@ export default class App extends React.Component {
 
   render() {
       return (
-        <div>
+        <div style={{height: "500px"}}>
           <main>
           <BrowserRouter>
             <Switch>
