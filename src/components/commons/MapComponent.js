@@ -2,6 +2,8 @@ import React from 'react';
 import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
+import "./Control.Loading.js";
+
 
 
 export default class MapComponent extends React.Component {
@@ -12,7 +14,9 @@ export default class MapComponent extends React.Component {
       loading: props.loading,
       bounds: props.bounds,
       checkedBaseLayer: props.baseLayers[0].name,
-      overlays: props.overlays
+      overlays: props.overlays,
+      exclusiveGroups: props.exclusiveGroups,
+      oldOverlay: []
     }
     this.baseLayers = props.baseLayers;
     this.tileLayerUrl = props.baseLayers[0].url;
@@ -26,7 +30,6 @@ export default class MapComponent extends React.Component {
   componentDidUpdate () {
     const map = this.map.leafletElement;
     map.invalidateSize();
-    var zoom = this.getLastZoom();
 
     if (this.fly && (this.props.studyAreaPolygon != null)) {
         map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
@@ -40,7 +43,7 @@ export default class MapComponent extends React.Component {
         loader[0].parentElement.removeChild(loader[0]);
       }
       if (this.props.loading != null && this.props.loading) {
-        var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
+        let groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
         if (groupTitles.length > 0 && groupTitles[0].parentElement != null) {
           var element = groupTitles[0].parentElement;
           var loadingEl = this.htmlToElement('<div style="text-align: center"><div name="mapLoading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>');
@@ -136,16 +139,27 @@ export default class MapComponent extends React.Component {
   baseLayerChange(baseTitle) {
     if (baseTitle === this.state.checkedBaseLayer) { return false; }
     console.warn(baseTitle)
-    this.tileLayerUrl = this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? e.url : false }).filter(e => e != false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    this.tileLayerUrl = this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? e.url : false }).filter(e => e !== false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 //    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
     this.setState({checkedBaseLayer: baseTitle})
-    this.setState({count: ++this.state.count})
+    this.setState({count: this.state.count + 1})
   }
 
+  // only one checked overlay layer is allowed
   overlayChange(newOverlays) {
+    if (this.state.oldOverlay != null) {
+      for (var i = 0; i < newOverlays.length && i < this.state.oldOverlay.length; ++i) {
+        if (this.state.oldOverlay[i].name === newOverlays[i].name && newOverlays[i].checked && this.state.oldOverlay[i].checked === newOverlays[i].checked) {
+          newOverlays[i].checked = false;
+        }
+      }
+    }
+
     this.state.overlays = [...newOverlays];
+
     this.setState({
-      count: ++this.state.count
+      count: this.state.count + 1,
+      oldOverlay: newOverlays
     })
   }
 
@@ -286,10 +300,11 @@ export default class MapComponent extends React.Component {
     // }
 
     var mapElement = (
-    <Map ref={(comp)=>this.map=comp}
+    <Map style={{height: "500px"}} ref={(comp)=>this.map=comp}
         className="simpleMap"
         scrollWheelZoom={true}
         bounds={bbox}
+        loadingControl= {true}
         >
       {this.props.studyAreaPolygon != null &&
         <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
@@ -306,6 +321,7 @@ export default class MapComponent extends React.Component {
         overlays={overlays}
         onBaseLayerChange={this.baseLayerChange.bind(this)}
         onOverlayChange={this.overlayChange.bind(this)}
+        exclusiveGroups={this.state.exclusiveGroups}
       />
     </Map>
    )
