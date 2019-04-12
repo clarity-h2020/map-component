@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
+import { runInThisContext } from "vm";
 
 
 //const CharacteriseHazardMap = () => {
@@ -80,7 +81,7 @@ export default class CharacteriseHazardMap extends BasicMap {
       },
       {
         checked:false,
-        groupTitle:"Heat Wave",
+        groupTitle:"TEST",
         name:"Heat_Waves_2041_-_2070_rcp_85",
         title:"Heat_Waves 2041 - 2070 RCP85",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
@@ -88,13 +89,14 @@ export default class CharacteriseHazardMap extends BasicMap {
       },
       {
         checked:false,
-        groupTitle:"Heat Wave",
+        groupTitle:"TEST",
         name:"Heat_Waves_2071_-_2100_rcp_85",
         title:"Heat_Waves 2071 - 2100 RCP85",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       }
     ];    
+    var overlays = [];
     this.state ={
       baseLayers: [
         {
@@ -108,7 +110,8 @@ export default class CharacteriseHazardMap extends BasicMap {
           url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
         }
       ],
-      overlays: [],
+      overlays: overlays,
+      exclusiveGroups: this.extractGroups(overlays),
       bounds: [corner1, corner2],
       loading: true
     };
@@ -125,7 +128,8 @@ export default class CharacteriseHazardMap extends BasicMap {
       baseLayers={this.state.baseLayers}
       exclusiveGroups={{}}
       overlays={this.state.overlays}
-      studyAreaPolygon={this.state.studyAreaPolygon} />
+      studyAreaPolygon={this.state.studyAreaPolygon}
+      exclusiveGroups={this.state.exclusiveGroups} />
     );
   }
 };

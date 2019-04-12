@@ -18,7 +18,8 @@
     "leaflet-groupedlayercontrol": "latest",
     "react-leaflet-grouped-layer-control": "latest",
     "react-router-dom": "latest",
-    "leaflet.nontiledlayer": "latest"
+    "leaflet.nontiledlayer": "latest",
+    "leaflet-loading": "latest"
   },
   "scripts": {
     "start": "react-scripts start",

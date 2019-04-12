@@ -54,6 +54,7 @@ export default class ExposureMap extends BasicMap {
           }
           ],
           overlays: [],
+          exclusiveGroups: this.extractGroups([]),
           bounds: [corner1, corner2],
           loading: true
       };
@@ -69,6 +70,7 @@ export default class ExposureMap extends BasicMap {
         baseLayers={this.state.baseLayers}
         exclusiveGroups={{}}
         overlays={this.state.overlays}
+        exclusiveGroups={this.state.exclusiveGroups}
         studyAreaPolygon={this.state.studyAreaPolygon} />
       );
     }
