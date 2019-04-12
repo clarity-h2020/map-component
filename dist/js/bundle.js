@@ -26337,7 +26337,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMap__["default"] {
   constructor(props) {
-    super(props, 'eu_gl:hazard-characterization');
+    super(props, 'eu-gl:hazard-characterization');
     const corner1 = [39.853294, 13.305573];
     const corner2 = [41.853294, 15.305573];
     this.overlaysBackup = [{
@@ -26398,14 +26398,14 @@ class CharacteriseHazardMap extends __WEBPACK_IMPORTED_MODULE_3__commons_BasicMa
       url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
     }, {
       checked: false,
-      groupTitle: "TEST",
+      groupTitle: "Heat Wave",
       name: "Heat_Waves_2041_-_2070_rcp_85",
       title: "Heat_Waves 2041 - 2070 RCP85",
       layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
       url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
     }, {
       checked: false,
-      groupTitle: "TEST",
+      groupTitle: "Heat Wave",
       name: "Heat_Waves_2071_-_2100_rcp_85",
       title: "Heat_Waves 2071 - 2100 RCP85",
       layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
