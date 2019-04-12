@@ -321,7 +321,7 @@ export default class MapComponent extends React.Component {
         overlays={overlays}
         onBaseLayerChange={this.baseLayerChange.bind(this)}
         onOverlayChange={this.overlayChange.bind(this)}
-        exclusiveGroups={this.state.exclusiveGroups}
+        exclusiveGroups={this.props.exclusiveGroups}
       />
     </Map>
    )
