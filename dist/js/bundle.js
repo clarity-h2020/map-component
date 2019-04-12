@@ -17330,7 +17330,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         overlays: overlays,
         onBaseLayerChange: this.baseLayerChange.bind(this),
         onOverlayChange: this.overlayChange.bind(this),
-        exclusiveGroups: this.state.exclusiveGroups
+        exclusiveGroups: this.props.exclusiveGroups
       })
     );
     window.mapCom = this;
