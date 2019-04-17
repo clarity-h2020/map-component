@@ -1,8 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
+import 'leaflet-fullscreen'
+import 'react-leaflet-fullscreen-control'
 import turf from 'turf';
-import "./Control.Loading.js";
+import 'leaflet-loading'
 
 
 
@@ -55,9 +58,9 @@ export default class MapComponent extends React.Component {
       const self = this;
 
       if (this.hideListener != null) {
-        for (var i = 0; i < groupTitles.length; ++i) {
-          if (this.hideListener.length > i) {
-            groupTitles[i].removeEventListener("click", this.hideListener[i])
+        for (var ind = 0; ind < groupTitles.length; ++ind) {
+          if (this.hideListener.length > ind) {
+            groupTitles[ind].removeEventListener("click", this.hideListener[ind])
           }
         }
       }
@@ -155,9 +158,10 @@ export default class MapComponent extends React.Component {
       }
     }
 
-    this.state.overlays = [...newOverlays];
+    // this.state.overlays = [...newOverlays];
 
     this.setState({
+      overlays: [...newOverlays],
       count: this.state.count + 1,
       oldOverlay: newOverlays
     })
@@ -305,6 +309,7 @@ export default class MapComponent extends React.Component {
         scrollWheelZoom={true}
         bounds={bbox}
         loadingControl= {true}
+        fullscreenControl
         >
       {this.props.studyAreaPolygon != null &&
         <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
@@ -330,3 +335,13 @@ export default class MapComponent extends React.Component {
   }
 };
 
+
+MapComponent.propTypes = {
+  loading: PropTypes.bool,
+  bounds: PropTypes.object,
+  baseLayers: PropTypes.array,
+  exclusiveGroups: PropTypes.array,
+  overlays: PropTypes.array,
+  exclusiveGroups: PropTypes.array,
+  studyAreaPolygon: PropTypes.object
+}
