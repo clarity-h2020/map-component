@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from 'react-dom';
 import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
-import { runInThisContext } from "vm";
 
 
 //const CharacteriseHazardMap = () => {
