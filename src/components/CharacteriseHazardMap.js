@@ -125,7 +125,6 @@ export default class CharacteriseHazardMap extends BasicMap {
       loading={this.state.loading}
       bounds={this.state.bounds}
       baseLayers={this.state.baseLayers}
-      exclusiveGroups={{}}
       overlays={this.state.overlays}
       studyAreaPolygon={this.state.studyAreaPolygon}
       exclusiveGroups={this.state.exclusiveGroups} />

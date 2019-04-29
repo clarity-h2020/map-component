@@ -22,7 +22,8 @@
     "leaflet-loading": "latest",
     "react-leaflet-fullscreen-control": "latest",
     "leaflet-fullscreen": "latest",
-    "prop-types": "latest"
+    "prop-types": "latest",
+    "wms-capabilities": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
