@@ -19,7 +19,11 @@
     "react-leaflet-grouped-layer-control": "latest",
     "react-router-dom": "latest",
     "leaflet.nontiledlayer": "latest",
-    "leaflet-loading": "latest"
+    "leaflet-loading": "latest",
+    "react-leaflet-fullscreen-control": "latest",
+    "leaflet-fullscreen": "latest",
+    "prop-types": "latest",
+    "wms-capabilities": "latest"
   },
   "scripts": {
     "start": "react-scripts start",

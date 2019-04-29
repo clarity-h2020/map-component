@@ -1,8 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
-import { ReactLeafletGroupedLayerControl} from 'react-leaflet-grouped-layer-control';
+import { ReactLeafletGroupedLayerControl } from 'react-leaflet-grouped-layer-control';
+import 'leaflet-fullscreen'
+import 'react-leaflet-fullscreen-control'
 import turf from 'turf';
-import "./Control.Loading.js";
+import 'leaflet-loading'
+import LegendComponent from './LegendComponent.js'
 
 
 
@@ -22,18 +26,36 @@ export default class MapComponent extends React.Component {
     this.tileLayerUrl = props.baseLayers[0].url;
     this.fly = true;
   }
-  
-  componentDidMount () {
-    this.map.leafletElement.invalidateSize();
+
+  componentDidMount() {
+    var mapElement = this.map.leafletElement;
+    mapElement.invalidateSize();
+    var element = document.getElementsByClassName("react-app-container");
+
+    if (element != null && element.length > 0) {
+      var infoDiv = this.htmlToElement('<div id="reportInfoElement" style="visibility: hidden"></div>');
+      element[0].appendChild(infoDiv);
+    }
+
+    this.updateInfoElement();
   }
 
-  componentDidUpdate () {
+  updateInfoElement() {
+    var mapElement = this.map.leafletElement;
+    var element = document.getElementById("reportInfoElement");
+
+    if (element != null) {
+      element.innerhtml = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds();
+    }
+  }
+
+  componentDidUpdate() {
     const map = this.map.leafletElement;
     map.invalidateSize();
 
     if (this.fly && (this.props.studyAreaPolygon != null)) {
-        map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
-        this.fly = false;
+      map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
+      this.fly = false;
     }
 
     if (this.layerControl != null) {
@@ -55,16 +77,16 @@ export default class MapComponent extends React.Component {
       const self = this;
 
       if (this.hideListener != null) {
-        for (var i = 0; i < groupTitles.length; ++i) {
-          if (this.hideListener.length > i) {
-            groupTitles[i].removeEventListener("click", this.hideListener[i])
+        for (var ind = 0; ind < groupTitles.length; ++ind) {
+          if (this.hideListener.length > ind) {
+            groupTitles[ind].removeEventListener("click", this.hideListener[ind])
           }
         }
       }
       this.hideListener = [];
       for (var i = 0; i < groupTitles.length; ++i) {
         const el = groupTitles[i];
-        var listener = function() {self.showHide(el)};
+        var listener = function () { self.showHide(el) };
         this.hideListener.push(listener);
         el.addEventListener("click", listener)
       }
@@ -76,13 +98,13 @@ export default class MapComponent extends React.Component {
     html = html.trim();
     template.innerHTML = html;
     return template.content.firstChild;
-  }  
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.overlays !== this.props.overlays) {
       this.setState({ overlays: nextProps.overlays });
       const thisObj = this;
-      setTimeout(function() {
+      setTimeout(function () {
         thisObj.setState({ overlays: nextProps.overlays });
       }, 100);
     }
@@ -140,9 +162,9 @@ export default class MapComponent extends React.Component {
     if (baseTitle === this.state.checkedBaseLayer) { return false; }
     console.warn(baseTitle)
     this.tileLayerUrl = this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? e.url : false }).filter(e => e !== false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-//    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
-    this.setState({checkedBaseLayer: baseTitle})
-    this.setState({count: this.state.count + 1})
+    //    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
+    this.setState({ checkedBaseLayer: baseTitle })
+    this.setState({ count: this.state.count + 1 })
   }
 
   // only one checked overlay layer is allowed
@@ -155,16 +177,17 @@ export default class MapComponent extends React.Component {
       }
     }
 
-    this.state.overlays = [...newOverlays];
+    // this.state.overlays = [...newOverlays];
 
     this.setState({
+      overlays: [...newOverlays],
       count: this.state.count + 1,
       oldOverlay: newOverlays
     })
   }
 
   getUrl(name) {
-    for (var i = 0;i <  this.props.overlays.length; i++) {
+    for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].url;
       }
@@ -174,7 +197,7 @@ export default class MapComponent extends React.Component {
   }
 
   getBaseUrl(name) {
-    for (var i = 0;i <  this.props.baseLayers.length; i++) {
+    for (var i = 0; i < this.props.baseLayers.length; i++) {
       if (this.props.baseLayers[i].name === name) {
         return this.props.baseLayers[i].url;
       }
@@ -184,7 +207,7 @@ export default class MapComponent extends React.Component {
   }
 
   getLayers(name) {
-    for (var i = 0;i <  this.props.overlays.length; i++) {
+    for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
         return this.props.overlays[i].layers;
       }
@@ -194,7 +217,7 @@ export default class MapComponent extends React.Component {
   }
 
   getStyle(name) {
-    for (var i = 0;i <  this.props.overlays.length; i++) {
+    for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
         if (this.props.overlays[i].style != null) {
           return this.props.overlays[i].style;
@@ -206,14 +229,14 @@ export default class MapComponent extends React.Component {
 
     return "";
   }
-  
+
   createLayer(d) {
     var layerArray = [];
     var opac = 0.5;
 
     for (var i = 0; i < d.length; ++i) {
       var obj = d[i];
-      if ( obj.checked ) {
+      if (obj.checked) {
         layerArray.push(<WMSTileLayer
           layers={this.getLayers(obj.name)}
           url={this.getUrl(obj.name)}
@@ -223,6 +246,26 @@ export default class MapComponent extends React.Component {
           styles={this.getStyle(obj.name)}
           tileSize={1536}
         />);
+      }
+    }
+
+    return layerArray;
+  }
+
+  getOverlayForLegend(d) {
+    var layerArray = [];
+
+    for (var i = 0; i < d.length; ++i) {
+      var obj = d[i];
+      if (obj.checked) {
+        var obj = {
+          "checked": obj.checked,
+          "style": this.getStyle(obj.name),
+          "layers": this.getLayers(obj.name),
+          "url": this.getUrl(obj.name),
+          "title": obj.title
+        };
+        layerArray.push(obj);
       }
     }
 
@@ -262,7 +305,7 @@ export default class MapComponent extends React.Component {
 
     for (var i = 0; i < d.length; ++i) {
       var obj = d[i];
-      if ( obj.checked ) {
+      if (obj.checked) {
         layerArray.push(<WMSTileLayer
           url={this.getBaseUrl(obj.name)}
           noWrap={true}
@@ -275,7 +318,6 @@ export default class MapComponent extends React.Component {
 
 
   render() {
-//    console.log("this.layerControl", this.layerControl);
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
     var bbox = [corner1, corner2];
@@ -288,45 +330,48 @@ export default class MapComponent extends React.Component {
     };
     var overlays = this.state.overlays;
 
-    // if (this.state.loading != null && this.state.loading) {
-    //   overlays = [{
-    //     checked: false,
-    //     groupTitle: "loading",
-    //     name: "",
-    //     title: "",
-    //     layers: "",
-    //     url: ""
-    //   }];
-    // }
-
     var mapElement = (
-    <Map style={{height: "500px"}} ref={(comp)=>this.map=comp}
-        className="simpleMap"
-        scrollWheelZoom={true}
-        bounds={bbox}
-        loadingControl= {true}
+      <div>
+        <Map style={{ height: "500px" }} ref={(comp) => this.map = comp}
+          className="simpleMap"
+          scrollWheelZoom={true}
+          bounds={bbox}
+          loadingControl={true}
+          fullscreenControl
         >
-      {this.props.studyAreaPolygon != null &&
-        <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
-      }
-      <TileLayer noWrap={true} url={this.tileLayerUrl} />
-      {
-        this.createLayer(this.state.overlays)
-      }
-      <ReactLeafletGroupedLayerControl 
-        ref={(comp)=>this.layerControl=comp}
-        position="topright"
-        baseLayers={this.props.baseLayers}
-        checkedBaseLayer={this.state.checkedBaseLayer}
-        overlays={overlays}
-        onBaseLayerChange={this.baseLayerChange.bind(this)}
-        onOverlayChange={this.overlayChange.bind(this)}
-        exclusiveGroups={this.props.exclusiveGroups}
-      />
-    </Map>
-   )
+          {this.props.studyAreaPolygon != null &&
+            <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
+          }
+          <TileLayer noWrap={true} url={this.tileLayerUrl} />
+          {
+            this.createLayer(this.state.overlays)
+          }
+          <ReactLeafletGroupedLayerControl
+            ref={(comp) => this.layerControl = comp}
+            position="topright"
+            baseLayers={this.props.baseLayers}
+            checkedBaseLayer={this.state.checkedBaseLayer}
+            overlays={overlays}
+            onBaseLayerChange={this.baseLayerChange.bind(this)}
+            onOverlayChange={this.overlayChange.bind(this)}
+            exclusiveGroups={this.props.exclusiveGroups}
+          />
+        </Map>
+        <LegendComponent layer={this.getOverlayForLegend(overlays)} />
+      </div>
+    )
     window.mapCom = this;
     return mapElement;
   }
 };
 
+
+MapComponent.propTypes = {
+  loading: PropTypes.bool,
+  bounds: PropTypes.array,
+  baseLayers: PropTypes.array,
+  exclusiveGroups: PropTypes.array,
+  overlays: PropTypes.array,
+  exclusiveGroups: PropTypes.array,
+  studyAreaPolygon: PropTypes.object
+}

@@ -75,7 +75,6 @@ export default class HazardLocalEffectsMap extends BasicMap {
         loading={this.state.loading}
         bounds={this.state.bounds}
         baseLayers={this.state.baseLayers}
-        exclusiveGroups={{}}
         overlays={this.state.overlays}
         exclusiveGroups={this.state.exclusiveGroups}
         studyAreaPolygon={this.state.studyAreaPolygon} />
