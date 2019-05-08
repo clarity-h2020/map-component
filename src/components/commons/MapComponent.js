@@ -41,11 +41,13 @@ export default class MapComponent extends React.Component {
   }
 
   updateInfoElement() {
-    var mapElement = this.map.leafletElement;
-    var element = document.getElementById("reportInfoElement");
+    if (this.map != null) {
+      var mapElement = this.map.leafletElement;
+      var element = document.getElementById("reportInfoElement");
 
-    if (element != null) {
-      element.innerhtml = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds();
+      if (element != null) {
+        element.innerHTML = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds().toBBoxString();
+      }
     }
   }
 
@@ -162,7 +164,6 @@ export default class MapComponent extends React.Component {
     if (baseTitle === this.state.checkedBaseLayer) { return false; }
     console.warn(baseTitle)
     this.tileLayerUrl = this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? e.url : false }).filter(e => e !== false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    //    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
     this.setState({ checkedBaseLayer: baseTitle })
     this.setState({ count: this.state.count + 1 })
   }
@@ -176,8 +177,6 @@ export default class MapComponent extends React.Component {
         }
       }
     }
-
-    // this.state.overlays = [...newOverlays];
 
     this.setState({
       overlays: [...newOverlays],
@@ -316,6 +315,9 @@ export default class MapComponent extends React.Component {
     return layerArray;
   }
 
+  onViewportChanged(center, zoom) {
+    this.updateInfoElement();
+  }
 
   render() {
     const corner1 = [35.746512, -30.234375];
@@ -338,7 +340,8 @@ export default class MapComponent extends React.Component {
           bounds={bbox}
           loadingControl={true}
           fullscreenControl
-        >
+          onViewportChanged={this.onViewportChanged.bind(this)}
+          >
           {this.props.studyAreaPolygon != null &&
             <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
           }
