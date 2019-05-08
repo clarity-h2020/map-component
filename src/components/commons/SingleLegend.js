@@ -16,11 +16,13 @@ export default class SingleLegend extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        var lUrl = this.props.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + this.props.layer.layers;
+        if (nextProps.layer != null) {
+            var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers;
 
-        this.state = {
-            legendUrl: lUrl,
-            title: this.props.layer.title
+            this.state = {
+                legendUrl: lUrl,
+                title: nextProps.layer.title
+            }
         }
       }
 

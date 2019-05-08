@@ -17050,7 +17050,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     var element = document.getElementById("reportInfoElement");
 
     if (element != null) {
-      element.innerhtml = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds();
+      element.innerHTML = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds().toBBoxString();
     }
   }
 
@@ -17173,7 +17173,6 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     this.tileLayerUrl = this.props.baseLayers.map((e, i) => {
       return e.name === baseTitle ? e.url : false;
     }).filter(e => e !== false)[0] || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    //    this.tileLayerUrl = this.props.maps[this.props.baseLayers.map((e, i) => { return (e.name === baseTitle) ? String(i) : false }).filter(e => e)[0] | 0] || this.props.maps[0];
     this.setState({ checkedBaseLayer: baseTitle });
     this.setState({ count: this.state.count + 1 });
   }
@@ -17187,8 +17186,6 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         }
       }
     }
-
-    // this.state.overlays = [...newOverlays];
 
     this.setState({
       overlays: [...newOverlays],
@@ -17327,6 +17324,10 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     return layerArray;
   }
 
+  onViewportChanged() {
+    this.updateInfoElement();
+  }
+
   render() {
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
@@ -17363,7 +17364,8 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
           overlays: overlays,
           onBaseLayerChange: this.baseLayerChange.bind(this),
           onOverlayChange: this.overlayChange.bind(this),
-          exclusiveGroups: this.props.exclusiveGroups
+          exclusiveGroups: this.props.exclusiveGroups,
+          onViewportChanged: this.onViewportChanged
         })
       ),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_8__LegendComponent_js__["default"], { layer: this.getOverlayForLegend(overlays) })
@@ -28898,12 +28900,14 @@ class SingleLegend extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     }
 
     componentWillReceiveProps(nextProps) {
-        var lUrl = this.props.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + this.props.layer.layers;
+        if (nextProps.layer != null) {
+            var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers;
 
-        this.state = {
-            legendUrl: lUrl,
-            title: this.props.layer.title
-        };
+            this.state = {
+                legendUrl: lUrl,
+                title: nextProps.layer.title
+            };
+        }
     }
 
     extractUrl(url) {
