@@ -17046,11 +17046,13 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
   }
 
   updateInfoElement() {
-    var mapElement = this.map.leafletElement;
-    var element = document.getElementById("reportInfoElement");
+    if (this.map != null) {
+      var mapElement = this.map.leafletElement;
+      var element = document.getElementById("reportInfoElement");
 
-    if (element != null) {
-      element.innerHTML = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds().toBBoxString();
+      if (element != null) {
+        element.innerHTML = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds().toBBoxString();
+      }
     }
   }
 
@@ -17324,7 +17326,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
     return layerArray;
   }
 
-  onViewportChanged() {
+  onViewportChanged(center, zoom) {
     this.updateInfoElement();
   }
 
@@ -17351,7 +17353,8 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
           scrollWheelZoom: true,
           bounds: bbox,
           loadingControl: true,
-          fullscreenControl: true
+          fullscreenControl: true,
+          onViewportChanged: this.onViewportChanged.bind(this)
         },
         this.props.studyAreaPolygon != null && __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["GeoJSON"], { style: studyAreaStyle, data: this.props.studyAreaPolygon }),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2_react_leaflet__["TileLayer"], { noWrap: true, url: this.tileLayerUrl }),
@@ -17364,8 +17367,7 @@ class MapComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
           overlays: overlays,
           onBaseLayerChange: this.baseLayerChange.bind(this),
           onOverlayChange: this.overlayChange.bind(this),
-          exclusiveGroups: this.props.exclusiveGroups,
-          onViewportChanged: this.onViewportChanged
+          exclusiveGroups: this.props.exclusiveGroups
         })
       ),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_8__LegendComponent_js__["default"], { layer: this.getOverlayForLegend(overlays) })
@@ -28903,10 +28905,10 @@ class SingleLegend extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Compone
         if (nextProps.layer != null) {
             var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers;
 
-            this.state = {
+            this.setState({
                 legendUrl: lUrl,
                 title: nextProps.layer.title
-            };
+            });
         }
     }
 

@@ -19,10 +19,10 @@ export default class SingleLegend extends React.Component {
         if (nextProps.layer != null) {
             var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers;
 
-            this.state = {
+            this.setState({
                 legendUrl: lUrl,
                 title: nextProps.layer.title
-            }
+            });
         }
       }
 
