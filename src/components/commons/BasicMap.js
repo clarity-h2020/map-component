@@ -89,7 +89,7 @@ export default class BasicMap extends React.Component {
           .then((resp) => resp.json())
           .then(function(data) {
             if (data.data.relationships.field_resources.links.related != null) {
-              var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard';
+              var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard,field_temporal_extent,field_analysis_context.field_emissions_scenario';
               var separator = (data.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
               fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, {credentials: 'include'})
@@ -142,6 +142,24 @@ export default class BasicMap extends React.Component {
                         refObj.url = mapView.attributes.field_url;
                         refObj.title = resource.attributes.field_title;
                         refObj.group = hazard.attributes.name;
+
+                        // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
+                        //   var fieldTemporalExtent = this.getInculdedObject(resource.relationships.field_temporal_extent.data.type, resource.relationships.field_temporal_extent.data.id, originData.included);
+
+                        //   if (fieldTemporalExtent != null) {
+                        //     refObj.startdate = fieldTemporalExtent.attributes.field_start_date;
+                        //     refObj.enddate = fieldTemporalExtent.attributes.field_start_date;
+                        //   }
+                        // }
+
+                        // if (analysisContext.relationships.field_emissions_scenario != null && analysisContext.relationships.field_emissions_scenario.data != null) {
+                        //   var emissionsScenario = this.getInculdedObject(analysisContext.relationships.field_emissions_scenario.data.type, analysisContext.relationships.field_emissions_scenario.data.id, originData.included);
+
+                        //   if (emissionsScenario != null) {
+                        //     refObj.emissionsScenario = emissionsScenario.attributes.name;
+                        //   }
+                        // }
+
                         tmpMapData.push(refObj);
                         thisObj.finishMapExtraction(tmpMapData, resourceLength);
                       } else {
