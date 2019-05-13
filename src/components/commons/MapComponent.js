@@ -33,7 +33,7 @@ export default class MapComponent extends React.Component {
     var element = document.getElementsByClassName("react-app-container");
 
     if (element != null && element.length > 0) {
-      var infoDiv = this.htmlToElement('<div id="reportInfoElement" style="visibility: hidden"></div>');
+      var infoDiv = this.htmlToElement('<div id="reportInfoElement" style="visibility: hidden;height: 0px"></div>');
       element[0].appendChild(infoDiv);
     }
 
@@ -47,6 +47,19 @@ export default class MapComponent extends React.Component {
 
       if (element != null) {
         element.innerHTML = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds().toBBoxString();
+        var overlays = this.getOverlayForLegend(this.state.overlays)
+        if (overlays != null && overlays.length > 0) {
+          var layers = null;
+          for (let i = 0; i < overlays.length; ++i) {
+            if (layers == null) {
+              layers = overlays[i].title;
+            } else {
+              layers += ', ' + overlays[i].title;
+            }
+          }
+
+          element.innerHTML = element.innerHTML + ' layer: ' + layers;
+        }
       }
     }
   }
@@ -93,6 +106,7 @@ export default class MapComponent extends React.Component {
         el.addEventListener("click", listener)
       }
     }
+    this.updateInfoElement();
   }
 
   htmlToElement(html) {
@@ -360,7 +374,6 @@ export default class MapComponent extends React.Component {
             exclusiveGroups={this.props.exclusiveGroups}
           />
         </Map>
-        <LegendComponent layer={this.getOverlayForLegend(overlays)} />
       </div>
     )
     window.mapCom = this;

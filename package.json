@@ -23,6 +23,7 @@
     "react-leaflet-fullscreen-control": "latest",
     "leaflet-fullscreen": "latest",
     "prop-types": "latest",
+    "react-compound-slider": "latest",
     "wms-capabilities": "latest"
   },
   "scripts": {
