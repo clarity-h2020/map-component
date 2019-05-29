@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from 'react-dom';
 import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
-import html2canvas from 'html2canvas';
 
 
 //const RiskAndImpactMap = () => {
@@ -181,14 +180,6 @@ export default class RiskAndImpactMap extends BasicMap {
     }
 
 
-    print() {
-      var callback = function (b) {
-              prompt(b);
-      }
-      html2canvas(document.getElementById("riskAndImpact-map-container")).then(canvas => {
-      canvas.toBlob(callback)});
-    }
-  
     render() {
       window.specificMapComponent = this;
 

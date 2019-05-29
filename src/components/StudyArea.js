@@ -36,7 +36,7 @@ export default class StudyArea extends React.Component {
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
-          wkt.read(data.data.attributes.field_boundaries.value);
+          wkt.read(data.data[0].attributes.field_boundaries.value);
           comp.setCountryGeom(JSON.stringify(wkt.toJson()));
       })
       .catch(function(error) {

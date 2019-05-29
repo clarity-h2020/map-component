@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "eslint": "^5.6.1",
-    "html2canvas": "latest",
+    "eslint": "^4.0.0",
     "leaflet": "latest",
-    "leaflet-draw": "^0.4.9",
+    "leaflet-draw": "0.4.9",
     "leaflet-providers": "git://github.com/leaflet-extras/leaflet-providers#master",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-leaflet": "^1.1.6",
-    "react-leaflet-draw": "latest",
+    "react-leaflet": "1.1.6",
+    "react-leaflet-draw": "0.18.0",
     "react-scripts": "1.1.5",
     "turf": "latest",
     "wicket": "latest",
@@ -20,8 +19,6 @@
     "react-router-dom": "latest",
     "leaflet.nontiledlayer": "latest",
     "leaflet-loading": "latest",
-    "react-leaflet-fullscreen-control": "latest",
-    "leaflet-fullscreen": "latest",
     "prop-types": "latest",
     "react-compound-slider": "latest",
     "wms-capabilities": "latest"
@@ -41,7 +38,6 @@
     "css-loader": "^1.0.1",
     "style-loader": "^0.23.1",
     "webpack": "^3.11.0",
-    "webpack-cli": "^3.1.2",
     "image-webpack-loader": "latest"
   }
 }

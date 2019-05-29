@@ -2,12 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl } from 'react-leaflet-grouped-layer-control';
-import 'leaflet-fullscreen'
-import 'react-leaflet-fullscreen-control'
 import turf from 'turf';
 import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
-
+import SliderComponent from './SliderComponent.js'
 
 
 export default class MapComponent extends React.Component {
@@ -271,11 +269,15 @@ export default class MapComponent extends React.Component {
     for (var i = 0; i < d.length; ++i) {
       var obj = d[i];
       if (obj.checked) {
+        var url = this.getUrl(obj.name);
+        if (url.indexOf('?') != -1) {
+          url = url.substring(0, url.indexOf('?'));
+        }
         var obj = {
           "checked": obj.checked,
           "style": this.getStyle(obj.name),
           "layers": this.getLayers(obj.name),
-          "url": this.getUrl(obj.name),
+          "url": url,
           "title": obj.title
         };
         layerArray.push(obj);
@@ -353,7 +355,6 @@ export default class MapComponent extends React.Component {
           scrollWheelZoom={true}
           bounds={bbox}
           loadingControl={true}
-          fullscreenControl
           onViewportChanged={this.onViewportChanged.bind(this)}
           >
           {this.props.studyAreaPolygon != null &&
@@ -374,6 +375,7 @@ export default class MapComponent extends React.Component {
             exclusiveGroups={this.props.exclusiveGroups}
           />
         </Map>
+        <LegendComponent layer={this.getOverlayForLegend(overlays)} />
       </div>
     )
     window.mapCom = this;

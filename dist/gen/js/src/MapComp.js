@@ -4,7 +4,7 @@ import { Map, Marker, Popup, TileLayer, WMSTileLayer, Polygon, MultiPolygon, Fea
 import { EditControl } from 'react-leaflet-draw';
 import L from 'leaflet';
 import { LayersControl } from 'leaflet-groupedlayercontrol';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 import turf from 'turf';
 import Wkt from 'wicket';
 //import "leaflet/dist/leaflet.css"
@@ -142,14 +142,13 @@ export default class MapComp extends React.Component {
     }
   }
 
-  print() {
-    var callback = function (b) {
-      prompt(b);
-    };
-    html2canvas(document.getElementById("map-container")).then(canvas => {
-      canvas.toBlob(callback);
-    });
-  }
+  // print() {
+  //   var callback = function (b) {
+  //           prompt(b);
+  //   }
+  //   html2canvas(document.getElementById("map-container")).then(canvas => {
+  //   canvas.toBlob(callback)});
+  // }
 
   setPolygonName(name) {
     fetch('http://localhost:8080/selectedCountryNodes?_format=json', { credentials: 'include' }).then(resp => resp.json()).then(function (data) {
