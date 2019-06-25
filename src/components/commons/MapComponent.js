@@ -5,7 +5,6 @@ import { ReactLeafletGroupedLayerControl } from 'react-leaflet-grouped-layer-con
 import turf from 'turf';
 import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
-import SliderComponent from './SliderComponent.js'
 
 
 export default class MapComponent extends React.Component {
