@@ -8,38 +8,38 @@ export default class BasicMap extends React.Component {
     super(props);
     this.mapSelectionId = mapSelectionId;
     this.protocol = 'https://';
-  }  
-  
+  }
+
   setStudyURL(id, hostName) {
     this.setState({
-        studyId: id,
-        hname: hostName
+      studyId: id,
+      hname: hostName
     });
     const comp = this;
-    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
-    .then((resp) => resp.json())
-    .then(function(data) {
-      var wktVar = new Wkt.Wkt();
-      if (data.data[0] != null) {
-        comp.setUUId(data.data[0].id)
-      }
-      if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-        wktVar.read(data.data[0].attributes.field_area.value);
-        comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-      }
-      // if (data.data[0].attributes.field_map_layer_ch != null) {
+    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' })
+      .then((resp) => resp.json())
+      .then(function (data) {
+        var wktVar = new Wkt.Wkt();
+        if (data.data[0] != null) {
+          comp.setUUId(data.data[0].id)
+        }
+        if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
+          wktVar.read(data.data[0].attributes.field_area.value);
+          comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
+        }
+        // if (data.data[0].attributes.field_map_layer_ch != null) {
 
-      //   var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
-      //   comp.setState({
-      //     baseLayers: layer.baselayers,
-      //     overlays: layer.overlays
-      //   });
-      // }
-  })
-    .catch(function(error) {
-      console.log(JSON.stringify(error));
-    });    
-    
+        //   var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
+        //   comp.setState({
+        //     baseLayers: layer.baselayers,
+        //     overlays: layer.overlays
+        //   });
+        // }
+      })
+      .catch(function (error) {
+        console.log(JSON.stringify(error));
+      });
+
     this.loadDataFromServer(hostName, id);
   }
 
@@ -55,148 +55,153 @@ export default class BasicMap extends React.Component {
 
   setStudyAreaGeom(geome) {
     if (geome != null) {
-        var study = {
-          "type": "Feature",
-          "properties": {
-              "popupContent": "study",
-              "style": {
-                  weight: 2,
-                  color: "black",
-                  opacity: 0.3,
-                  fillColor: "#ff0000",
-                  fillOpacity: 0.1
-              }
-          },
-          "geometry": JSON.parse(geome)
-        };
-        this.setState({
-          studyAreaPolygon: null
-        });
-        this.setState({
-          studyAreaPolygon: study,
-          bounds: this.getBoundsFromArea(JSON.parse(geome))
-        });
+      var study = {
+        "type": "Feature",
+        "properties": {
+          "popupContent": "study",
+          "style": {
+            weight: 2,
+            color: "black",
+            opacity: 0.3,
+            fillColor: "#ff0000",
+            fillOpacity: 0.1
+          }
+        },
+        "geometry": JSON.parse(geome)
+      };
+      this.setState({
+        studyAreaPolygon: null
+      });
+      this.setState({
+        studyAreaPolygon: study,
+        bounds: this.getBoundsFromArea(JSON.parse(geome))
+      });
     }
   }
 
-    loadDataFromServer(server, id) {
-      const obj = this;
-      fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
+  loadDataFromServer(server, id) {
+    const obj = this;
+    // get the study
+    fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' })
       .then((resp) => resp.json())
-      .then(function(data) {
+      .then(function (data) {
         if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), {credentials: 'include'})
-          .then((resp) => resp.json())
-          .then(function(data) {
-            if (data.data.relationships.field_resources.links.related != null) {
-              var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard,field_temporal_extent,field_analysis_context.field_emissions_scenario';
-              var separator = (data.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
+          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), { credentials: 'include' })
+            .then((resp) => resp.json())
+            .then(function (data) {
+              if (data.data.relationships.field_resources.links.related != null) {
+                var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard,field_temporal_extent,field_analysis_context.field_emissions_scenario';
+                var separator = (data.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
-              fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, {credentials: 'include'})
-              .then((resp) => resp.json())
-              .then(function(data) {
-                obj.convertDataFromServer(data, obj.mapSelectionId);
-              })
-              .catch(function(error) {
-                console.log(JSON.stringify(error));
-              });         
+                fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, { credentials: 'include' })
+                  .then((resp) => resp.json())
+                  .then(function (data) {
+                    obj.convertDataFromServer(data, obj.mapSelectionId);
+                  })
+                  .catch(function (error) {
+                    console.log(JSON.stringify(error));
+                  });
+              } else {
+                log.error('no resources in study ' + id);
               }
-          })
-          .catch(function(error) {
-            console.log(JSON.stringify(error));
-          });         
-          }
+            })
+            .catch(function (error) {
+              console.log(JSON.stringify(error));
+            });
+        } else {
+          log.error('no data in study ' + id);
+        }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(JSON.stringify(error));
-      });         
-    }
+      });
+  }
 
-    convertDataFromServer(originData, mapType) {
-      this.mapData = [];
-      var resourceArray = originData.data;
-      const tmpMapData = this.mapData;
-      const resourceLength = resourceArray.length;
-      const thisObj = this;
+  convertDataFromServer(originData, mapType) {
+    this.mapData = [];
+    var resourceArray = originData.data;
+    const tmpMapData = this.mapData;
+    const resourceLength = resourceArray.length;
+    const thisObj = this;
 
-      for (var i = 0; i < resourceArray.length; ++i) {
-        const resource = resourceArray[i];
+    for (var i = 0; i < resourceArray.length; ++i) {
+      const resource = resourceArray[i];
 
-        if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
-          var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
+      if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
+        var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
 
-          if (analysisContext != null) {
-            if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
-              var mythodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
-              console.log(mythodologyData.attributes.field_eu_gl_taxonomy_id.value);
+        if (analysisContext != null) {
+          if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
+            var methodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
+            console.log(methodologyData.attributes.field_eu_gl_taxonomy_id.value);
 
-              if (mythodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
-                if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
-                  var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+            if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
+              if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
+                var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
-                  if (mapView != null) {
-                    if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
-                      var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
-                      if (hazard != null) {
-                        var refObj = {};
-                        refObj.url = mapView.attributes.field_url;
-                        refObj.title = resource.attributes.field_title;
-                        refObj.group = hazard.attributes.name;
+                if (mapView != null) {
+                  if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
+                    var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
+                    if (hazard != null) {
+                      var refObj = {};
+                      refObj.url = mapView.attributes.field_url;
+                      refObj.title = resource.attributes.field_title;
+                      refObj.group = hazard.attributes.name;
 
-                        // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
-                        //   var fieldTemporalExtent = this.getInculdedObject(resource.relationships.field_temporal_extent.data.type, resource.relationships.field_temporal_extent.data.id, originData.included);
+                      // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
+                      //   var fieldTemporalExtent = this.getInculdedObject(resource.relationships.field_temporal_extent.data.type, resource.relationships.field_temporal_extent.data.id, originData.included);
 
-                        //   if (fieldTemporalExtent != null) {
-                        //     refObj.startdate = fieldTemporalExtent.attributes.field_start_date;
-                        //     refObj.enddate = fieldTemporalExtent.attributes.field_start_date;
-                        //   }
-                        // }
+                      //   if (fieldTemporalExtent != null) {
+                      //     refObj.startdate = fieldTemporalExtent.attributes.field_start_date;
+                      //     refObj.enddate = fieldTemporalExtent.attributes.field_start_date;
+                      //   }
+                      // }
 
-                        // if (analysisContext.relationships.field_emissions_scenario != null && analysisContext.relationships.field_emissions_scenario.data != null) {
-                        //   var emissionsScenario = this.getInculdedObject(analysisContext.relationships.field_emissions_scenario.data.type, analysisContext.relationships.field_emissions_scenario.data.id, originData.included);
+                      // if (analysisContext.relationships.field_emissions_scenario != null && analysisContext.relationships.field_emissions_scenario.data != null) {
+                      //   var emissionsScenario = this.getInculdedObject(analysisContext.relationships.field_emissions_scenario.data.type, analysisContext.relationships.field_emissions_scenario.data.id, originData.included);
 
-                        //   if (emissionsScenario != null) {
-                        //     refObj.emissionsScenario = emissionsScenario.attributes.name;
-                        //   }
-                        // }
+                      //   if (emissionsScenario != null) {
+                      //     refObj.emissionsScenario = emissionsScenario.attributes.name;
+                      //   }
+                      // }
 
-                        tmpMapData.push(refObj);
-                        thisObj.finishMapExtraction(tmpMapData, resourceLength);
-                      } else {
-                        thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
-                      }
+                      tmpMapData.push(refObj);
+                      thisObj.finishMapExtraction(tmpMapData, resourceLength);
                     } else {
-                      thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+                      thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
                     }
                   } else {
-                    thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+                    thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
                   }
                 } else {
-                  thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+                  thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
                 }
               } else {
-                thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+                thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
               }
             } else {
-              thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+              thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
             }
           } else {
-            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
           }
         } else {
-          thisObj.addEmptyMapDataElement(tmpMapData, resourceLength) ;
+          thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
         }
+      } else {
+        thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
       }
     }
+  }
 
 
   getInculdedObject(type, id, includedArray) {
     if (type != null && id != null) {
-        for (let i = 0; i < includedArray.length; ++i) {
-          if (includedArray[i].type === type && includedArray[i].id === id) {
-            return includedArray[i];
-          }
+      for (let i = 0; i < includedArray.length; ++i) {
+        if (includedArray[i].type === type && includedArray[i].id === id) {
+          return includedArray[i];
         }
+      }
     }
 
     return null;
@@ -226,8 +231,8 @@ export default class BasicMap extends React.Component {
       }
 
       if (mapModel.length > 0) {
-        mapModel.sort(function(a, b) {
-          if ( (a == null || a.name == null) && (b == null || b.name == null) ) {
+        mapModel.sort(function (a, b) {
+          if ((a == null || a.name == null) && (b == null || b.name == null)) {
             return 0;
           } else if (a == null || a.name == null) {
             return -1;
