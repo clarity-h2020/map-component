@@ -1,6 +1,7 @@
 import React from "react";
 import Wkt from 'wicket';
 import turf from 'turf';
+import queryString from 'query-string';
 
 
 export default class BasicMap extends React.Component {
@@ -10,23 +11,61 @@ export default class BasicMap extends React.Component {
     this.protocol = 'https://';
   }
 
+  componentDidMount() {
+    const values = queryString.parse(this.props.location.search)
+    console.log(values.id) // "top"
+    console.log(values.url) // "im"
+
+    if (values.id && values.id !== null && values.url && values.url !== null) {
+      this.setStudyURL(values.id, values.url);
+    }
+  }
+
   setStudyURL(id, hostName) {
+    console.log('loading study ' + id + ' from ' + hostName);
     this.setState({
       studyId: id,
       hname: hostName
     });
-    const comp = this;
+    const _this = this;
+    // get and render the study area
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' })
-      .then((resp) => resp.json())
+      .then(function (response) {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        //console.debug(response);
+        return response.json();
+      })
       .then(function (data) {
         var wktVar = new Wkt.Wkt();
-        if (data.data[0] != null) {
-          comp.setUUId(data.data[0].id)
+
+        if (data != null && data.data[0] != null) {
+
+          if (data.data[0] != null) {
+            _this.setUUId(data.data[0].id)
+          } else {
+            console.warn("could not set UUID")
+          }
+
+          if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
+            wktVar.read(data.data[0].attributes.field_area.value);
+            _this.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
+          } else {
+            console.error('no study area in study ' + id);
+          }
+
+          // get and render the map layers
+          _this.processStudyJson(data);
+
+
+        } else {
+          console.error('no data in study ' + id);
+          console.debug(JSON.stringify(data));
         }
-        if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-          wktVar.read(data.data[0].attributes.field_area.value);
-          comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-        }
+
+
+
         // if (data.data[0].attributes.field_map_layer_ch != null) {
 
         //   var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
@@ -37,10 +76,10 @@ export default class BasicMap extends React.Component {
         // }
       })
       .catch(function (error) {
-        console.log(JSON.stringify(error));
+        console.error('could not load study area from ' + hostName, error);
       });
 
-    this.loadDataFromServer(hostName, id);
+
   }
 
   getTokenUrl() {
@@ -79,42 +118,37 @@ export default class BasicMap extends React.Component {
     }
   }
 
-  loadDataFromServer(server, id) {
+  processStudyJson(study) {
     const obj = this;
-    // get the study
-    fetch(server + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' })
-      .then((resp) => resp.json())
-      .then(function (data) {
-        if (data != null && data.data[0] != null && data.data[0].relationships.field_data_package.links.related != null) {
-          fetch(data.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), { credentials: 'include' })
-            .then((resp) => resp.json())
-            .then(function (data) {
-              if (data.data.relationships.field_resources.links.related != null) {
-                var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard,field_temporal_extent,field_analysis_context.field_emissions_scenario';
-                var separator = (data.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
+    if (study != null && study.data[0] != null && study.data[0].relationships.field_data_package.links.related != null) {
+      // get the 1st available data package
+      fetch(study.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), { credentials: 'include' })
+        .then((resp) => resp.json())
+        .then(function (dataPackage) {
+          if (dataPackage.data.relationships.field_resources.links.related != null) {
+            var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard,field_temporal_extent,field_analysis_context.field_emissions_scenario';
+            var separator = (dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
-                fetch(data.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, { credentials: 'include' })
-                  .then((resp) => resp.json())
-                  .then(function (data) {
-                    obj.convertDataFromServer(data, obj.mapSelectionId);
-                  })
-                  .catch(function (error) {
-                    console.log(JSON.stringify(error));
-                  });
-              } else {
-                log.error('no resources in study ' + id);
-              }
-            })
-            .catch(function (error) {
-              console.log(JSON.stringify(error));
-            });
-        } else {
-          log.error('no data in study ' + id);
-        }
-      })
-      .catch(function (error) {
-        console.log(JSON.stringify(error));
-      });
+            fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, { credentials: 'include' })
+              .then((resp) => resp.json())
+              .then(function (resources) {
+                obj.convertDataFromServer(resources, obj.mapSelectionId);
+              })
+              .catch(function (error) {
+                console.log('could not load relationships', error);
+              });
+          } else {
+            console.error('no resources in study!');
+            console.debug(JSON.stringify(dataPackage));
+          }
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+    } else {
+      console.error('no data in study!');
+      console.debug(JSON.stringify(study));
+    }
   }
 
   convertDataFromServer(originData, mapType) {
@@ -218,14 +252,15 @@ export default class BasicMap extends React.Component {
     if (mapData.length === resourceLength) {
       var mapModel = [];
       for (var i = 0; i < mapData.length; ++i) {
-        if (mapData[i].url != null) {
+        if (mapData[i].url && mapData[i].url !== null) {
+          console.debug('processing URL ' + mapData[i].url);
           var obj = {};
           obj.checked = false;
-          obj.groupTitle = (mapData[i].group == null ? 'relevant layer' : mapData[i].group);
+          obj.groupTitle = (mapData[i].group === null ? 'relevant layer' : mapData[i].group);
           obj.name = this.titleToName(mapData[i].title);
           obj.title = mapData[i].title;
-          obj.layers = this.extractLayers(mapData[i].url);
-          obj.url = this.extractUrl(mapData[i].url);
+          obj.layers = this.extractLayers(mapData[i].url.toString());
+          obj.url = this.extractUrl(mapData[i].url.toString());
           mapModel.push(obj);
         }
       }

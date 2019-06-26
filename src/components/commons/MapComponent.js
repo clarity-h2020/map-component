@@ -269,7 +269,7 @@ export default class MapComponent extends React.Component {
       var obj = d[i];
       if (obj.checked) {
         var url = this.getUrl(obj.name);
-        if (url.indexOf('?') != -1) {
+        if (url.indexOf('?') !== -1) {
           url = url.substring(0, url.indexOf('?'));
         }
         var obj = {

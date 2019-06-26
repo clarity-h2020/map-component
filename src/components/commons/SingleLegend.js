@@ -35,7 +35,7 @@ export default class SingleLegend extends React.Component {
         return (
             <div>
                 {/* <div>{this.state.title}</div> */}
-                <img src={this.state.legendUrl} />
+                <img alt="Legend" src={this.state.legendUrl} />
             </div>
         );
     }
