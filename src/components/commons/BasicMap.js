@@ -119,20 +119,20 @@ export default class BasicMap extends React.Component {
   }
 
   processStudyJson(study) {
-    const obj = this;
+    const _this = this;
     if (study != null && study.data[0] != null && study.data[0].relationships.field_data_package.links.related != null) {
       // get the 1st available data package
-      fetch(study.data[0].relationships.field_data_package.links.related.href.replace('http://', obj.protocol), { credentials: 'include' })
+      fetch(study.data[0].relationships.field_data_package.links.related.href.replace('http://', _this.protocol), { credentials: 'include' })
         .then((resp) => resp.json())
         .then(function (dataPackage) {
           if (dataPackage.data.relationships.field_resources.links.related != null) {
-            var includes = 'include=field_analysis_context.field_field_eu_gl_methodology,field_map_view,field_analysis_context.field_hazard,field_temporal_extent,field_analysis_context.field_emissions_scenario';
+            var includes = 'include=field_resource_tags,field_map_view';
             var separator = (dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
-            fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', obj.protocol) + separator + includes, { credentials: 'include' })
+            fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', _this.protocol) + separator + includes, { credentials: 'include' })
               .then((resp) => resp.json())
               .then(function (resources) {
-                obj.convertDataFromServer(resources, obj.mapSelectionId);
+                _this.convertDataFromServer(resources, _this.mapSelectionId);
               })
               .catch(function (error) {
                 console.log('could not load relationships', error);
@@ -156,74 +156,111 @@ export default class BasicMap extends React.Component {
     var resourceArray = originData.data;
     const tmpMapData = this.mapData;
     const resourceLength = resourceArray.length;
-    const thisObj = this;
+    const _this = this;
 
     for (var i = 0; i < resourceArray.length; ++i) {
       const resource = resourceArray[i];
 
-      if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
-        var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
 
-        if (analysisContext != null) {
-          if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
-            var methodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
-            console.log(methodologyData.attributes.field_eu_gl_taxonomy_id.value);
+      if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null) {
+        console.debug('inspecting ' + resource.relationships.field_resource_tags.data + ' tags of resource ' + resource.attributes.field_description);
+        var euGlStep, hazard;
+        for (var j = 0; j < resource.relationships.field_resource_tags.data; ++j) {
+          // step one: extract relevant tags
+          if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
+            var tag = this.getInculdedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
+            euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
+            if (tag.attributes.field_eu_gl_taxonomy_id.value === mapType) {
+            }
+          } else if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
 
-            if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
-              if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
-                var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+          }
 
-                if (mapView != null) {
-                  if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
-                    var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
-                    if (hazard != null) {
-                      var refObj = {};
-                      refObj.url = mapView.attributes.field_url;
-                      refObj.title = resource.attributes.field_title;
-                      refObj.group = hazard.attributes.name;
+          if (euGlStep !== null && euGlStep === mapType) {
+            // FIXME: #29
+            if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
+              var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
-                      // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
-                      //   var fieldTemporalExtent = this.getInculdedObject(resource.relationships.field_temporal_extent.data.type, resource.relationships.field_temporal_extent.data.id, originData.included);
+              if (mapView != null) {
+                if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
 
-                      //   if (fieldTemporalExtent != null) {
-                      //     refObj.startdate = fieldTemporalExtent.attributes.field_start_date;
-                      //     refObj.enddate = fieldTemporalExtent.attributes.field_start_date;
-                      //   }
-                      // }
+                }
+              }
+            }
+          }
+        }
 
-                      // if (analysisContext.relationships.field_emissions_scenario != null && analysisContext.relationships.field_emissions_scenario.data != null) {
-                      //   var emissionsScenario = this.getInculdedObject(analysisContext.relationships.field_emissions_scenario.data.type, analysisContext.relationships.field_emissions_scenario.data.id, originData.included);
 
-                      //   if (emissionsScenario != null) {
-                      //     refObj.emissionsScenario = emissionsScenario.attributes.name;
-                      //   }
-                      // }
+      } else {
+        console.warn('no tags for  resource ' + resource.attributes.field_description + 'found, falling back to deprecated EU-GL context object');
 
-                      tmpMapData.push(refObj);
-                      thisObj.finishMapExtraction(tmpMapData, resourceLength);
+
+
+        // DEPRECATED. SEE #28
+        if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
+          var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
+
+          if (analysisContext != null) {
+            if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
+              var methodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
+              console.log(methodologyData.attributes.field_eu_gl_taxonomy_id.value);
+
+              if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
+                if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
+                  var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+
+                  if (mapView != null) {
+                    if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
+                      var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
+                      if (hazard != null) {
+                        var refObj = {};
+                        refObj.url = mapView.attributes.field_url;
+                        refObj.title = resource.attributes.field_title;
+                        refObj.group = hazard.attributes.name;
+
+                        // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
+                        //   var fieldTemporalExtent = this.getInculdedObject(resource.relationships.field_temporal_extent.data.type, resource.relationships.field_temporal_extent.data.id, originData.included);
+
+                        //   if (fieldTemporalExtent != null) {
+                        //     refObj.startdate = fieldTemporalExtent.attributes.field_start_date;
+                        //     refObj.enddate = fieldTemporalExtent.attributes.field_start_date;
+                        //   }
+                        // }
+
+                        // if (analysisContext.relationships.field_emissions_scenario != null && analysisContext.relationships.field_emissions_scenario.data != null) {
+                        //   var emissionsScenario = this.getInculdedObject(analysisContext.relationships.field_emissions_scenario.data.type, analysisContext.relationships.field_emissions_scenario.data.id, originData.included);
+
+                        //   if (emissionsScenario != null) {
+                        //     refObj.emissionsScenario = emissionsScenario.attributes.name;
+                        //   }
+                        // }
+
+                        tmpMapData.push(refObj);
+                        _this.finishMapExtraction(tmpMapData, resourceLength);
+                      } else {
+                        _this.addEmptyMapDataElement(tmpMapData, resourceLength);
+                      }
                     } else {
-                      thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+                      _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                     }
                   } else {
-                    thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+                    _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                   }
                 } else {
-                  thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+                  _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                 }
               } else {
-                thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+                _this.addEmptyMapDataElement(tmpMapData, resourceLength);
               }
             } else {
-              thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+              _this.addEmptyMapDataElement(tmpMapData, resourceLength);
             }
           } else {
-            thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+            _this.addEmptyMapDataElement(tmpMapData, resourceLength);
           }
         } else {
-          thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
+          _this.addEmptyMapDataElement(tmpMapData, resourceLength);
         }
-      } else {
-        thisObj.addEmptyMapDataElement(tmpMapData, resourceLength);
       }
     }
   }
