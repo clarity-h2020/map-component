@@ -24,6 +24,11 @@
     "wicket": "^1.3.4",
     "wms-capabilities": "latest"
   },
+  "resolutions": {
+    "js-yaml": "^3.13.1",
+    "handlebars": "^4.0.14",
+    "webpack-dev-server": "^2.11.4"
+  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
