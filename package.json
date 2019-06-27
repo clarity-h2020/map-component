@@ -4,40 +4,63 @@
   "private": true,
   "dependencies": {
     "eslint": "^4.0.0",
-    "leaflet": "latest",
-    "leaflet-draw": "0.4.9",
-    "leaflet-providers": "git://github.com/leaflet-extras/leaflet-providers#master",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2",
-    "react-leaflet": "1.1.6",
-    "react-leaflet-draw": "0.18.0",
-    "react-scripts": "1.1.5",
-    "turf": "latest",
-    "wicket": "latest",
+    "leaflet": "^1.5.1",
+    "leaflet-draw": "^0.4.9",
     "leaflet-groupedlayercontrol": "latest",
+    "leaflet-loading": "latest",
+    "leaflet-providers": "git://github.com/leaflet-extras/leaflet-providers#master",
+    "leaflet.nontiledlayer": "latest",
+    "prop-types": "latest",
+    "query-string": "^6.8.1",
+    "react": "^16.5.2",
+    "react-compound-slider": "latest",
+    "react-dom": "^16.5.2",
+    "react-leaflet": "^1.1.6",
+    "react-leaflet-draw": "^0.18.0",
     "react-leaflet-grouped-layer-control": "latest",
     "react-router-dom": "latest",
-    "leaflet.nontiledlayer": "latest",
-    "leaflet-loading": "latest",
-    "prop-types": "latest",
-    "react-compound-slider": "latest",
+    "react-scripts": "^1.1.5",
+    "turf": "latest",
+    "wicket": "^1.3.4",
     "wms-capabilities": "latest"
+  },
+  "resolutions": {
+    "js-yaml": "^3.13.1",
+    "handlebars": "^4.0.14",
+    "webpack-dev-server": "^2.11.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "babel": "babel ./src/*.js ./src/*/*.js ./src/*/*/*.js --presets babel-preset-react --out-dir ./dist/gen/js",
     "webpack": "webpack"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.21.0",
     "babel-loader": "^7.1.4",
     "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.0",
     "css-loader": "^1.0.1",
+    "image-webpack-loader": "latest",
     "style-loader": "^0.23.1",
-    "webpack": "^3.11.0",
-    "image-webpack-loader": "latest"
+    "webpack": "^3.11.0"
   }
 }

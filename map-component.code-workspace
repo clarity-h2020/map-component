@@ -4,5 +4,8 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"telemetry.enableTelemetry": false,
+		"telemetry.enableCrashReporter": false
+	}
 }
