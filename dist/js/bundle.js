@@ -18259,7 +18259,11 @@ var BasicMap = function (_React$Component) {
               layerObject.url = layerUrl;
               layerObject.title = resource.attributes.field_title;
               // if no taxonomy term is avaible, use default group name.
-              layerObject.group = groupName;
+              if (groupName === null || groupName.length > 0) {
+                layerObject.group = groupName;
+              } else {
+                layerObject.group = 'Default';
+              }
               mapData.push(layerObject);
             }
           } else {
