@@ -20,6 +20,8 @@ export default class BasicMap extends React.Component {
 
     this.protocol = 'https://';
 
+    this.referenceType = '@mapview:ogc:wms';
+
     console.log('creating new ' + this.mapSelectionId + ' map with layer group from ' + this.groupingCriteria);
   }
 
@@ -142,13 +144,13 @@ export default class BasicMap extends React.Component {
         .then((resp) => resp.json())
         .then(function (dataPackage) {
           if (dataPackage.data.relationships.field_resources.links.related != null) {
-            
-            //FIXME: #28
-            var includes = 'include=field_resource_tags,field_map_view,field_analysis_context.field_field_eu_gl_methodology,field_analysis_context.field_hazard';
 
-            // TODO: remove above line and uncomment line below when Data APckages have been updated in CSIS!
-            //var includes = 'include=field_resource_tags,field_map_view';
-            
+            //FIXME: #28
+            var includes = 'include=field_resource_tags,field_map_view,field_references,field_analysis_context.field_field_eu_gl_methodology,field_analysis_context.field_hazard';
+
+            // TODO: remove above line and uncomment line below when Data Packages have been updated in CSIS!
+            //var includes = 'include=field_resource_tags,field_map_view,field_references';
+
             var separator = (dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
             fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', _this.protocol) + separator + includes, { credentials: 'include' })
@@ -174,9 +176,8 @@ export default class BasicMap extends React.Component {
   }
 
   convertDataFromServer(originData, mapType, groupingCriteria) {
-    this.mapData = [];
+    var mapData = [];
     var resourceArray = originData.data;
-    const tmpMapData = this.mapData;
     const resourceLength = resourceArray.length;
     const _this = this;
 
@@ -184,11 +185,11 @@ export default class BasicMap extends React.Component {
     for (var i = 0; i < resourceArray.length; ++i) {
       const resource = resourceArray[i];
 
-       // iterate resource tags
-      if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null 
+      // iterate resource tags
+      if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null
         && resource.relationships.field_resource_tags.data.length > 0) {
         console.debug('inspecting ' + resource.relationships.field_resource_tags.data.length + ' tags of resource #' + i + ': ' + resource.attributes.field_description);
-        var euGlStep, groupName;
+        var euGlStep, groupName, layerUrl;
 
         for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
           // step one: extract relevant tags
@@ -205,34 +206,59 @@ export default class BasicMap extends React.Component {
         // e.g. mapType = eu-gl:risk-and-impact-assessment
         if (euGlStep !== null && euGlStep === mapType) {
           // FIXME: #29
-          if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
+
+          // This is madness: iteratve over references
+          if (resource.relationships.field_references != null && resource.relationships.field_references.data != null 
+            && resource.relationships.field_references.data.length > 0) {
+            for (let referenceReference of resource.relationships.field_references.data) {
+              var reference = this.getInculdedObject(referenceReference.type, referenceReference.id, originData.included);
+              if(reference !== null &&  reference.attributes !== null && reference.attributes.field_reference_values !== null 
+                && reference.attributes.field_reference_values.length === 3) {
+                
+                // default: _this.referenceType = '@mapview:ogc:wms'
+                if(reference.attributes.field_reference_values[0] === _this.referenceType)
+                {
+                  layerUrl = _this.processUrl(resource, reference.attributes.field_reference_values[2]);
+                }
+                
+              } else {
+                console.debug('no reference object available in inlcuded array for resource ' + i);
+              }
+            }
+          }  // FIXME: #29 remove when all Data Packages have been updated!
+          else if (resource.relationships.field_references != null && resource.relationships.field_references.length > 0) {
+            console.warn('no references for  resource ' + resource.attributes.field_title + 'found, falling back to deprecated map_view property');
             var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
-            if (mapView != null) {
-              var layerObject = {};
-              layerObject.url = mapView.attributes.field_url;
-              layerObject.title = resource.attributes.field_title;
-              // if no taxonomy term is avaible, use default group name.
-              layerObject.group = groupName;
-              tmpMapData.push(layerObject);
-              _this.finishMapExtraction(tmpMapData, resourceLength);
+            if (mapView != null && mapView.attributes !== null && mapView.attributes.field_url !== null 
+              && mapView.attributes.field_url.length > 0) {
+              // FIXME: field_url is now an array .. nor not? Doesn't matter. We discard map_view anyway, See #29
+              layerUrl = _this.processUrl(resource, mapView.attributes.field_url[0]);
+              
             } else {
-              // FIXME: this is madness
               console.debug('no map view object available for resource ' + i);
-              _this.addEmptyMapDataElement(tmpMapData, resourceLength);
             }
           } else {
-            // FIXME: this is madness
-            console.debug('no map view property available for resource ' + i);
-            _this.addEmptyMapDataElement(tmpMapData, resourceLength);
+            console.debug('no map view property available in references or resource ' + i);
+          }
+
+          if(layerUrl !== null) {
+            var layerObject = {};
+            layerObject.url = layerUrl;
+            layerObject.title = resource.attributes.field_title;
+            // if no taxonomy term is avaible, use default group name.
+            if(groupName === null || groupName.length > 0) {
+              layerObject.group = groupName;
+            } else {
+              layerObject.group = 'Default';
+            }
+            mapData.push(layerObject);
           }
         } else {
-          // FIXME: this is madness
           console.warn('resource ' + i + ' is not assiged to any Eu-GL step')
-          _this.addEmptyMapDataElement(tmpMapData, resourceLength);
         }
       } else {
-        console.warn('no tags for  resource ' + resource.attributes.field_title + 'found, falling back to deprecated EU-GL context object');
+        console.warn('no tags for resource ' + resource.attributes.field_title + 'found, falling back to deprecated EU-GL context object');
 
         // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
@@ -241,7 +267,6 @@ export default class BasicMap extends React.Component {
           if (analysisContext != null) {
             if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
               var methodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
-              console.log(methodologyData.attributes.field_eu_gl_taxonomy_id.value);
 
               if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
                 if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
@@ -252,7 +277,7 @@ export default class BasicMap extends React.Component {
                       var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
                       if (hazard != null) {
                         layerObject = {};
-                        layerObject.url = mapView.attributes.field_url;
+                        layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
                         layerObject.title = resource.attributes.field_title;
                         layerObject.group = hazard.attributes.name;
 
@@ -273,37 +298,35 @@ export default class BasicMap extends React.Component {
                         //   }
                         // }
 
-                        tmpMapData.push(layerObject);
-                        _this.finishMapExtraction(tmpMapData, resourceLength);
-                      } else {
-                        _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-                      }
-                    } else {
-                      _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-                    }
-                  } else {
-                    _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-                  }
-                } else {
-                  _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-                }
-              } else {
-                _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-              }
-            } else {
-              _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-            }
-          } else {
-            _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-          }
-        } else {
-          _this.addEmptyMapDataElement(tmpMapData, resourceLength);
-        }
+                        mapData.push(layerObject);
+                      } 
+                    }  
+                  }  
+                } 
+              } 
+            } 
+          } 
+        } 
       }
     }
+    _this.finishMapExtraction(mapData, resourceLength);
+  }
+
+  /**
+   * Method can be overriden in subclasses to support custom behaviour
+   * 
+   * @param {*} resource 
+   * @param {*} url 
+   */
+  processUrl(resource, url) {
+    return url;
   }
 
 
+  /**
+   * Drupal JSON API 'deeply' inlcudes objects, e.g. &include=field_references are provided onyl onace in a separate array name 'inlcuded'.
+   * This method resolves the references and extracts the inlcuded  object.
+   */
   getInculdedObject(type, id, includedArray) {
     if (type != null && id != null) {
       for (let i = 0; i < includedArray.length; ++i) {
@@ -316,16 +339,8 @@ export default class BasicMap extends React.Component {
     return null;
   }
 
-  addEmptyMapDataElement(tmpMapData, resourceLength) {
-    var layerObject = {};
-    layerObject.url = null;
-    tmpMapData.push(layerObject);
-    this.finishMapExtraction(tmpMapData, resourceLength);
-  }
-
   finishMapExtraction(mapData, resourceLength) {
-    if (mapData.length === resourceLength) {
-      console.log(resourceLength + ' resource layers processed')
+      console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
       var mapModel = [];
       for (var i = 0; i < mapData.length; ++i) {
         if (mapData[i].url && mapData[i].url !== null) {
@@ -369,7 +384,6 @@ export default class BasicMap extends React.Component {
           exclusiveGroups: this.extractGroups(this.overlaysBackup)
         });
       }
-    }
   }
 
   extractGroups(mapData) {
@@ -394,7 +408,6 @@ export default class BasicMap extends React.Component {
   titleToName(title) {
     return title.replace(' ', '_');
   }
-
   extractLayers(url) {
     var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
     return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
