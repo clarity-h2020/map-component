@@ -33,7 +33,7 @@ export default class BasicMap extends React.Component {
   componentDidMount() {
     if (this.props.location && this.props.location.search) {
       const values = queryString.parse(this.props.location.search)
-      if (values.id && values.id !== null && values.url && values.url !== null) {
+      if (values.id && values.id != null && values.url && values.url != null) {
         this.setStudyURL(values.id, values.url);
       }
     }
@@ -204,7 +204,7 @@ export default class BasicMap extends React.Component {
 
         // step two: create map layers
         // e.g. mapType = eu-gl:risk-and-impact-assessment
-        if (euGlStep !== null && euGlStep === mapType) {
+        if (euGlStep != null && euGlStep === mapType) {
           // FIXME: #29
 
           // This is madness: iteratve over references
@@ -212,7 +212,7 @@ export default class BasicMap extends React.Component {
             && resource.relationships.field_references.data.length > 0) {
             for (let referenceReference of resource.relationships.field_references.data) {
               var reference = this.getInculdedObject(referenceReference.type, referenceReference.id, originData.included);
-              if(reference !== null &&  reference.attributes !== null && reference.attributes.field_reference_values !== null 
+              if(reference != null &&  reference.attributes != null && reference.attributes.field_reference_values != null 
                 && reference.attributes.field_reference_values.length === 3) {
                 
                 // default: _this.referenceType = '@mapview:ogc:wms'
@@ -230,7 +230,7 @@ export default class BasicMap extends React.Component {
             console.warn('no references for  resource ' + resource.attributes.field_title + 'found, falling back to deprecated map_view property');
             var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
-            if (mapView != null && mapView.attributes !== null && mapView.attributes.field_url !== null 
+            if (mapView != null && mapView.attributes != null && mapView.attributes.field_url != null 
               && mapView.attributes.field_url.length > 0) {
               // FIXME: field_url is now an array .. nor not? Doesn't matter. We discard map_view anyway, See #29
               layerUrl = _this.processUrl(resource, mapView.attributes.field_url[0]);
@@ -242,12 +242,15 @@ export default class BasicMap extends React.Component {
             console.debug('no map view property available in references or resource ' + i);
           }
 
-          if(layerUrl !== null) {
+          if(layerUrl != null) {
             var layerObject = {};
             layerObject.url = layerUrl;
             layerObject.title = resource.attributes.field_title;
             // if no taxonomy term is avaible, use default group name.
-            if(groupName === null || groupName.length > 0) {
+            // WARNING: 
+            // null == undefined  // true
+            // null === undefined  // false -> compare value AND type
+            if(groupName == null || groupName.length > 0) {
               layerObject.group = groupName;
             } else {
               layerObject.group = 'Default';
@@ -343,7 +346,7 @@ export default class BasicMap extends React.Component {
       console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
       var mapModel = [];
       for (var i = 0; i < mapData.length; ++i) {
-        if (mapData[i].url && mapData[i].url !== null) {
+        if (mapData[i].url && mapData[i].url != null) {
           var layer = {};
           layer.checked = false;
           layer.groupTitle = (mapData[i].group === null ? 'Overlays' : mapData[i].group);
