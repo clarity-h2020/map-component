@@ -23,80 +23,80 @@ export default class CharacteriseHazardMap extends BasicMap {
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2011_-_2040",
-        title:"Heat Waves 2011 - 2040 RCP26",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2011_-_2040",
+        title: "Heat Waves 2011 - 2040 RCP26",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2041_-_2070",
-        title:"Heat Waves 2041 - 2070 RCP26",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2041_-_2070",
+        title: "Heat Waves 2041 - 2070 RCP26",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2071_-_2100",
-        title:"Heat Waves 2071 - 2100 RCP26",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2071_-_2100",
+        title: "Heat Waves 2071 - 2100 RCP26",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp26_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2011_-_2040_rcp_45",
-        title:"Heat_Waves 2011 - 2040 RCP45",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2011_-_2040_rcp_45",
+        title: "Heat_Waves 2011 - 2040 RCP45",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2041_-_2070_rcp_45",
-        title:"Heat_Waves 2041 - 2070 RCP45",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2041_-_2070_rcp_45",
+        title: "Heat_Waves 2041 - 2070 RCP45",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2071_-_2100_rcp_45",
-        title:"Heat_Waves 2071 - 2100 RCP45",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2071_-_2100_rcp_45",
+        title: "Heat_Waves 2071 - 2100 RCP45",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2011_-_2040_rcp_85",
-        title:"Heat_Waves 2011 - 2040 RCP85",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2011_-_2040_rcp_85",
+        title: "Heat_Waves 2011 - 2040 RCP85",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20110101-20401231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2041_-_2070_rcp_85",
-        title:"Heat_Waves 2041 - 2070 RCP85",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2041_-_2070_rcp_85",
+        title: "Heat_Waves 2041 - 2070 RCP85",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20410101-20701231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       },
       {
-        checked:false,
-        groupTitle:"Heat Wave",
-        name:"Heat_Waves_2071_-_2100_rcp_85",
-        title:"Heat_Waves 2071 - 2100 RCP85",
+        checked: false,
+        groupTitle: "Heat Wave",
+        name: "Heat_Waves_2071_-_2100_rcp_85",
+        title: "Heat_Waves 2071 - 2100 RCP85",
         layers: "clarity:Tx75p_consecutive_max_EUR-11_ICHEC-EC-EARTH_rcp85_r12i1p1_SMHI-RCA4_v1_day_20710101-21001231_netcdf3",
         url: "https://clarity.meteogrid.com/geoserver/clarity/wms"
       }
-    ];    
+    ];
     var overlays = [];
-    this.state ={
+    this.state = {
       baseLayers: [
         {
           name: 'tile-texture-1',
@@ -114,28 +114,33 @@ export default class CharacteriseHazardMap extends BasicMap {
       bounds: [corner1, corner2],
       loading: true
     };
-  }  
+  }
 
+  processUrl(resource, url) {
+    console.log('characteriseHazard-map -> process URL: ' + url);
+    return super.processUrl(resource, url);
+  }
 
   render() {
     window.specificMapComponent = this;
 
     return (
-      <MapComponent 
-      loading={this.state.loading}
-      bounds={this.state.bounds}
-      baseLayers={this.state.baseLayers}
-      overlays={this.state.overlays}
-      studyAreaPolygon={this.state.studyAreaPolygon}
-      exclusiveGroups={this.state.exclusiveGroups} />
+      <MapComponent
+        loading={this.state.loading}
+        bounds={this.state.bounds}
+        baseLayers={this.state.baseLayers}
+        overlays={this.state.overlays}
+        studyAreaPolygon={this.state.studyAreaPolygon}
+        exclusiveGroups={this.state.exclusiveGroups} />
     );
   }
 };
-  
+
+
 //export default CharacteriseHazardMap;
 
 if (document.getElementById('characteriseHazard-map-container') != null) {
-    ReactDOM.render(<CharacteriseHazardMap />, document.getElementById('characteriseHazard-map-container'));
-    document.getElementById('characteriseHazard-map-container').style.width = "100%";
-    document.getElementById('characteriseHazard-map-container').style.height = "500px";
-  }
+  ReactDOM.render(<CharacteriseHazardMap />, document.getElementById('characteriseHazard-map-container'));
+  document.getElementById('characteriseHazard-map-container').style.width = "100%";
+  document.getElementById('characteriseHazard-map-container').style.height = "500px";
+}

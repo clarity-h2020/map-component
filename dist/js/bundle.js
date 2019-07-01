@@ -18018,6 +18018,8 @@ var BasicMap = function (_React$Component) {
 
     _this2.protocol = 'https://';
 
+    _this2.referenceType = '@mapview:ogc:wms';
+
     console.log('creating new ' + _this2.mapSelectionId + ' map with layer group from ' + _this2.groupingCriteria);
     return _this2;
   }
@@ -18143,10 +18145,10 @@ var BasicMap = function (_React$Component) {
           if (dataPackage.data.relationships.field_resources.links.related != null) {
 
             //FIXME: #28
-            var includes = 'include=field_resource_tags,field_map_view,field_analysis_context.field_field_eu_gl_methodology,field_analysis_context.field_hazard';
+            var includes = 'include=field_resource_tags,field_map_view,field_references,field_analysis_context.field_field_eu_gl_methodology,field_analysis_context.field_hazard';
 
-            // TODO: remove above line and uncomment line below when Data APckages have been updated in CSIS!
-            //var includes = 'include=field_resource_tags,field_map_view';
+            // TODO: remove above line and uncomment line below when Data Packages have been updated in CSIS!
+            //var includes = 'include=field_resource_tags,field_map_view,field_references';
 
             var separator = dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === -1 ? '?' : '&';
 
@@ -18172,9 +18174,8 @@ var BasicMap = function (_React$Component) {
   }, {
     key: 'convertDataFromServer',
     value: function convertDataFromServer(originData, mapType, groupingCriteria) {
-      this.mapData = [];
+      var mapData = [];
       var resourceArray = originData.data;
-      var tmpMapData = this.mapData;
       var resourceLength = resourceArray.length;
       var _this = this;
 
@@ -18185,7 +18186,7 @@ var BasicMap = function (_React$Component) {
         // iterate resource tags
         if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null && resource.relationships.field_resource_tags.data.length > 0) {
           console.debug('inspecting ' + resource.relationships.field_resource_tags.data.length + ' tags of resource #' + i + ': ' + resource.attributes.field_description);
-          var euGlStep, groupName;
+          var euGlStep, groupName, layerUrl;
 
           for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
             // step one: extract relevant tags
@@ -18202,34 +18203,74 @@ var BasicMap = function (_React$Component) {
           // e.g. mapType = eu-gl:risk-and-impact-assessment
           if (euGlStep !== null && euGlStep === mapType) {
             // FIXME: #29
-            if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
-              var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
-              if (mapView != null) {
-                var layerObject = {};
-                layerObject.url = mapView.attributes.field_url;
-                layerObject.title = resource.attributes.field_title;
-                // if no taxonomy term is avaible, use default group name.
-                layerObject.group = groupName;
-                tmpMapData.push(layerObject);
-                _this.finishMapExtraction(tmpMapData, resourceLength);
-              } else {
-                // FIXME: this is madness
-                console.debug('no map view object available for resource ' + i);
-                _this.addEmptyMapDataElement(tmpMapData, resourceLength);
+            // This is madness: iteratve over references
+            if (resource.relationships.field_references != null && resource.relationships.field_references.data != null && resource.relationships.field_references.data.length > 0) {
+              var _iteratorNormalCompletion = true;
+              var _didIteratorError = false;
+              var _iteratorError = undefined;
+
+              try {
+                for (var _iterator = resource.relationships.field_references.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                  var referenceReference = _step.value;
+
+                  var reference = this.getInculdedObject(referenceReference.type, referenceReference.id, originData.included);
+                  if (reference !== null && reference.attributes !== null && reference.attributes.field_reference_values !== null && reference.attributes.field_reference_values.length === 3) {
+
+                    // default: _this.referenceType = '@mapview:ogc:wms'
+                    if (reference.attributes.field_reference_values[0] === _this.referenceType) {
+                      layerUrl = _this.processUrl(resource, reference.attributes.field_reference_values[2]);
+                    }
+                  } else {
+                    console.debug('no reference object available in inlcuded array for resource ' + i);
+                  }
+                }
+              } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                  }
+                } finally {
+                  if (_didIteratorError) {
+                    throw _iteratorError;
+                  }
+                }
               }
-            } else {
-              // FIXME: this is madness
-              console.debug('no map view property available for resource ' + i);
-              _this.addEmptyMapDataElement(tmpMapData, resourceLength);
+            } // FIXME: #29 remove when all Data Packages have been updated!
+            else if (resource.relationships.field_references != null && resource.relationships.field_references.length > 0) {
+                console.warn('no references for  resource ' + resource.attributes.field_title + 'found, falling back to deprecated map_view property');
+                var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+
+                if (mapView != null && mapView.attributes !== null && mapView.attributes.field_url !== null && mapView.attributes.field_url.length > 0) {
+                  // FIXME: field_url is now an array .. nor not? Doesn't matter. We discard map_view anyway, See #29
+                  layerUrl = _this.processUrl(resource, mapView.attributes.field_url[0]);
+                } else {
+                  console.debug('no map view object available for resource ' + i);
+                }
+              } else {
+                console.debug('no map view property available in references or resource ' + i);
+              }
+
+            if (layerUrl !== null) {
+              var layerObject = {};
+              layerObject.url = layerUrl;
+              layerObject.title = resource.attributes.field_title;
+              // if no taxonomy term is avaible, use default group name.
+              if (groupName === null || groupName.length > 0) {
+                layerObject.group = groupName;
+              } else {
+                layerObject.group = 'Default';
+              }
+              mapData.push(layerObject);
             }
           } else {
-            // FIXME: this is madness
             console.warn('resource ' + i + ' is not assiged to any Eu-GL step');
-            _this.addEmptyMapDataElement(tmpMapData, resourceLength);
           }
         } else {
-          console.warn('no tags for  resource ' + resource.attributes.field_title + 'found, falling back to deprecated EU-GL context object');
+          console.warn('no tags for resource ' + resource.attributes.field_title + 'found, falling back to deprecated EU-GL context object');
 
           // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
@@ -18238,7 +18279,6 @@ var BasicMap = function (_React$Component) {
             if (analysisContext != null) {
               if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
                 var methodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
-                console.log(methodologyData.attributes.field_eu_gl_taxonomy_id.value);
 
                 if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
                   if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
@@ -18249,7 +18289,7 @@ var BasicMap = function (_React$Component) {
                         var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
                         if (hazard != null) {
                           layerObject = {};
-                          layerObject.url = mapView.attributes.field_url;
+                          layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
                           layerObject.title = resource.attributes.field_title;
                           layerObject.group = hazard.attributes.name;
 
@@ -18270,35 +18310,38 @@ var BasicMap = function (_React$Component) {
                           //   }
                           // }
 
-                          tmpMapData.push(layerObject);
-                          _this.finishMapExtraction(tmpMapData, resourceLength);
-                        } else {
-                          _this.addEmptyMapDataElement(tmpMapData, resourceLength);
+                          mapData.push(layerObject);
                         }
-                      } else {
-                        _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                       }
-                    } else {
-                      _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                     }
-                  } else {
-                    _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                   }
-                } else {
-                  _this.addEmptyMapDataElement(tmpMapData, resourceLength);
                 }
-              } else {
-                _this.addEmptyMapDataElement(tmpMapData, resourceLength);
               }
-            } else {
-              _this.addEmptyMapDataElement(tmpMapData, resourceLength);
             }
-          } else {
-            _this.addEmptyMapDataElement(tmpMapData, resourceLength);
           }
         }
       }
+      _this.finishMapExtraction(mapData, resourceLength);
     }
+
+    /**
+     * Method can be overriden in subclasses to support custom behaviour
+     * 
+     * @param {*} resource 
+     * @param {*} url 
+     */
+
+  }, {
+    key: 'processUrl',
+    value: function processUrl(resource, url) {
+      return url;
+    }
+
+    /**
+     * Drupal JSON API 'deeply' inlcudes objects, e.g. &include=field_references are provided onyl onace in a separate array name 'inlcuded'.
+     * This method resolves the references and extracts the inlcuded  object.
+     */
+
   }, {
     key: 'getInculdedObject',
     value: function getInculdedObject(type, id, includedArray) {
@@ -18313,61 +18356,51 @@ var BasicMap = function (_React$Component) {
       return null;
     }
   }, {
-    key: 'addEmptyMapDataElement',
-    value: function addEmptyMapDataElement(tmpMapData, resourceLength) {
-      var layerObject = {};
-      layerObject.url = null;
-      tmpMapData.push(layerObject);
-      this.finishMapExtraction(tmpMapData, resourceLength);
-    }
-  }, {
     key: 'finishMapExtraction',
     value: function finishMapExtraction(mapData, resourceLength) {
-      if (mapData.length === resourceLength) {
-        console.log(resourceLength + ' resource layers processed');
-        var mapModel = [];
-        for (var i = 0; i < mapData.length; ++i) {
-          if (mapData[i].url && mapData[i].url !== null) {
-            var layer = {};
-            layer.checked = false;
-            layer.groupTitle = mapData[i].group === null ? 'Overlays' : mapData[i].group;
-            layer.name = this.titleToName(mapData[i].title);
-            layer.title = mapData[i].title;
-            layer.layers = this.extractLayers(mapData[i].url.toString());
-            layer.url = this.extractUrl(mapData[i].url.toString());
-            mapModel.push(layer);
-            console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
-          }
+      console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed');
+      var mapModel = [];
+      for (var i = 0; i < mapData.length; ++i) {
+        if (mapData[i].url && mapData[i].url !== null) {
+          var layer = {};
+          layer.checked = false;
+          layer.groupTitle = mapData[i].group === null ? 'Overlays' : mapData[i].group;
+          layer.name = this.titleToName(mapData[i].title);
+          layer.title = mapData[i].title;
+          layer.layers = this.extractLayers(mapData[i].url.toString());
+          layer.url = this.extractUrl(mapData[i].url.toString());
+          mapModel.push(layer);
+          console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
         }
+      }
 
-        if (mapModel.length > 0) {
-          mapModel.sort(function (a, b) {
-            if ((a == null || a.name == null) && (b == null || b.name == null)) {
-              return 0;
-            } else if (a == null || a.name == null) {
-              return -1;
-            } else if (b == null || b.name == null) {
-              return 1;
-            } else if (a.name < b.name) {
-              return -1;
-            } else if (a.name > b.name) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          this.setState({
-            overlays: mapModel,
-            loading: false,
-            exclusiveGroups: this.extractGroups(mapModel)
-          });
-        } else if (this.overlaysBackup != null) {
-          this.setState({
-            overlays: this.overlaysBackup,
-            loading: false,
-            exclusiveGroups: this.extractGroups(this.overlaysBackup)
-          });
-        }
+      if (mapModel.length > 0) {
+        mapModel.sort(function (a, b) {
+          if ((a == null || a.name == null) && (b == null || b.name == null)) {
+            return 0;
+          } else if (a == null || a.name == null) {
+            return -1;
+          } else if (b == null || b.name == null) {
+            return 1;
+          } else if (a.name < b.name) {
+            return -1;
+          } else if (a.name > b.name) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+        this.setState({
+          overlays: mapModel,
+          loading: false,
+          exclusiveGroups: this.extractGroups(mapModel)
+        });
+      } else if (this.overlaysBackup != null) {
+        this.setState({
+          overlays: this.overlaysBackup,
+          loading: false,
+          exclusiveGroups: this.extractGroups(this.overlaysBackup)
+        });
       }
     }
   }, {
@@ -60743,6 +60776,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 var _react = __webpack_require__(7);
 
 var _react2 = _interopRequireDefault(_react);
@@ -60872,6 +60907,12 @@ var CharacteriseHazardMap = function (_BasicMap) {
   }
 
   _createClass(CharacteriseHazardMap, [{
+    key: 'processUrl',
+    value: function processUrl(resource, url) {
+      console.log('characteriseHazard-map -> process URL: ' + url);
+      return _get(CharacteriseHazardMap.prototype.__proto__ || Object.getPrototypeOf(CharacteriseHazardMap.prototype), 'processUrl', this).call(this, resource, url);
+    }
+  }, {
     key: 'render',
     value: function render() {
       window.specificMapComponent = this;
