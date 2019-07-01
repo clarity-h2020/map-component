@@ -18016,7 +18016,7 @@ var BasicMap = function (_React$Component) {
 
     _this2.groupingCriteria = groupingCriteria;
 
-    _this2.protocol = 'http://';
+    _this2.protocol = 'https://';
 
     _this2.referenceType = '@mapview:ogc:wms';
 
@@ -76658,7 +76658,7 @@ var StudyArea = function (_React$Component) {
           console.log(JSON.stringify(error));
         });
 
-        fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', 'http:'), { credentials: 'include' }).then(function (resp) {
+        fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', 'https:'), { credentials: 'include' }).then(function (resp) {
           return resp.json();
         }).then(function (data) {
           var wkt = new _wicket2.default.Wkt();

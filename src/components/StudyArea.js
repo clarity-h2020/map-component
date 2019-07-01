@@ -42,7 +42,7 @@ export default class StudyArea extends React.Component {
         console.log(JSON.stringify(error));
       });
 
-     fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', 'http:'), {credentials: 'include'})
+     fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', 'https:'), {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
