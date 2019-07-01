@@ -4,6 +4,7 @@ import { Map, TileLayer, GeoJSON, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import Wkt from 'wicket';
 import turf from 'turf';
+import turfWithin from '@turf/boolean-within';
 
 
 export default class StudyAreaMap extends React.Component {
@@ -25,7 +26,7 @@ export default class StudyAreaMap extends React.Component {
   }
 
   init() {
-    const map = this.refs.map.leafletElement
+    const map = this.map.leafletElement
     map.invalidateSize();
     this.setState({count: this.state.count + 1})
   }
@@ -41,10 +42,13 @@ export default class StudyAreaMap extends React.Component {
     var area = turf.area(e.layer.toGeoJSON());
     const comp = this;
 
-    if (area > (allowedSize * qkmToQm)) {
+    if (!turfWithin(e.layer.toGeoJSON(), this.props.cityPolygon)) {
+      alert('The selected area is not within the selected city.');
+      this.map.leafletElement.removeLayer(e.layer);
+    } else if (area > (allowedSize * qkmToQm)) {
       //remove the layer, if it is too large
       alert('The selected area is too large. The allowed size is ' + allowedSize + ' km²');
-      this.refs.map.leafletElement.removeLayer(e.layer);
+      this.map.leafletElement.removeLayer(e.layer);
     } else {
       fetch(comp.getTokenUrl(), {credentials: 'include'})
       .then((resp) => resp.text())
@@ -62,7 +66,7 @@ export default class StudyAreaMap extends React.Component {
           xmlHttp.send(data);
 
           if (comp.state.newLayer != null) {
-            comp.refs.map.leafletElement.removeLayer(comp.state.newLayer);
+            comp.map.leafletElement.removeLayer(comp.state.newLayer);
           }
           comp.setState({
             studyAreaPolygon: null,
@@ -109,11 +113,46 @@ export default class StudyAreaMap extends React.Component {
   }
   
   componentDidMount () {
+    var mapElement = this.map.leafletElement;
+    mapElement.setMinZoom(9);
+//    mapElement.dragging.disable();
+//    mapElement.touchZoom.disable();
+//    mapElement.doubleClickZoom.disable();
+//    mapElement.scrollWheelZoom.disable();
+//    mapElement.boxZoom.disable();
+//    mapElement.keyboard.disable();    
+  }
+
+  componentDidUpdate () {
+    var mapElement = this.map.leafletElement;
+
+    if (this.props.cityPolygon != null) {
+      var cityGeom = this.props.cityPolygon.geometry;
+      var bbox = turf.bbox(cityGeom);
+      //calculate longest edge
+      var pointX1 = turf.point([bbox[1], bbox[0]]);
+      var pointX2 = turf.point([bbox[3], bbox[0]]);
+      var width = turf.distance(pointX1, pointX2, "kilometers"); 
+      var pointY1 = turf.point([bbox[1], bbox[0]]);
+      var pointY2 = turf.point([bbox[1], bbox[2]]);
+      var height = turf.distance(pointY1, pointY2, "kilometers");
+      var longestEdge = (width > height ? width : height) * 1000;
+
+      //calculate min zoom
+      var CIRCUMFERENCE_EARTH = 40000000;
+      var zoomfactor = Math.floor(Math.log2(CIRCUMFERENCE_EARTH / longestEdge) + 1);
+      mapElement.setMinZoom(zoomfactor);
+    }
+//    mapElement.dragging.disable();
+//    mapElement.touchZoom.disable();
+//    mapElement.doubleClickZoom.disable();
+//    mapElement.scrollWheelZoom.disable();
+//    mapElement.boxZoom.disable();
+//    mapElement.keyboard.disable();    
   }
 
   render() {
-//    var geometry = (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null);
-    var geometry = (this.state.studyAreaPolygon != null ? this.state.studyAreaPolygon.geometry : (this.props.countryPolygon != null ? this.props.countryPolygon.geometry : null));
+    var geometry = (this.props.cityPolygon != null ?  this.props.cityPolygon.geometry : (this.state.studyAreaPolygon != null ? this.state.studyAreaPolygon.geometry : null));
 
     if (geometry == null) {
       geometry = {
@@ -132,15 +171,22 @@ export default class StudyAreaMap extends React.Component {
       "weight": 2,
       "opacity": 0.20
     };
+    var cityStyle = {
+      "color": "#0000ff",
+      "weight": 2,
+      "opacity": 0.10,
+      "fillColor": "#0000ff",
+      "fillOpacity": 0.0
+};
 
     var mapElement = (
-        <Map ref='map' touchExtend="false" bounds={this.getBoundsFromArea(geometry)}>
+        <Map ref={(comp) => this.map = comp} zoomControl={true} touchExtend="false" bounds={this.getBoundsFromArea(geometry)}>
             <TileLayer
             attribution="&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {this.props.countryPolygon != null &&
-              <GeoJSON data={this.props.countryPolygon} />
+            {this.props.cityPolygon != null &&
+              <GeoJSON style={cityStyle} data={this.props.cityPolygon} />
             }
             {this.state.studyAreaPolygon != null &&
               <GeoJSON style={studyAreaStyle} data={this.state.studyAreaPolygon} />

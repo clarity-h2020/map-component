@@ -9,7 +9,7 @@ export default class StudyArea extends React.Component {
   constructor(props) {
     super(props);
     this.state ={
-      countryPolygon: null
+      cityPolygon: null
     };
   }
   
@@ -19,7 +19,6 @@ export default class StudyArea extends React.Component {
         hname: hostName
     });
     const comp = this;
-//    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
     .then((resp) => resp.json())
     .then(function(data) {
@@ -27,17 +26,28 @@ export default class StudyArea extends React.Component {
       if (data.data[0] != null) {
         comp.setUUId(data.data[0].id)
       }
-      if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-        wktVar.read(data.data[0].attributes.field_area.value);
-        comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-      }
-     fetch(data.data[0].relationships.field_country.links.related.href.replace('http:', 'https:'), {credentials: 'include'})
-//     fetch(data.data[0].relationships.field_country.links.related.href, {credentials: 'include'})
+      // if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
+      //   wktVar.read(data.data[0].attributes.field_area.value);
+      //   comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
+      // }
+
+      fetch(hostName + "/rest/study/" + data.data[0].attributes.drupal_internal__id + "/area?_format=json", {credentials: 'include'})
+      .then((resp) => resp.json())
+      .then(function(data) {
+        var wkt = new Wkt.Wkt();
+        wkt.read(data[0].field_area);
+        comp.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
+      })
+      .catch(function(error) {
+        console.log(JSON.stringify(error));
+      });
+
+     fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', 'http:'), {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
-          wkt.read(data.data[0].attributes.field_boundaries.value);
-          comp.setCountryGeom(JSON.stringify(wkt.toJson()));
+          wkt.read(data.data.attributes.field_boundaries.value);
+          comp.setCityGeom(JSON.stringify(wkt.toJson()));
       })
       .catch(function(error) {
         console.log(JSON.stringify(error));
@@ -58,7 +68,7 @@ export default class StudyArea extends React.Component {
     });
   }
 
-  setCountryGeom(geome) {
+  setCityGeom(geome) {
     var p = {
       "type": "Feature",
       "properties": {
@@ -67,17 +77,17 @@ export default class StudyArea extends React.Component {
               weight: 2,
               color: "black",
               opacity: 0.3,
-              fillColor: "#ff0000",
-              fillOpacity: 0.1
+              fillColor: "#0000ff",
+              fillOpacity: 0.0
           }
       },
       "geometry": turf.flip(JSON.parse(geome))
     }
     this.setState({
-            countryPolygon: null
+            cityPolygon: null
           });
     this.setState({
-      countryPolygon: p
+      cityPolygon: p
     });
   }
 
@@ -117,7 +127,7 @@ export default class StudyArea extends React.Component {
 
     return (
       <StudyAreaMap 
-        countryPolygon={this.state.countryPolygon}
+        cityPolygon={this.state.cityPolygon}
         studyAreaPolygon={this.state.studyAreaPolygon}
         hostname={this.state.hname}
         uuid={this.state.uuid}
