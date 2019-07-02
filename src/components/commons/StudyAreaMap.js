@@ -173,10 +173,10 @@ export default class StudyAreaMap extends React.Component {
     };
     var cityStyle = {
       "color": "#0000ff",
-      "weight": 2,
+      "weight": 6,
       "opacity": 0.10,
       "fillColor": "#0000ff",
-      "fillOpacity": 0.0
+      "fillOpacity": 0.1
 };
 
     var mapElement = (
