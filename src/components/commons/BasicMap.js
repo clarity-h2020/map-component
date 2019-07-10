@@ -212,13 +212,14 @@ export default class BasicMap extends React.Component {
             && resource.relationships.field_references.data.length > 0) {
             for (let referenceReference of resource.relationships.field_references.data) {
               var reference = this.getInculdedObject(referenceReference.type, referenceReference.id, originData.included);
-              if(reference != null &&  reference.attributes != null && reference.attributes.field_reference_values != null 
-                && reference.attributes.field_reference_values.length === 3) {
+              if(reference != null &&  reference.attributes != null && reference.attributes.field_reference_path != null 
+                && reference.attributes.field_reference_qualifier != null  
+                && reference.attributes.field_reference_type  != null ) {
                 
                 // default: _this.referenceType = '@mapview:ogc:wms'
-                if(reference.attributes.field_reference_values[0] === _this.referenceType)
+                if(reference.attributes.field_reference_type === _this.referenceType)
                 {
-                  layerUrl = _this.processUrl(resource, reference.attributes.field_reference_values[2]);
+                  layerUrl = _this.processUrl(resource, reference.attributes.field_reference_path);
                 }
                 
               } else {

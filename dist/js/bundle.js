@@ -18215,11 +18215,11 @@ var BasicMap = function (_React$Component) {
                   var referenceReference = _step.value;
 
                   var reference = this.getInculdedObject(referenceReference.type, referenceReference.id, originData.included);
-                  if (reference != null && reference.attributes != null && reference.attributes.field_reference_values != null && reference.attributes.field_reference_values.length === 3) {
+                  if (reference != null && reference.attributes != null && reference.attributes.field_reference_path != null && reference.attributes.field_reference_qualifier != null && reference.attributes.field_reference_type != null) {
 
                     // default: _this.referenceType = '@mapview:ogc:wms'
-                    if (reference.attributes.field_reference_values[0] === _this.referenceType) {
-                      layerUrl = _this.processUrl(resource, reference.attributes.field_reference_values[2]);
+                    if (reference.attributes.field_reference_type === _this.referenceType) {
+                      layerUrl = _this.processUrl(resource, reference.attributes.field_reference_path);
                     }
                   } else {
                     console.debug('no reference object available in inlcuded array for resource ' + i);
