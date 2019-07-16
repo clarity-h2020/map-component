@@ -18241,7 +18241,7 @@ var BasicMap = function (_React$Component) {
               }
             } // FIXME: #29 remove when all Data Packages have been updated!
             else if (resource.relationships.field_references != null && resource.relationships.field_references.length > 0) {
-                console.warn('no references for  resource ' + resource.attributes.field_title + 'found, falling back to deprecated map_view property');
+                console.warn('no references for  resource ' + resource.attributes.field_description + 'found, falling back to deprecated map_view property');
                 var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
                 if (mapView != null && mapView.attributes != null && mapView.attributes.field_url != null && mapView.attributes.field_url.length > 0) {
@@ -18257,7 +18257,7 @@ var BasicMap = function (_React$Component) {
             if (layerUrl != null) {
               var layerObject = {};
               layerObject.url = layerUrl;
-              layerObject.title = resource.attributes.field_title;
+              layerObject.title = resource.attributes.field_description;
               // if no taxonomy term is avaible, use default group name.
               // WARNING: 
               // null == undefined  // true
@@ -18273,7 +18273,7 @@ var BasicMap = function (_React$Component) {
             console.warn('resource ' + i + ' is not assiged to any Eu-GL step');
           }
         } else {
-          console.warn('no tags for resource ' + resource.attributes.field_title + 'found, falling back to deprecated EU-GL context object');
+          console.warn('no tags for resource ' + resource.attributes.field_description + 'found, falling back to deprecated EU-GL context object');
 
           // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
           if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
@@ -18293,7 +18293,7 @@ var BasicMap = function (_React$Component) {
                         if (hazard != null) {
                           layerObject = {};
                           layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
-                          layerObject.title = resource.attributes.field_title;
+                          layerObject.title = resource.attributes.field_description;
                           layerObject.group = hazard.attributes.name;
 
                           // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
