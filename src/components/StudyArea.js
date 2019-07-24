@@ -11,43 +11,37 @@ export default class StudyArea extends React.Component {
     this.state ={
       cityPolygon: null
     };
+
+    this.protocol = 'https://';
   }
   
-  setStudyURL(id, hostName) {
+  setStudyURL(studyUuid, hostName) {
     this.setState({
-        studyId: id,
+        studyUuid: studyUuid,
         hname: hostName
     });
-    const comp = this;
-    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, {credentials: 'include'})
+    const _this = this;
+    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, {credentials: 'include'})
     .then((resp) => resp.json())
     .then(function(data) {
-      var wktVar = new Wkt.Wkt();
-      if (data.data[0] != null) {
-        comp.setUUId(data.data[0].id)
-      }
-      // if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-      //   wktVar.read(data.data[0].attributes.field_area.value);
-      //   comp.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-      // }
 
       fetch(hostName + "/rest/study/" + data.data[0].attributes.drupal_internal__id + "/area?_format=json", {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
         var wkt = new Wkt.Wkt();
         wkt.read(data[0].field_area);
-        comp.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
+        _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
       })
       .catch(function(error) {
         console.log(JSON.stringify(error));
       });
 
-     fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', 'https:'), {credentials: 'include'})
+     fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
           var wkt = new Wkt.Wkt();
           wkt.read(data.data.attributes.field_boundaries.value);
-          comp.setCityGeom(JSON.stringify(wkt.toJson()));
+          _this.setCityGeom(JSON.stringify(wkt.toJson()));
       })
       .catch(function(error) {
         console.log(JSON.stringify(error));
@@ -60,12 +54,6 @@ export default class StudyArea extends React.Component {
 
   getTokenUrl() {
     return this.state.hname + '/rest/session/token';
-  }
-
-  setUUId(id) {
-    this.setState({
-      uuid: id
-    });
   }
 
   setCityGeom(geome) {
@@ -130,7 +118,7 @@ export default class StudyArea extends React.Component {
         cityPolygon={this.state.cityPolygon}
         studyAreaPolygon={this.state.studyAreaPolygon}
         hostname={this.state.hname}
-        uuid={this.state.uuid}
+        uuid={this.state.studyUuid}
       />
     );
   }

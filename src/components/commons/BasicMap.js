@@ -39,15 +39,15 @@ export default class BasicMap extends React.Component {
     }
   }
 
-  setStudyURL(id, hostName) {
-    console.log('loading study ' + id + ' from ' + hostName);
+  setStudyURL(studyUuid, hostName) {
+    console.log('loading study ' + studyUuid + ' from ' + hostName);
     this.setState({
-      studyId: id,
+      studyUuid: studyUuid,
       hname: hostName
     });
     const _this = this;
     // get and render the study area
-    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + id, { credentials: 'include' })
+    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, { credentials: 'include' })
       .then(function (response) {
         if (!response.ok) {
           throw Error(response.statusText);
@@ -60,17 +60,11 @@ export default class BasicMap extends React.Component {
 
         if (data != null && data.data[0] != null) {
 
-          if (data.data[0] != null) {
-            _this.setUUId(data.data[0].id)
-          } else {
-            console.warn("could not set UUID")
-          }
-
           if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
             wktVar.read(data.data[0].attributes.field_area.value);
             _this.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
           } else {
-            console.error('no study area in study ' + id);
+            console.error('no study area in study ' + studyUuid);
           }
 
           // get and render the map layers
@@ -78,20 +72,9 @@ export default class BasicMap extends React.Component {
 
 
         } else {
-          console.error('no data in study ' + id);
+          console.error('no data in study ' + studyUuid);
           console.debug(JSON.stringify(data));
         }
-
-
-
-        // if (data.data[0].attributes.field_map_layer_ch != null) {
-
-        //   var layer = JSON.parse( data.data[0].attributes.field_map_layer_ch );
-        //   comp.setState({
-        //     baseLayers: layer.baselayers,
-        //     overlays: layer.overlays
-        //   });
-        // }
       })
       .catch(function (error) {
         console.error('could not load study area from ' + hostName, error);
@@ -102,12 +85,6 @@ export default class BasicMap extends React.Component {
 
   getTokenUrl() {
     return this.state.hname + '/rest/session/token';
-  }
-
-  setUUId(id) {
-    this.setState({
-      uuid: id
-    });
   }
 
   setStudyAreaGeom(geome) {
@@ -194,10 +171,10 @@ export default class BasicMap extends React.Component {
         for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
           // step one: extract relevant tags
           if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
-            let tag = this.getInculdedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
+            let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
             euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
           } else if (resource.relationships.field_resource_tags.data[j].type === groupingCriteria) {
-            let tag = this.getInculdedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
+            let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
             groupName = tag.attributes.name;
           }
         }
@@ -211,7 +188,7 @@ export default class BasicMap extends React.Component {
           if (resource.relationships.field_references != null && resource.relationships.field_references.data != null 
             && resource.relationships.field_references.data.length > 0) {
             for (let referenceReference of resource.relationships.field_references.data) {
-              var reference = this.getInculdedObject(referenceReference.type, referenceReference.id, originData.included);
+              var reference = this.getIncludedObject(referenceReference.type, referenceReference.id, originData.included);
               if(reference != null &&  reference.attributes != null && reference.attributes.field_reference_path != null 
                 && reference.attributes.field_reference_qualifier != null  
                 && reference.attributes.field_reference_type  != null ) {
@@ -229,7 +206,7 @@ export default class BasicMap extends React.Component {
           }  // FIXME: #29 remove when all Data Packages have been updated!
           else if (resource.relationships.field_references != null && resource.relationships.field_references.length > 0) {
             console.warn('no references for  resource ' + resource.attributes.title + 'found, falling back to deprecated map_view property');
-            var mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+            var mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
             if (mapView != null && mapView.attributes != null && mapView.attributes.field_url != null 
               && mapView.attributes.field_url.length > 0) {
@@ -266,41 +243,24 @@ export default class BasicMap extends React.Component {
 
         // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
-          var analysisContext = this.getInculdedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
+          var analysisContext = this.getIncludedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
 
           if (analysisContext != null) {
             if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
-              var methodologyData = this.getInculdedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
+              var methodologyData = this.getIncludedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
 
               if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
                 if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
-                  mapView = this.getInculdedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+                  mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
                   if (mapView != null) {
                     if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
-                      var hazard = this.getInculdedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
+                      var hazard = this.getIncludedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
                       if (hazard != null) {
                         layerObject = {};
                         layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
                         layerObject.title = resource.attributes.title;
                         layerObject.group = hazard.attributes.name;
-
-                        // if (resource.relationships.field_temporal_extent != null && resource.relationships.field_temporal_extent.data != null) {
-                        //   var fieldTemporalExtent = this.getInculdedObject(resource.relationships.field_temporal_extent.data.type, resource.relationships.field_temporal_extent.data.id, originData.included);
-
-                        //   if (fieldTemporalExtent != null) {
-                        //     layerObject.startdate = fieldTemporalExtent.attributes.field_start_date;
-                        //     layerObject.enddate = fieldTemporalExtent.attributes.field_start_date;
-                        //   }
-                        // }
-
-                        // if (analysisContext.relationships.field_emissions_scenario != null && analysisContext.relationships.field_emissions_scenario.data != null) {
-                        //   var emissionsScenario = this.getInculdedObject(analysisContext.relationships.field_emissions_scenario.data.type, analysisContext.relationships.field_emissions_scenario.data.id, originData.included);
-
-                        //   if (emissionsScenario != null) {
-                        //     layerObject.emissionsScenario = emissionsScenario.attributes.name;
-                        //   }
-                        // }
 
                         mapData.push(layerObject);
                       } 
@@ -331,7 +291,7 @@ export default class BasicMap extends React.Component {
    * Drupal JSON API 'deeply' inlcudes objects, e.g. &include=field_references are provided onyl onace in a separate array name 'inlcuded'.
    * This method resolves the references and extracts the inlcuded  object.
    */
-  getInculdedObject(type, id, includedArray) {
+  getIncludedObject(type, id, includedArray) {
     if (type != null && id != null) {
       for (let i = 0; i < includedArray.length; ++i) {
         if (includedArray[i].type === type && includedArray[i].id === id) {
@@ -399,14 +359,6 @@ export default class BasicMap extends React.Component {
     }
 
     return groups;
-  }
-
-  print() {
-    // var callback = function (b) {
-    //         prompt(b);
-    // }
-    // html2canvas(document.getElementById("riskAndImpact-map-container")).then(canvas => {
-    // canvas.toBlob(callback)});
   }
 
   titleToName(title) {
