@@ -12,8 +12,6 @@ export default class StudyAreaMap extends React.Component {
    super(props);
    this.state = {
     readOnly: true,
-    canWrite: false,
-    count: 1,
      studyAreaPolygon: props.studyAreaPolygon
     };
    this._onCreated.bind(this);
@@ -28,7 +26,6 @@ export default class StudyAreaMap extends React.Component {
   init() {
     const map = this.map.leafletElement
     map.invalidateSize();
-    this.setState({count: this.state.count + 1})
   }
 
   _onEditResize(e) {
@@ -40,7 +37,7 @@ export default class StudyAreaMap extends React.Component {
     const qkmToQm = 1000000;
     const allowedSize = 500;
     var area = turf.area(e.layer.toGeoJSON());
-    const comp = this;
+    const _this = this;
 
     if (!turfWithin(e.layer.toGeoJSON(), this.props.cityPolygon)) {
       alert('The selected area is not within the selected city.');
@@ -50,25 +47,25 @@ export default class StudyAreaMap extends React.Component {
       alert('The selected area is too large. The allowed size is ' + allowedSize + ' km²');
       this.map.leafletElement.removeLayer(e.layer);
     } else {
-      fetch(comp.getTokenUrl(), {credentials: 'include'})
+      fetch(_this.getTokenUrl(), {credentials: 'include'})
       .then((resp) => resp.text())
       .then(function(key) {
           //set the new study area
           var wkt = new Wkt.Wkt();
           wkt.fromJson(e.layer.toGeoJSON());
-          var data = '{"data": {"type": "group--study","id": "' + comp.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
+          var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
           var mimeType = "application/vnd.api+json";      //hal+json
           var xmlHttp = new XMLHttpRequest();
-          xmlHttp.open('PATCH', comp.props.hostname.substring(0, comp.props.hostname.length) + '/jsonapi/group/study/' + comp.props.uuid, true);  // true : asynchrone false: synchrone
+          xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true);  // true : asynchrone false: synchrone
           xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');  
           xmlHttp.setRequestHeader('Content-Type', mimeType);  
           xmlHttp.setRequestHeader('X-CSRF-Token', key);  
           xmlHttp.send(data);
 
-          if (comp.state.newLayer != null) {
-            comp.map.leafletElement.removeLayer(comp.state.newLayer);
+          if (_this.state.newLayer != null) {
+            _this.map.leafletElement.removeLayer(_this.state.newLayer);
           }
-          comp.setState({
+          _this.setState({
             studyAreaPolygon: null,
             newLayer: e.layer
           });
@@ -115,12 +112,6 @@ export default class StudyAreaMap extends React.Component {
   componentDidMount () {
     var mapElement = this.map.leafletElement;
     mapElement.setMinZoom(9);
-//    mapElement.dragging.disable();
-//    mapElement.touchZoom.disable();
-//    mapElement.doubleClickZoom.disable();
-//    mapElement.scrollWheelZoom.disable();
-//    mapElement.boxZoom.disable();
-//    mapElement.keyboard.disable();    
   }
 
   componentDidUpdate () {
@@ -143,12 +134,6 @@ export default class StudyAreaMap extends React.Component {
       var zoomfactor = Math.floor(Math.log2(CIRCUMFERENCE_EARTH / longestEdge) + 1);
       mapElement.setMinZoom(zoomfactor);
     }
-//    mapElement.dragging.disable();
-//    mapElement.touchZoom.disable();
-//    mapElement.doubleClickZoom.disable();
-//    mapElement.scrollWheelZoom.disable();
-//    mapElement.boxZoom.disable();
-//    mapElement.keyboard.disable();    
   }
 
   render() {
