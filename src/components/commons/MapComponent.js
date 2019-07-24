@@ -5,6 +5,7 @@ import { ReactLeafletGroupedLayerControl } from 'react-leaflet-grouped-layer-con
 import turf from 'turf';
 import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
+import 'leaflet/dist/leaflet.css'
 
 
 /**
@@ -451,8 +452,9 @@ export default class MapComponent extends React.Component {
             onOverlayChange={this.overlayChange.bind(this)}
             exclusiveGroups={this.props.exclusiveGroups}
           />
+          <LegendComponent layer={this.getOverlayForLegend(overlays)} />
         </Map>
-        <LegendComponent layer={this.getOverlayForLegend(overlays)} />
+        
       </div>
     )
     window.mapCom = this;

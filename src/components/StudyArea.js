@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import turf from 'turf';
 import Wkt from 'wicket';
 import StudyAreaMap from './commons/StudyAreaMap';
+import queryString from 'query-string';
 
 /**
  * This class is used by drupal to show the study area
@@ -19,6 +20,20 @@ export default class StudyArea extends React.Component {
      */
     this.protocol = 'https://';
   }
+
+  /**
+   * For standalone use, e.g.
+   * http://localhost:3000//?url=https://csis.myclimateservice.eu&id=c3609e3e-f80f-482b-9e9f-3a26226a6859
+   * 
+   */
+  componentDidMount() {
+    if (this.props.location && this.props.location.search) {
+      const values = queryString.parse(this.props.location.search)
+      if (values.id && values.id != null && values.url && values.url != null) {
+        this.setStudyURL(values.id, values.url);
+      }
+    }
+  }
   
   /**
    * Starts the loading of the selected city and the study area and render them on the map
@@ -27,6 +42,7 @@ export default class StudyArea extends React.Component {
    * @param {String} hostName 
    */
   setStudyURL(studyUuid, hostName) {
+    console.log('loading study ' + studyUuid + ' from ' + hostName);
     this.setState({
         studyUuid: studyUuid,
         hname: hostName
