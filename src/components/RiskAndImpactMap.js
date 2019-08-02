@@ -4,10 +4,6 @@ import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
 
 
-//const RiskAndImpactMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/RiskAndImpact.png' />);
-//};
-
 export default class RiskAndImpactMap extends BasicMap {
     constructor(props) {
       super(props, 'eu-gl:risk-and-impact-assessment');
@@ -179,7 +175,9 @@ export default class RiskAndImpactMap extends BasicMap {
       };
     }
 
-
+    /**
+     * Reder the map
+     */
     render() {
       window.specificMapComponent = this;
 
@@ -195,8 +193,6 @@ export default class RiskAndImpactMap extends BasicMap {
     }
 };
 
-
-//export default RiskAndImpactMap;
 
 if (document.getElementById('riskAndImpact-map-container') != null) {
     ReactDOM.render(<RiskAndImpactMap />, document.getElementById('riskAndImpact-map-container'));

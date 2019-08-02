@@ -1,10 +1,11 @@
 import React from 'react';
 
-
+/**
+ * Renders a single legend
+ */
 export default class SingleLegend extends React.Component {
     constructor(props) {
         super(props);
-        var baseUrl = this.props.layer.url;
         var lUrl = this.props.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + this.props.layer.layers;
 
         this.state = {
@@ -13,6 +14,11 @@ export default class SingleLegend extends React.Component {
         }
     }
 
+    /**
+     * Changes the legend url
+     * 
+     * @param {Object} nextProps 
+     */
     componentWillReceiveProps(nextProps) {
         if (nextProps.layer != null) {
             var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers;
@@ -22,13 +28,12 @@ export default class SingleLegend extends React.Component {
                 title: nextProps.layer.title
             });
         }
-      }
-
-      extractUrl(url) {
-        return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
     }
 
 
+    /**
+     * renders a single legend
+     */
     render() {
         return (
             <div>

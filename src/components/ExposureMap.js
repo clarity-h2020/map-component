@@ -4,10 +4,6 @@ import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
 
 
-//const ExposureMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/Exposure.png' />);
-//};
-
 
 export default class ExposureMap extends BasicMap {
     constructor(props) {
@@ -60,6 +56,9 @@ export default class ExposureMap extends BasicMap {
       };
     }  
 
+    /**
+     * Render the map
+     */
     render() {
       window.specificMapComponent = this;
 
@@ -75,7 +74,6 @@ export default class ExposureMap extends BasicMap {
     }
 };
 
-//export default ExposureMap;
 
 if (document.getElementById('exposure-map-container') != null) {
   ReactDOM.render(<ExposureMap />, document.getElementById('exposure-map-container'));

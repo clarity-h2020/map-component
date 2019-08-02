@@ -4,10 +4,6 @@ import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
 
 
-//const CharacteriseHazardMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/CharacteriseHazard.png' />);
-//};
-
 export default class CharacteriseHazardMap extends BasicMap {
   constructor(props) {
     super(props, 'eu-gl:hazard-characterization');
@@ -116,11 +112,21 @@ export default class CharacteriseHazardMap extends BasicMap {
     };
   }
 
+  /**
+   * Logs the url on the console
+   *  
+   * @param {String} resource 
+   * @param {String} url 
+   * @returns the given url
+   */
   processUrl(resource, url) {
     console.log('characteriseHazard-map -> process URL: ' + url);
     return super.processUrl(resource, url);
   }
 
+  /**
+   * Render the map
+   */
   render() {
     window.specificMapComponent = this;
 
@@ -136,8 +142,6 @@ export default class CharacteriseHazardMap extends BasicMap {
   }
 };
 
-
-//export default CharacteriseHazardMap;
 
 if (document.getElementById('characteriseHazard-map-container') != null) {
   ReactDOM.render(<CharacteriseHazardMap />, document.getElementById('characteriseHazard-map-container'));

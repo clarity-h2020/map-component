@@ -1,7 +1,9 @@
 import React from 'react';
 import SingleLegend from './SingleLegend.js'
 
-
+/**
+ * Renders the legends
+ */
 export default class LegendComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -11,10 +13,11 @@ export default class LegendComponent extends React.Component {
         this.caps = {};
     }
 
-    extractUrl(url) {
-        return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
-    }
-
+    /**
+     * Creates jsx code to render the legends
+     * 
+     * @param {Array} legends an array with the layer that should be used for the legend 
+     */
     createLegend(legends) {
         var layerArray = [];
 
@@ -28,6 +31,9 @@ export default class LegendComponent extends React.Component {
     }
 
 
+    /**
+     * Renders the legends
+     */
     render() {
         return (
             <div style={{"display": "inline", "bottom": "50px", "position": "absolute", "zIndex": "1000", "left": "25px"}}>

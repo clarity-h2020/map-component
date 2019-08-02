@@ -4,6 +4,10 @@ import turf from 'turf';
 import queryString from 'query-string';
 
 
+/**
+ * This is the basic class of all map classes. 
+ * It implements the common way to extract the overlay layers from the study. 
+ */
 export default class BasicMap extends React.Component {
   constructor(props, mapSelectionId = 'eu-gl:risk-and-impact-assessment', groupingCriteria = 'taxonomy_term--hazards') {
     super(props);
@@ -18,6 +22,9 @@ export default class BasicMap extends React.Component {
 
     this.groupingCriteria = groupingCriteria;
 
+    /**
+     * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
+     */
     this.protocol = 'https://';
 
     this.referenceType = '@mapview:ogc:wms';
@@ -39,6 +46,12 @@ export default class BasicMap extends React.Component {
     }
   }
 
+  /**
+   * Starts the loading of the study layers and render them on the map
+   * 
+   * @param {String} studyUuid the uuid of the study
+   * @param {String} hostName the hostname
+   */
   setStudyURL(studyUuid, hostName) {
     console.log('loading study ' + studyUuid + ' from ' + hostName);
     this.setState({
@@ -83,10 +96,11 @@ export default class BasicMap extends React.Component {
 
   }
 
-  getTokenUrl() {
-    return this.state.hname + '/rest/session/token';
-  }
-
+  /**
+   * Add the given study area to the map
+   * 
+   * @param {Object} geome the geometry of the study area
+   */
   setStudyAreaGeom(geome) {
     if (geome != null) {
       var study = {
@@ -113,6 +127,11 @@ export default class BasicMap extends React.Component {
     }
   }
 
+  /**
+   * Retrieves the study object from the server, extracts the layers from the study and add it to the map 
+   * 
+   * @param {Object} study 
+   */
   processStudyJson(study) {
     const _this = this;
     if (study != null && study.data[0] != null && study.data[0].relationships.field_data_package.links.related != null) {
@@ -152,6 +171,13 @@ export default class BasicMap extends React.Component {
     }
   }
 
+  /**
+   * Extracts the layers from the given study and add it to the map 
+   * 
+   * @param {Object} originData the study object
+   * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
+   * @param {String} groupingCriteria th grouping criteria of the layers. E.g. taxonomy_term--hazards
+   */
   convertDataFromServer(originData, mapType, groupingCriteria) {
     var mapData = [];
     var resourceArray = originData.data;
@@ -286,7 +312,7 @@ export default class BasicMap extends React.Component {
     return url;
   }
 
-
+ 
   /**
    * Drupal JSON API 'deeply' inlcudes objects, e.g. &include=field_references are provided onyl onace in a separate array name 'inlcuded'.
    * This method resolves the references and extracts the inlcuded  object.
@@ -303,6 +329,12 @@ export default class BasicMap extends React.Component {
     return null;
   }
 
+  /**
+   * Add the given overlay layers to the state
+   *  
+   * @param {Array} mapData the overlay layers
+   * @param {Number} resourceLength the resource count of the current study
+   */
   finishMapExtraction(mapData, resourceLength) {
       console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
       var mapModel = [];
@@ -350,6 +382,12 @@ export default class BasicMap extends React.Component {
       }
   }
 
+  /**
+   * Extract the groups from the given overlay layers
+   * 
+   * @param {Array} mapData 
+   * @returns an arrray with all group names
+   */
   extractGroups(mapData) {
     var groups = [];
     for (var i = 0; i < mapData.length; ++i) {
@@ -361,23 +399,49 @@ export default class BasicMap extends React.Component {
     return groups;
   }
 
+  /**
+   * Replace spaces, because spaces are not allowed in leaflet layer names
+   * 
+   * @param {String} title 
+   */
   titleToName(title) {
     return title.replace(' ', '_');
   }
+
+  /**
+   * Extracts the layer name from the given wms GetMap request
+   * 
+   * @param {String} url a get MapRequest
+   */
   extractLayers(url) {
     var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
     return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
+  /**
+   * Extracts the style name from the given wms GetMap request
+   * 
+   * @param {String} url a get MapRequest
+   */
   extractStyle(url) {
     var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
     return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
+  /**
+   * Returns the given url without parameters
+   *  
+   * @param {String} url 
+   */
   extractUrl(url) {
     return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
   }
 
+  /**
+   * Returns the bounding box of the given polygon geometry
+   * 
+   * @param {Object} area 
+   */
   getBoundsFromArea(area) {
     const bboxArray = turf.bbox(area);
     const corner1 = [bboxArray[1], bboxArray[0]];

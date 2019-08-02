@@ -7,6 +7,9 @@ import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
 
 
+/**
+ * Render a leaflet map with the given layers
+ */
 export default class MapComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -24,6 +27,9 @@ export default class MapComponent extends React.Component {
     this.fly = true;
   }
 
+  /**
+   * Creates the reportInfoElement
+   */
   componentDidMount() {
     var mapElement = this.map.leafletElement;
     mapElement.invalidateSize();
@@ -37,6 +43,9 @@ export default class MapComponent extends React.Component {
     this.updateInfoElement();
   }
 
+  /**
+   * Adds the reportInfoElement (see https://github.com/clarity-h2020/map-component/issues/22)
+   */
   updateInfoElement() {
     if (this.map != null) {
       var mapElement = this.map.leafletElement;
@@ -61,6 +70,9 @@ export default class MapComponent extends React.Component {
     }
   }
 
+  /**
+   * Updates the reportInfoElement and prepares the layer groups so that they can be collapsed and expanded
+   */
   componentDidUpdate() {
     const map = this.map.leafletElement;
     map.invalidateSize();
@@ -106,6 +118,11 @@ export default class MapComponent extends React.Component {
     this.updateInfoElement();
   }
 
+  /**
+   * Creates a html element from the given html string
+   * 
+   * @param {String} html 
+   */
   htmlToElement(html) {
     var template = document.createElement('template');
     html = html.trim();
@@ -113,6 +130,11 @@ export default class MapComponent extends React.Component {
     return template.content.firstChild;
   }
 
+  /**
+   * This method prevents repaint problems, when a new overlay layer was selected
+   * 
+   * @param {Object} nextProps 
+   */
   componentWillReceiveProps(nextProps) {
     if (nextProps.overlays !== this.props.overlays) {
       this.setState({ overlays: nextProps.overlays });
@@ -123,6 +145,11 @@ export default class MapComponent extends React.Component {
     }
   }
 
+  /**
+   * Returns the bounding box of the given polygon geometry
+   * 
+   * @param {Object} area 
+   */
   getBoundsFromArea(area) {
     const bboxArray = turf.bbox(area);
     const corner1 = [bboxArray[1], bboxArray[0]];
@@ -132,6 +159,11 @@ export default class MapComponent extends React.Component {
     return bounds;
   }
 
+  /**
+   * Shows or hides a layer group. This method will be invoked, when the user clicks on the title of a layer group
+   * 
+   * @param {Object} el 
+   */
   showHide(el) {
     var parent = el.parentElement;
     var sibling = el.nextElementSibling;
@@ -163,6 +195,10 @@ export default class MapComponent extends React.Component {
     }
   }
 
+  /**
+   * Without an invocation of this method, the laflet map will not be rendered properly within drupal.
+   * Some map tiles will not be loaded.
+   */
   init() {
     this.map.leafletElement.invalidateSize();
 
@@ -171,6 +207,12 @@ export default class MapComponent extends React.Component {
     });
   }
 
+  /**
+   * Changes the base layer of the map.
+   * This method will be invoked, when the user selects an other base layer. 
+   * 
+   * @param {String} baseTitle 
+   */
   baseLayerChange(baseTitle) {
     if (baseTitle === this.state.checkedBaseLayer) { return false; }
     console.warn(baseTitle)
@@ -179,7 +221,13 @@ export default class MapComponent extends React.Component {
     this.setState({ count: this.state.count + 1 })
   }
 
-  // only one checked overlay layer is allowed
+  /**
+   * Changes the overlay layer of the map.
+   * This method will be invoked, when the user selects an other overlay layer. 
+   * It is only one checked overlay layer allowed
+   * 
+   * @param {Array} newOverlays 
+   */
   overlayChange(newOverlays) {
     if (this.state.oldOverlay != null) {
       for (var i = 0; i < newOverlays.length && i < this.state.oldOverlay.length; ++i) {
@@ -196,6 +244,12 @@ export default class MapComponent extends React.Component {
     })
   }
 
+  /**
+   * Extracts the url of the overlay layer with the given name.
+   * 
+   * @param {String} name  the name of the layer
+   * @returns the url of the overlay layer with the given name.
+   */
   getUrl(name) {
     for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
@@ -206,6 +260,12 @@ export default class MapComponent extends React.Component {
     return " ";
   }
 
+  /**
+   * Extracts the url of the base layer with the given name.
+   * 
+   * @param {String} name  the name of the layer
+   * @returns the url of the base layer with the given name.
+   */
   getBaseUrl(name) {
     for (var i = 0; i < this.props.baseLayers.length; i++) {
       if (this.props.baseLayers[i].name === name) {
@@ -216,6 +276,12 @@ export default class MapComponent extends React.Component {
     return " ";
   }
 
+  /**
+   * Extracts the layer names of the overlay layer with the given name.
+   * 
+   * @param {String} name  the name of the layer
+   * @returns the layer names of the overlay layer with the given name.
+   */
   getLayers(name) {
     for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
@@ -226,6 +292,12 @@ export default class MapComponent extends React.Component {
     return " ";
   }
 
+  /**
+   * Extracts the style name of the overlay layer with the given name.
+   * 
+   * @param {String} name  the name of the layer
+   * @returns the style name of the overlay layer with the given name.
+   */
   getStyle(name) {
     for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
@@ -240,12 +312,18 @@ export default class MapComponent extends React.Component {
     return "";
   }
 
-  createLayer(d) {
+  /**
+   * Creates the jsx code for the overlay layers, that can be used in the render method
+   * 
+   * @param {Array} layers the array with all overlay layers
+   * @returns the array with all overlay layers
+   */
+  createLayer(layers) {
     var layerArray = [];
     var opac = 0.5;
 
-    for (var i = 0; i < d.length; ++i) {
-      var obj = d[i];
+    for (var i = 0; i < layers.length; ++i) {
+      var obj = layers[i];
       if (obj.checked) {
         layerArray.push(<WMSTileLayer
           layers={this.getLayers(obj.name)}
@@ -262,58 +340,43 @@ export default class MapComponent extends React.Component {
     return layerArray;
   }
 
-  getOverlayForLegend(d) {
+  /**
+   * Returns an array with the overlay layers, which are selected and should be used to create the legend.
+   * At the moment, only one overlay layer can be selected at the same time.
+   * 
+   * @param {Array} layers the array with all overlay layers
+   */
+  getOverlayForLegend(layers) {
     var layerArray = [];
 
-    for (var i = 0; i < d.length; ++i) {
-      var obj = d[i];
+    for (var i = 0; i < layers.length; ++i) {
+      var obj = layers[i];
       if (obj.checked) {
         var url = this.getUrl(obj.name);
         if (url.indexOf('?') !== -1) {
           url = url.substring(0, url.indexOf('?'));
         }
-        var obj = {
+        var checkedObj = {
           "checked": obj.checked,
           "style": this.getStyle(obj.name),
           "layers": this.getLayers(obj.name),
           "url": url,
           "title": obj.title
         };
-        layerArray.push(obj);
+        layerArray.push(checkedObj);
       }
     }
 
     return layerArray;
   }
 
-  getLastBounds() {
-    if (this.refs != null && this.refs.map != null) {
-      const map = this.refs.map.leafletElement
 
-      if (map != null) {
-        return map.getBounds();
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  getLastZoom() {
-    if (this.refs != null && this.refs.map != null) {
-      const map = this.refs.map.leafletElement
-
-      if (map != null) {
-        return map.getZoom();
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
+  /**
+   * Creates the jsx code for the base layers, that can be used in the render method
+   * 
+   * @param {Array} d the array with all base layers 
+   * @returns the jsx code for the base layers
+   */
   createBaseLayer(d) {
     var layerArray = [];
 
@@ -330,10 +393,25 @@ export default class MapComponent extends React.Component {
     return layerArray;
   }
 
+  /**
+   * This method will be invoked by leaflet, when the user changes the bounding box of the map
+   * 
+   * @param {*} center 
+   * @param {*} zoom 
+   */
   onViewportChanged(center, zoom) {
     this.updateInfoElement();
+
+    if (this.map != null) {
+      var mapElement = this.map.leafletElement;
+      mapElement.getBounds().toBBoxString();
+      mapElement.getZoom();
+    }
   }
 
+  /**
+   * Renders the map
+   */
   render() {
     const corner1 = [35.746512, -30.234375];
     const corner2 = [71.187754, 39.199219];
@@ -389,6 +467,5 @@ MapComponent.propTypes = {
   baseLayers: PropTypes.array,
   exclusiveGroups: PropTypes.array,
   overlays: PropTypes.array,
-  exclusiveGroups: PropTypes.array,
   studyAreaPolygon: PropTypes.object
 }

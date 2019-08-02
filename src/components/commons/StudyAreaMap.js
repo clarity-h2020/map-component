@@ -6,7 +6,10 @@ import Wkt from 'wicket';
 import turf from 'turf';
 import turfWithin from '@turf/boolean-within';
 
-
+/**
+ * The main purpose is to render the map with the study area and the city. This class also allows to create a new study area. 
+ * This component will be used by the class components/StudyArea
+ */
 export default class StudyAreaMap extends React.Component {
   constructor(props) {
    super(props);
@@ -16,23 +19,33 @@ export default class StudyAreaMap extends React.Component {
     };
    this._onCreated.bind(this);
   }
-  
+
+  /**
+   * This method solves some repaint problems
+   * 
+   * @param {Object} nextProps 
+   */
   componentWillReceiveProps(nextProps){
     if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
       this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon })
     }
   }
 
+  /**
+   * Without an invocation of this method, the laflet map will not be rendered properly within drupal.
+   * Some map tiles will not be loaded.
+   */
   init() {
     const map = this.map.leafletElement
     map.invalidateSize();
   }
 
-  _onEditResize(e) {
-    var area = turf.area(e.layer.toGeoJSON());
-    console.log(area);
-  }
-
+  /**
+   * Creates a new study area and upload it to the drupal system. 
+   * This method will be invoked by the EditControl component
+   * 
+   * @param {Object} e 
+   */
   _onCreated(e) {
     const qkmToQm = 1000000;
     const allowedSize = 500;
@@ -76,10 +89,19 @@ export default class StudyAreaMap extends React.Component {
     }
   }
 
+  /**
+   * @returns the URL to retrieve the session token. This token is required to upload data to drupal
+   */
   getTokenUrl() {
     return this.props.hostname + '/rest/session/token';
   }
 
+  /**
+   * Determines the bounding box of the given polygon geometry
+   * 
+   * @param {Object} area 
+   * @returns the bounding box of the given polygon geometry
+   */
   getBoundsFromArea(area) {
     const bboxArray = turf.bbox(area);
     const corner1 = [bboxArray[1], bboxArray[0]];
@@ -89,10 +111,11 @@ export default class StudyAreaMap extends React.Component {
     return bounds;
   }
 
-  getHostnameWithoutProtocol() {
-    return this.props.hostname.substring( this.props.hostname.indexOf(':') + 3);
-  }
-
+  /**
+   * Set the read only status of the component
+   * 
+   * @param {Boolean} ro 
+   */
   setReadOnly(ro) {
     this.setState(
       {
@@ -101,6 +124,10 @@ export default class StudyAreaMap extends React.Component {
     );
   }
 
+  /**
+   * Inverts the read only status of the component
+   * 
+   */
   changeReadOnly() {
     this.setState(
       {
@@ -114,6 +141,9 @@ export default class StudyAreaMap extends React.Component {
     mapElement.setMinZoom(9);
   }
 
+  /**
+   * Set the allowed min zoom factor of the map
+   */
   componentDidUpdate () {
     var mapElement = this.map.leafletElement;
 
@@ -136,6 +166,9 @@ export default class StudyAreaMap extends React.Component {
     }
   }
 
+  /**
+   * Renders the map
+   */
   render() {
     var geometry = (this.props.cityPolygon != null ?  this.props.cityPolygon.geometry : (this.state.studyAreaPolygon != null ? this.state.studyAreaPolygon.geometry : null));
 
@@ -162,7 +195,7 @@ export default class StudyAreaMap extends React.Component {
       "opacity": 0.10,
       "fillColor": "#0000ff",
       "fillOpacity": 0.1
-};
+    };
 
     var mapElement = (
         <Map ref={(comp) => this.map = comp} zoomControl={true} touchExtend="false" bounds={this.getBoundsFromArea(geometry)}>

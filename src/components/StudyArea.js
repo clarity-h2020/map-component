@@ -4,7 +4,9 @@ import turf from 'turf';
 import Wkt from 'wicket';
 import StudyAreaMap from './commons/StudyAreaMap';
 
-
+/**
+ * This class is used by drupal to show the study area
+ */
 export default class StudyArea extends React.Component {
   constructor(props) {
     super(props);
@@ -12,9 +14,18 @@ export default class StudyArea extends React.Component {
       cityPolygon: null
     };
 
+    /**
+     * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
+     */
     this.protocol = 'https://';
   }
   
+  /**
+   * Starts the loading of the selected city and the study area and render them on the map
+   * 
+   * @param {Number} studyUuid 
+   * @param {String} hostName 
+   */
   setStudyURL(studyUuid, hostName) {
     this.setState({
         studyUuid: studyUuid,
@@ -52,10 +63,11 @@ export default class StudyArea extends React.Component {
     });         
   }
 
-  getTokenUrl() {
-    return this.state.hname + '/rest/session/token';
-  }
-
+  /**
+   * Set the city geometry and render it on the map
+   * 
+   * @param {Object} geome 
+   */
   setCityGeom(geome) {
     var p = {
       "type": "Feature",
@@ -79,6 +91,11 @@ export default class StudyArea extends React.Component {
     });
   }
 
+  /**
+   * Set the study area geometry and render it on the map
+   * 
+   * @param {Object} geome 
+   */
   setStudyAreaGeom(geome) {
     if (geome != null) {
         var study = {
@@ -104,12 +121,9 @@ export default class StudyArea extends React.Component {
     }
   }
 
-  init() {
-    this.setState({
-      init: true
-    });
-  }
-
+  /**
+   * Renders the study area
+   */
   render() {
     window.studyArea = this;
 
