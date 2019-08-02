@@ -50,9 +50,13 @@ export default class StudyArea extends React.Component {
      fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
-          var wkt = new Wkt.Wkt();
-          wkt.read(data.data.attributes.field_boundaries.value);
-          _this.setCityGeom(JSON.stringify(wkt.toJson()));
+          if (data.data === null) {
+            alert("There is no city selected");
+          } else {
+            var wkt = new Wkt.Wkt();
+            wkt.read(data.data.attributes.field_boundaries.value);
+            _this.setCityGeom(JSON.stringify(wkt.toJson()));
+          }
       })
       .catch(function(error) {
         console.log(JSON.stringify(error));

@@ -117,11 +117,15 @@ export default class StudyAreaMap extends React.Component {
    * @param {Boolean} ro 
    */
   setReadOnly(ro) {
-    this.setState(
-      {
-        readOnly: ro
-      }
-    );
+    if (!ro && this.props.cityPolygon == null) {
+      alert("You cannot create a study area before you select a city");
+    } else {
+      this.setState(
+        {
+          readOnly: ro
+        }
+      );
+    }
   }
 
   /**
@@ -129,11 +133,15 @@ export default class StudyAreaMap extends React.Component {
    * 
    */
   changeReadOnly() {
-    this.setState(
-      {
-        readOnly: !this.state.readOnly
-      }
-    );
+    if (this.state.readOnly && this.props.cityPolygon == null) {
+      alert("You cannot create a study area before you select a city");
+    } else {
+      this.setState(
+        {
+          readOnly: !this.state.readOnly
+        }
+      );
+    }
   }
   
   componentDidMount () {
@@ -224,7 +232,7 @@ export default class StudyAreaMap extends React.Component {
                         metric: ['km', 'm']
                       }
                   }}
-                    onEditResize={this._onEditResize.bind(this)}
+                    // onEditResize={this._onEditResize.bind(this)}
                 />
               }
             </FeatureGroup>                    
