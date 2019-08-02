@@ -18516,6 +18516,56 @@ var BasicMap = function (_React$Component) {
         });
       }
     }
+  }, {
+    key: 'print',
+    value: function print() {
+      var _this = this;
+      var callback = function callback(b) {
+        prompt(b);
+        _this.blob2file(b);
+      };
+      html2canvas(document.getElementById("riskAndImpact-map-container"), {
+        "foreignObjectRendering": true,
+        "allowTaint": true,
+        "useCORS": true
+      }).then(function (canvas) {
+        canvas.toBlob(callback);
+      });
+    }
+  }, {
+    key: 'blob2file',
+    value: function blob2file(blobData) {
+      //  const fd = new FormData();
+      //  fd.set('a', blobData);
+      //  return fd.get('a');
+
+      // var a = document.createElement("a");
+      // document.body.appendChild(a);
+      // a.style = "display: none";
+      // var blob = new Blob(blobData, {type: "octet/stream"}),
+      // url = window.URL.createObjectURL(blob);
+      // a.href = url;
+      // a.download = 'reportImage';
+      // a.click();
+      // window.URL.revokeObjectURL(url);
+
+      var saveData = function () {
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        return function (data, fileName) {
+          // var json = JSON.stringify(data),
+          //     blob = new Blob([json], {type: "octet/stream"});
+          var url = window.URL.createObjectURL(data);
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        };
+      }();
+
+      saveData(blobData, 'ReportImage');
+    }
 
     /**
      * Extract the groups from the given overlay layers
@@ -76799,9 +76849,13 @@ var StudyArea = function (_React$Component) {
         fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), { credentials: 'include' }).then(function (resp) {
           return resp.json();
         }).then(function (data) {
-          var wkt = new _wicket2.default.Wkt();
-          wkt.read(data.data.attributes.field_boundaries.value);
-          _this.setCityGeom(JSON.stringify(wkt.toJson()));
+          if (data.data === null) {
+            alert("There is no city selected");
+          } else {
+            var wkt = new _wicket2.default.Wkt();
+            wkt.read(data.data.attributes.field_boundaries.value);
+            _this.setCityGeom(JSON.stringify(wkt.toJson()));
+          }
         }).catch(function (error) {
           console.log(JSON.stringify(error));
         });
@@ -77084,9 +77138,13 @@ var StudyAreaMap = function (_React$Component) {
   }, {
     key: 'setReadOnly',
     value: function setReadOnly(ro) {
-      this.setState({
-        readOnly: ro
-      });
+      if (!ro && this.props.cityPolygon == null) {
+        alert("You cannot create a study area before you select a city");
+      } else {
+        this.setState({
+          readOnly: ro
+        });
+      }
     }
 
     /**
@@ -77097,9 +77155,13 @@ var StudyAreaMap = function (_React$Component) {
   }, {
     key: 'changeReadOnly',
     value: function changeReadOnly() {
-      this.setState({
-        readOnly: !this.state.readOnly
-      });
+      if (this.state.readOnly && this.props.cityPolygon == null) {
+        alert("You cannot create a study area before you select a city");
+      } else {
+        this.setState({
+          readOnly: !this.state.readOnly
+        });
+      }
     }
   }, {
     key: 'componentDidMount',
@@ -77192,8 +77254,8 @@ var StudyAreaMap = function (_React$Component) {
                 showArea: true,
                 metric: ['km', 'm']
               }
-            },
-            onEditResize: this._onEditResize.bind(this)
+            }
+            // onEditResize={this._onEditResize.bind(this)}
           })
         )
       );
