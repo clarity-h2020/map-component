@@ -17205,8 +17205,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _MapComponent$propTyp;
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(7);
@@ -17233,8 +17231,6 @@ var _LegendComponent2 = _interopRequireDefault(_LegendComponent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -17243,6 +17239,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Render a leaflet map with the given layers
+ */
 var MapComponent = function (_React$Component) {
   _inherits(MapComponent, _React$Component);
 
@@ -17266,6 +17265,11 @@ var MapComponent = function (_React$Component) {
     return _this;
   }
 
+  /**
+   * Creates the reportInfoElement
+   */
+
+
   _createClass(MapComponent, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
@@ -17280,6 +17284,11 @@ var MapComponent = function (_React$Component) {
 
       this.updateInfoElement();
     }
+
+    /**
+     * Adds the reportInfoElement (see https://github.com/clarity-h2020/map-component/issues/22)
+     */
+
   }, {
     key: 'updateInfoElement',
     value: function updateInfoElement() {
@@ -17305,6 +17314,11 @@ var MapComponent = function (_React$Component) {
         }
       }
     }
+
+    /**
+     * Updates the reportInfoElement and prepares the layer groups so that they can be collapsed and expanded
+     */
+
   }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate() {
@@ -17375,6 +17389,13 @@ var MapComponent = function (_React$Component) {
       }
       this.updateInfoElement();
     }
+
+    /**
+     * Creates a html element from the given html string
+     * 
+     * @param {String} html 
+     */
+
   }, {
     key: 'htmlToElement',
     value: function htmlToElement(html) {
@@ -17383,6 +17404,13 @@ var MapComponent = function (_React$Component) {
       template.innerHTML = html;
       return template.content.firstChild;
     }
+
+    /**
+     * This method prevents repaint problems, when a new overlay layer was selected
+     * 
+     * @param {Object} nextProps 
+     */
+
   }, {
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
@@ -17394,6 +17422,13 @@ var MapComponent = function (_React$Component) {
         }, 100);
       }
     }
+
+    /**
+     * Returns the bounding box of the given polygon geometry
+     * 
+     * @param {Object} area 
+     */
+
   }, {
     key: 'getBoundsFromArea',
     value: function getBoundsFromArea(area) {
@@ -17404,6 +17439,13 @@ var MapComponent = function (_React$Component) {
 
       return bounds;
     }
+
+    /**
+     * Shows or hides a layer group. This method will be invoked, when the user clicks on the title of a layer group
+     * 
+     * @param {Object} el 
+     */
+
   }, {
     key: 'showHide',
     value: function showHide(el) {
@@ -17436,6 +17478,12 @@ var MapComponent = function (_React$Component) {
         parent.style.width = maxWidth + 10 + "px";
       }
     }
+
+    /**
+     * Without an invocation of this method, the laflet map will not be rendered properly within drupal.
+     * Some map tiles will not be loaded.
+     */
+
   }, {
     key: 'init',
     value: function init() {
@@ -17445,6 +17493,14 @@ var MapComponent = function (_React$Component) {
         init: true
       });
     }
+
+    /**
+     * Changes the base layer of the map.
+     * This method will be invoked, when the user selects an other base layer. 
+     * 
+     * @param {String} baseTitle 
+     */
+
   }, {
     key: 'baseLayerChange',
     value: function baseLayerChange(baseTitle) {
@@ -17461,7 +17517,13 @@ var MapComponent = function (_React$Component) {
       this.setState({ count: this.state.count + 1 });
     }
 
-    // only one checked overlay layer is allowed
+    /**
+     * Changes the overlay layer of the map.
+     * This method will be invoked, when the user selects an other overlay layer. 
+     * It is only one checked overlay layer allowed
+     * 
+     * @param {Array} newOverlays 
+     */
 
   }, {
     key: 'overlayChange',
@@ -17480,6 +17542,14 @@ var MapComponent = function (_React$Component) {
         oldOverlay: newOverlays
       });
     }
+
+    /**
+     * Extracts the url of the overlay layer with the given name.
+     * 
+     * @param {String} name  the name of the layer
+     * @returns the url of the overlay layer with the given name.
+     */
+
   }, {
     key: 'getUrl',
     value: function getUrl(name) {
@@ -17491,6 +17561,14 @@ var MapComponent = function (_React$Component) {
 
       return " ";
     }
+
+    /**
+     * Extracts the url of the base layer with the given name.
+     * 
+     * @param {String} name  the name of the layer
+     * @returns the url of the base layer with the given name.
+     */
+
   }, {
     key: 'getBaseUrl',
     value: function getBaseUrl(name) {
@@ -17502,6 +17580,14 @@ var MapComponent = function (_React$Component) {
 
       return " ";
     }
+
+    /**
+     * Extracts the layer names of the overlay layer with the given name.
+     * 
+     * @param {String} name  the name of the layer
+     * @returns the layer names of the overlay layer with the given name.
+     */
+
   }, {
     key: 'getLayers',
     value: function getLayers(name) {
@@ -17513,6 +17599,14 @@ var MapComponent = function (_React$Component) {
 
       return " ";
     }
+
+    /**
+     * Extracts the style name of the overlay layer with the given name.
+     * 
+     * @param {String} name  the name of the layer
+     * @returns the style name of the overlay layer with the given name.
+     */
+
   }, {
     key: 'getStyle',
     value: function getStyle(name) {
@@ -17528,14 +17622,22 @@ var MapComponent = function (_React$Component) {
 
       return "";
     }
+
+    /**
+     * Creates the jsx code for the overlay layers, that can be used in the render method
+     * 
+     * @param {Array} layers the array with all overlay layers
+     * @returns the array with all overlay layers
+     */
+
   }, {
     key: 'createLayer',
-    value: function createLayer(d) {
+    value: function createLayer(layers) {
       var layerArray = [];
       var opac = 0.5;
 
-      for (var i = 0; i < d.length; ++i) {
-        var obj = d[i];
+      for (var i = 0; i < layers.length; ++i) {
+        var obj = layers[i];
         if (obj.checked) {
           layerArray.push(_react2.default.createElement(_reactLeaflet.WMSTileLayer, {
             layers: this.getLayers(obj.name),
@@ -17551,61 +17653,47 @@ var MapComponent = function (_React$Component) {
 
       return layerArray;
     }
+
+    /**
+     * Returns an array with the overlay layers, which are selected and should be used to create the legend.
+     * At the moment, only one overlay layer can be selected at the same time.
+     * 
+     * @param {Array} layers the array with all overlay layers
+     */
+
   }, {
     key: 'getOverlayForLegend',
-    value: function getOverlayForLegend(d) {
+    value: function getOverlayForLegend(layers) {
       var layerArray = [];
 
-      for (var i = 0; i < d.length; ++i) {
-        var obj = d[i];
+      for (var i = 0; i < layers.length; ++i) {
+        var obj = layers[i];
         if (obj.checked) {
           var url = this.getUrl(obj.name);
           if (url.indexOf('?') !== -1) {
             url = url.substring(0, url.indexOf('?'));
           }
-          var obj = {
+          var checkedObj = {
             "checked": obj.checked,
             "style": this.getStyle(obj.name),
             "layers": this.getLayers(obj.name),
             "url": url,
             "title": obj.title
           };
-          layerArray.push(obj);
+          layerArray.push(checkedObj);
         }
       }
 
       return layerArray;
     }
-  }, {
-    key: 'getLastBounds',
-    value: function getLastBounds() {
-      if (this.refs != null && this.refs.map != null) {
-        var map = this.refs.map.leafletElement;
 
-        if (map != null) {
-          return map.getBounds();
-        } else {
-          return null;
-        }
-      } else {
-        return null;
-      }
-    }
-  }, {
-    key: 'getLastZoom',
-    value: function getLastZoom() {
-      if (this.refs != null && this.refs.map != null) {
-        var map = this.refs.map.leafletElement;
+    /**
+     * Creates the jsx code for the base layers, that can be used in the render method
+     * 
+     * @param {Array} d the array with all base layers 
+     * @returns the jsx code for the base layers
+     */
 
-        if (map != null) {
-          return map.getZoom();
-        } else {
-          return null;
-        }
-      } else {
-        return null;
-      }
-    }
   }, {
     key: 'createBaseLayer',
     value: function createBaseLayer(d) {
@@ -17623,11 +17711,30 @@ var MapComponent = function (_React$Component) {
 
       return layerArray;
     }
+
+    /**
+     * This method will be invoked by leaflet, when the user changes the bounding box of the map
+     * 
+     * @param {*} center 
+     * @param {*} zoom 
+     */
+
   }, {
     key: 'onViewportChanged',
     value: function onViewportChanged(center, zoom) {
       this.updateInfoElement();
+
+      if (this.map != null) {
+        var mapElement = this.map.leafletElement;
+        mapElement.getBounds().toBBoxString();
+        mapElement.getZoom();
+      }
     }
+
+    /**
+     * Renders the map
+     */
+
   }, {
     key: 'render',
     value: function render() {
@@ -17688,13 +17795,14 @@ var MapComponent = function (_React$Component) {
 exports.default = MapComponent;
 ;
 
-MapComponent.propTypes = (_MapComponent$propTyp = {
+MapComponent.propTypes = {
   loading: _propTypes2.default.bool,
   bounds: _propTypes2.default.array,
   baseLayers: _propTypes2.default.array,
   exclusiveGroups: _propTypes2.default.array,
-  overlays: _propTypes2.default.array
-}, _defineProperty(_MapComponent$propTyp, 'exclusiveGroups', _propTypes2.default.array), _defineProperty(_MapComponent$propTyp, 'studyAreaPolygon', _propTypes2.default.object), _MapComponent$propTyp);
+  overlays: _propTypes2.default.array,
+  studyAreaPolygon: _propTypes2.default.object
+};
 
 /***/ }),
 /* 82 */
@@ -17994,6 +18102,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * This is the basic class of all map classes. 
+ * It implements the common way to extract the overlay layers from the study. 
+ */
 var BasicMap = function (_React$Component) {
   _inherits(BasicMap, _React$Component);
 
@@ -18016,6 +18128,9 @@ var BasicMap = function (_React$Component) {
 
     _this2.groupingCriteria = groupingCriteria;
 
+    /**
+     * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
+     */
     _this2.protocol = 'https://';
 
     _this2.referenceType = '@mapview:ogc:wms';
@@ -18041,6 +18156,14 @@ var BasicMap = function (_React$Component) {
         }
       }
     }
+
+    /**
+     * Starts the loading of the study layers and render them on the map
+     * 
+     * @param {String} studyUuid the uuid of the study
+     * @param {String} hostName the hostname
+     */
+
   }, {
     key: 'setStudyURL',
     value: function setStudyURL(studyUuid, hostName) {
@@ -18079,11 +18202,13 @@ var BasicMap = function (_React$Component) {
         console.error('could not load study area from ' + hostName, error);
       });
     }
-  }, {
-    key: 'getTokenUrl',
-    value: function getTokenUrl() {
-      return this.state.hname + '/rest/session/token';
-    }
+
+    /**
+     * Add the given study area to the map
+     * 
+     * @param {Object} geome the geometry of the study area
+     */
+
   }, {
     key: 'setStudyAreaGeom',
     value: function setStudyAreaGeom(geome) {
@@ -18111,6 +18236,13 @@ var BasicMap = function (_React$Component) {
         });
       }
     }
+
+    /**
+     * Retrieves the study object from the server, extracts the layers from the study and add it to the map 
+     * 
+     * @param {Object} study 
+     */
+
   }, {
     key: 'processStudyJson',
     value: function processStudyJson(study) {
@@ -18149,6 +18281,15 @@ var BasicMap = function (_React$Component) {
         console.debug(JSON.stringify(study));
       }
     }
+
+    /**
+     * Extracts the layers from the given study and add it to the map 
+     * 
+     * @param {Object} originData the study object
+     * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
+     * @param {String} groupingCriteria th grouping criteria of the layers. E.g. taxonomy_term--hazards
+     */
+
   }, {
     key: 'convertDataFromServer',
     value: function convertDataFromServer(originData, mapType, groupingCriteria) {
@@ -18319,6 +18460,14 @@ var BasicMap = function (_React$Component) {
 
       return null;
     }
+
+    /**
+     * Add the given overlay layers to the state
+     *  
+     * @param {Array} mapData the overlay layers
+     * @param {Number} resourceLength the resource count of the current study
+     */
+
   }, {
     key: 'finishMapExtraction',
     value: function finishMapExtraction(mapData, resourceLength) {
@@ -18367,6 +18516,14 @@ var BasicMap = function (_React$Component) {
         });
       }
     }
+
+    /**
+     * Extract the groups from the given overlay layers
+     * 
+     * @param {Array} mapData 
+     * @returns an arrray with all group names
+     */
+
   }, {
     key: 'extractGroups',
     value: function extractGroups(mapData) {
@@ -18379,28 +18536,63 @@ var BasicMap = function (_React$Component) {
 
       return groups;
     }
+
+    /**
+     * Replace spaces, because spaces are not allowed in leaflet layer names
+     * 
+     * @param {String} title 
+     */
+
   }, {
     key: 'titleToName',
     value: function titleToName(title) {
       return title.replace(' ', '_');
     }
+
+    /**
+     * Extracts the layer name from the given wms GetMap request
+     * 
+     * @param {String} url a get MapRequest
+     */
+
   }, {
     key: 'extractLayers',
     value: function extractLayers(url) {
       var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length);
       return layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam;
     }
+
+    /**
+     * Extracts the style name from the given wms GetMap request
+     * 
+     * @param {String} url a get MapRequest
+     */
+
   }, {
     key: 'extractStyle',
     value: function extractStyle(url) {
       var layerParam = url.substring(url.indexOf('style=') + 'style='.length);
       return layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam;
     }
+
+    /**
+     * Returns the given url without parameters
+     *  
+     * @param {String} url 
+     */
+
   }, {
     key: 'extractUrl',
     value: function extractUrl(url) {
       return url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null;
     }
+
+    /**
+     * Returns the bounding box of the given polygon geometry
+     * 
+     * @param {Object} area 
+     */
+
   }, {
     key: 'getBoundsFromArea',
     value: function getBoundsFromArea(area) {
@@ -27001,16 +27193,10 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
     value.forEach(function(subValue) {
       result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
     });
-
-    return result;
-  }
-
-  if (Object(__WEBPACK_IMPORTED_MODULE_17__isMap_js__["a" /* default */])(value)) {
+  } else if (Object(__WEBPACK_IMPORTED_MODULE_17__isMap_js__["a" /* default */])(value)) {
     value.forEach(function(subValue, key) {
       result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
     });
-
-    return result;
   }
 
   var keysFunc = isFull
@@ -61715,10 +61901,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//const CharacteriseHazardMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/CharacteriseHazard.png' />);
-//};
-
 var CharacteriseHazardMap = function (_BasicMap) {
   _inherits(CharacteriseHazardMap, _BasicMap);
 
@@ -61819,12 +62001,26 @@ var CharacteriseHazardMap = function (_BasicMap) {
     return _this;
   }
 
+  /**
+   * Logs the url on the console
+   *  
+   * @param {String} resource 
+   * @param {String} url 
+   * @returns the given url
+   */
+
+
   _createClass(CharacteriseHazardMap, [{
     key: 'processUrl',
     value: function processUrl(resource, url) {
       console.log('characteriseHazard-map -> process URL: ' + url);
       return _get(CharacteriseHazardMap.prototype.__proto__ || Object.getPrototypeOf(CharacteriseHazardMap.prototype), 'processUrl', this).call(this, resource, url);
     }
+
+    /**
+     * Render the map
+     */
+
   }, {
     key: 'render',
     value: function render() {
@@ -61845,8 +62041,6 @@ var CharacteriseHazardMap = function (_BasicMap) {
 
 exports.default = CharacteriseHazardMap;
 ;
-
-//export default CharacteriseHazardMap;
 
 if (document.getElementById('characteriseHazard-map-container') != null) {
   _reactDom2.default.render(_react2.default.createElement(CharacteriseHazardMap, null), document.getElementById('characteriseHazard-map-container'));
@@ -75468,6 +75662,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Renders the legends
+ */
 var LegendComponent = function (_React$Component) {
     _inherits(LegendComponent, _React$Component);
 
@@ -75483,12 +75680,14 @@ var LegendComponent = function (_React$Component) {
         return _this;
     }
 
+    /**
+     * Creates jsx code to render the legends
+     * 
+     * @param {Array} legends an array with the layer that should be used for the legend 
+     */
+
+
     _createClass(LegendComponent, [{
-        key: 'extractUrl',
-        value: function extractUrl(url) {
-            return url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null;
-        }
-    }, {
         key: 'createLegend',
         value: function createLegend(legends) {
             var layerArray = [];
@@ -75501,6 +75700,11 @@ var LegendComponent = function (_React$Component) {
 
             return layerArray;
         }
+
+        /**
+         * Renders the legends
+         */
+
     }, {
         key: 'render',
         value: function render() {
@@ -75543,6 +75747,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * Renders a single legend
+ */
 var SingleLegend = function (_React$Component) {
     _inherits(SingleLegend, _React$Component);
 
@@ -75551,7 +75758,6 @@ var SingleLegend = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (SingleLegend.__proto__ || Object.getPrototypeOf(SingleLegend)).call(this, props));
 
-        var baseUrl = _this.props.layer.url;
         var lUrl = _this.props.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + _this.props.layer.layers;
 
         _this.state = {
@@ -75560,6 +75766,13 @@ var SingleLegend = function (_React$Component) {
         };
         return _this;
     }
+
+    /**
+     * Changes the legend url
+     * 
+     * @param {Object} nextProps 
+     */
+
 
     _createClass(SingleLegend, [{
         key: "componentWillReceiveProps",
@@ -75573,11 +75786,11 @@ var SingleLegend = function (_React$Component) {
                 });
             }
         }
-    }, {
-        key: "extractUrl",
-        value: function extractUrl(url) {
-            return url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null;
-        }
+
+        /**
+         * renders a single legend
+         */
+
     }, {
         key: "render",
         value: function render() {
@@ -76056,11 +76269,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//const ExposureMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/Exposure.png' />);
-//};
-
-
 var ExposureMap = function (_BasicMap) {
   _inherits(ExposureMap, _BasicMap);
 
@@ -76111,6 +76319,11 @@ var ExposureMap = function (_BasicMap) {
     return _this;
   }
 
+  /**
+   * Render the map
+   */
+
+
   _createClass(ExposureMap, [{
     key: 'render',
     value: function render() {
@@ -76131,8 +76344,6 @@ var ExposureMap = function (_BasicMap) {
 
 exports.default = ExposureMap;
 ;
-
-//export default ExposureMap;
 
 if (document.getElementById('exposure-map-container') != null) {
   _reactDom2.default.render(_react2.default.createElement(ExposureMap, null), document.getElementById('exposure-map-container'));
@@ -76176,10 +76387,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-//const HazardLocalEffectsMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/HazardLocalEffects.png' />);
-//};
 
 var HazardLocalEffectsMap = function (_BasicMap) {
   _inherits(HazardLocalEffectsMap, _BasicMap);
@@ -76238,6 +76445,11 @@ var HazardLocalEffectsMap = function (_BasicMap) {
     return _this;
   }
 
+  /**
+   * Render the map
+   */
+
+
   _createClass(HazardLocalEffectsMap, [{
     key: 'render',
     value: function render() {
@@ -76258,8 +76470,6 @@ var HazardLocalEffectsMap = function (_BasicMap) {
 
 exports.default = HazardLocalEffectsMap;
 ;
-
-//export default HazardLocalEffectsMap;
 
 if (document.getElementById('hazardLocalEffects-map-container') != null) {
   _reactDom2.default.render(_react2.default.createElement(HazardLocalEffectsMap, null), document.getElementById('hazardLocalEffects-map-container'));
@@ -76303,10 +76513,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-//const RiskAndImpactMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/RiskAndImpact.png' />);
-//};
 
 var RiskAndImpactMap = function (_BasicMap) {
   _inherits(RiskAndImpactMap, _BasicMap);
@@ -76465,6 +76671,11 @@ var RiskAndImpactMap = function (_BasicMap) {
     return _this;
   }
 
+  /**
+   * Reder the map
+   */
+
+
   _createClass(RiskAndImpactMap, [{
     key: 'render',
     value: function render() {
@@ -76485,8 +76696,6 @@ var RiskAndImpactMap = function (_BasicMap) {
 
 exports.default = RiskAndImpactMap;
 ;
-
-//export default RiskAndImpactMap;
 
 if (document.getElementById('riskAndImpact-map-container') != null) {
   _reactDom2.default.render(_react2.default.createElement(RiskAndImpactMap, null), document.getElementById('riskAndImpact-map-container'));
@@ -76535,6 +76744,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * This class is used by drupal to show the study area
+ */
 var StudyArea = function (_React$Component) {
   _inherits(StudyArea, _React$Component);
 
@@ -76547,9 +76759,20 @@ var StudyArea = function (_React$Component) {
       cityPolygon: null
     };
 
+    /**
+     * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
+     */
     _this2.protocol = 'https://';
     return _this2;
   }
+
+  /**
+   * Starts the loading of the selected city and the study area and render them on the map
+   * 
+   * @param {Number} studyUuid 
+   * @param {String} hostName 
+   */
+
 
   _createClass(StudyArea, [{
     key: 'setStudyURL',
@@ -76586,11 +76809,13 @@ var StudyArea = function (_React$Component) {
         console.log(JSON.stringify(error));
       });
     }
-  }, {
-    key: 'getTokenUrl',
-    value: function getTokenUrl() {
-      return this.state.hname + '/rest/session/token';
-    }
+
+    /**
+     * Set the city geometry and render it on the map
+     * 
+     * @param {Object} geome 
+     */
+
   }, {
     key: 'setCityGeom',
     value: function setCityGeom(geome) {
@@ -76615,6 +76840,13 @@ var StudyArea = function (_React$Component) {
         cityPolygon: p
       });
     }
+
+    /**
+     * Set the study area geometry and render it on the map
+     * 
+     * @param {Object} geome 
+     */
+
   }, {
     key: 'setStudyAreaGeom',
     value: function setStudyAreaGeom(geome) {
@@ -76641,13 +76873,11 @@ var StudyArea = function (_React$Component) {
         });
       }
     }
-  }, {
-    key: 'init',
-    value: function init() {
-      this.setState({
-        init: true
-      });
-    }
+
+    /**
+     * Renders the study area
+     */
+
   }, {
     key: 'render',
     value: function render() {
@@ -76719,6 +76949,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * The main purpose is to render the map with the study area and the city. This class also allows to create a new study area. 
+ * This component will be used by the class components/StudyArea
+ */
 var StudyAreaMap = function (_React$Component) {
   _inherits(StudyAreaMap, _React$Component);
 
@@ -76735,6 +76969,13 @@ var StudyAreaMap = function (_React$Component) {
     return _this2;
   }
 
+  /**
+   * This method solves some repaint problems
+   * 
+   * @param {Object} nextProps 
+   */
+
+
   _createClass(StudyAreaMap, [{
     key: 'componentWillReceiveProps',
     value: function componentWillReceiveProps(nextProps) {
@@ -76742,18 +76983,26 @@ var StudyAreaMap = function (_React$Component) {
         this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon });
       }
     }
+
+    /**
+     * Without an invocation of this method, the laflet map will not be rendered properly within drupal.
+     * Some map tiles will not be loaded.
+     */
+
   }, {
     key: 'init',
     value: function init() {
       var map = this.map.leafletElement;
       map.invalidateSize();
     }
-  }, {
-    key: '_onEditResize',
-    value: function _onEditResize(e) {
-      var area = _turf2.default.area(e.layer.toGeoJSON());
-      console.log(area);
-    }
+
+    /**
+     * Creates a new study area and upload it to the drupal system. 
+     * This method will be invoked by the EditControl component
+     * 
+     * @param {Object} e 
+     */
+
   }, {
     key: '_onCreated',
     value: function _onCreated(e) {
@@ -76797,11 +77046,24 @@ var StudyAreaMap = function (_React$Component) {
         });
       }
     }
+
+    /**
+     * @returns the URL to retrieve the session token. This token is required to upload data to drupal
+     */
+
   }, {
     key: 'getTokenUrl',
     value: function getTokenUrl() {
       return this.props.hostname + '/rest/session/token';
     }
+
+    /**
+     * Determines the bounding box of the given polygon geometry
+     * 
+     * @param {Object} area 
+     * @returns the bounding box of the given polygon geometry
+     */
+
   }, {
     key: 'getBoundsFromArea',
     value: function getBoundsFromArea(area) {
@@ -76812,11 +77074,13 @@ var StudyAreaMap = function (_React$Component) {
 
       return bounds;
     }
-  }, {
-    key: 'getHostnameWithoutProtocol',
-    value: function getHostnameWithoutProtocol() {
-      return this.props.hostname.substring(this.props.hostname.indexOf(':') + 3);
-    }
+
+    /**
+     * Set the read only status of the component
+     * 
+     * @param {Boolean} ro 
+     */
+
   }, {
     key: 'setReadOnly',
     value: function setReadOnly(ro) {
@@ -76824,6 +77088,12 @@ var StudyAreaMap = function (_React$Component) {
         readOnly: ro
       });
     }
+
+    /**
+     * Inverts the read only status of the component
+     * 
+     */
+
   }, {
     key: 'changeReadOnly',
     value: function changeReadOnly() {
@@ -76837,6 +77107,11 @@ var StudyAreaMap = function (_React$Component) {
       var mapElement = this.map.leafletElement;
       mapElement.setMinZoom(9);
     }
+
+    /**
+     * Set the allowed min zoom factor of the map
+     */
+
   }, {
     key: 'componentDidUpdate',
     value: function componentDidUpdate() {
@@ -76860,6 +77135,11 @@ var StudyAreaMap = function (_React$Component) {
         mapElement.setMinZoom(zoomfactor);
       }
     }
+
+    /**
+     * Renders the map
+     */
+
   }, {
     key: 'render',
     value: function render() {
@@ -81853,10 +82133,9 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-//const VulnerabilityMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/Vulnerability.png' />);
-//};
-
+/**
+ * @deprecated this map is not used anymore
+ */
 var VulnerabilityMap = function (_BasicMap) {
   _inherits(VulnerabilityMap, _BasicMap);
 
@@ -81887,6 +82166,11 @@ var VulnerabilityMap = function (_BasicMap) {
     return _this;
   }
 
+  /**
+   * Reder the map
+   */
+
+
   _createClass(VulnerabilityMap, [{
     key: 'render',
     value: function render() {
@@ -81907,8 +82191,6 @@ var VulnerabilityMap = function (_BasicMap) {
 
 exports.default = VulnerabilityMap;
 ;
-
-//export default VulnerabilityMap;
 
 if (document.getElementById('vulnerability-map-container') != null) {
   _reactDom2.default.render(_react2.default.createElement(VulnerabilityMap, null), document.getElementById('vulnerability-map-container'));

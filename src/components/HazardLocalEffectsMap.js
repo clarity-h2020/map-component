@@ -4,10 +4,6 @@ import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
 
 
-//const HazardLocalEffectsMap = () => {
-//    return (<img width={1058} height={578} src='../../../../../../modules/custom/map-component/src/img/HazardLocalEffects.png' />);
-//};
-
 export default class HazardLocalEffectsMap extends BasicMap {
     constructor(props) {
       super(props, 'eu-gl:hazard-characterization:local-effects');
@@ -67,6 +63,9 @@ export default class HazardLocalEffectsMap extends BasicMap {
       };
     }  
 
+    /**
+     * Render the map
+     */
     render() {
       window.specificMapComponent = this;
 
@@ -82,7 +81,6 @@ export default class HazardLocalEffectsMap extends BasicMap {
     }
 };
 
-//export default HazardLocalEffectsMap;
 
 if (document.getElementById('hazardLocalEffects-map-container') != null) {
     ReactDOM.render(<HazardLocalEffectsMap />, document.getElementById('hazardLocalEffects-map-container'));
