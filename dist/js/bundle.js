@@ -18306,12 +18306,17 @@ var BasicMap = function (_React$Component) {
         if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null && resource.relationships.field_resource_tags.data.length > 0) {
           console.debug('inspecting ' + resource.relationships.field_resource_tags.data.length + ' tags of resource #' + i + ': ' + resource.attributes.title);
           var euGlStep, groupName, layerUrl;
+          var correctEuGlStep = false;
 
           for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
             // step one: extract relevant tags
             if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
               var tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
               euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
+
+              if (euGlStep != null && euGlStep === mapType) {
+                correctEuGlStep = true;
+              }
             } else if (resource.relationships.field_resource_tags.data[j].type === groupingCriteria) {
               var _tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
               groupName = _tag.attributes.name;
@@ -18320,7 +18325,7 @@ var BasicMap = function (_React$Component) {
 
           // step two: create map layers
           // e.g. mapType = eu-gl:risk-and-impact-assessment
-          if (euGlStep != null && euGlStep === mapType) {
+          if (correctEuGlStep) {
             // FIXME: #29
 
             // This is madness: iteratve over references
@@ -18515,6 +18520,56 @@ var BasicMap = function (_React$Component) {
           exclusiveGroups: this.extractGroups(this.overlaysBackup)
         });
       }
+    }
+  }, {
+    key: 'print',
+    value: function print() {
+      var _this = this;
+      var callback = function callback(b) {
+        prompt(b);
+        _this.blob2file(b);
+      };
+      html2canvas(document.getElementById("riskAndImpact-map-container"), {
+        "foreignObjectRendering": true,
+        "allowTaint": true,
+        "useCORS": true
+      }).then(function (canvas) {
+        canvas.toBlob(callback);
+      });
+    }
+  }, {
+    key: 'blob2file',
+    value: function blob2file(blobData) {
+      //  const fd = new FormData();
+      //  fd.set('a', blobData);
+      //  return fd.get('a');
+
+      // var a = document.createElement("a");
+      // document.body.appendChild(a);
+      // a.style = "display: none";
+      // var blob = new Blob(blobData, {type: "octet/stream"}),
+      // url = window.URL.createObjectURL(blob);
+      // a.href = url;
+      // a.download = 'reportImage';
+      // a.click();
+      // window.URL.revokeObjectURL(url);
+
+      var saveData = function () {
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        return function (data, fileName) {
+          // var json = JSON.stringify(data),
+          //     blob = new Blob([json], {type: "octet/stream"});
+          var url = window.URL.createObjectURL(data);
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          window.URL.revokeObjectURL(url);
+        };
+      }();
+
+      saveData(blobData, 'ReportImage');
     }
 
     /**
@@ -76835,7 +76890,7 @@ var StudyArea = function (_React$Component) {
             fillOpacity: 0.0
           }
         },
-        "geometry": _turf2.default.flip(JSON.parse(geome))
+        "geometry": JSON.parse(geome)
       };
       this.setState({
         cityPolygon: null

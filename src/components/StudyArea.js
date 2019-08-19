@@ -85,7 +85,7 @@ export default class StudyArea extends React.Component {
               fillOpacity: 0.0
           }
       },
-      "geometry": turf.flip(JSON.parse(geome))
+      "geometry": JSON.parse(geome)
     }
     this.setState({
             cityPolygon: null
