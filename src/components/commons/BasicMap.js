@@ -200,7 +200,7 @@ export default class BasicMap extends React.Component {
           if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
             let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
             euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
-            
+
             if (euGlStep != null && euGlStep === mapType) {
               correctEuGlStep = true;
             }
@@ -216,20 +216,19 @@ export default class BasicMap extends React.Component {
           // FIXME: #29
 
           // This is madness: iteratve over references
-          if (resource.relationships.field_references != null && resource.relationships.field_references.data != null 
+          if (resource.relationships.field_references != null && resource.relationships.field_references.data != null
             && resource.relationships.field_references.data.length > 0) {
             for (let referenceReference of resource.relationships.field_references.data) {
               var reference = this.getIncludedObject(referenceReference.type, referenceReference.id, originData.included);
-              if(reference != null &&  reference.attributes != null && reference.attributes.field_reference_path != null 
-                && reference.attributes.field_reference_qualifier != null  
-                && reference.attributes.field_reference_type  != null ) {
-                
+              if (reference != null && reference.attributes != null && reference.attributes.field_reference_path != null
+                && reference.attributes.field_reference_qualifier != null
+                && reference.attributes.field_reference_type != null) {
+
                 // default: _this.referenceType = '@mapview:ogc:wms'
-                if(reference.attributes.field_reference_type === _this.referenceType)
-                {
+                if (reference.attributes.field_reference_type === _this.referenceType) {
                   layerUrl = _this.processUrl(resource, reference.attributes.field_reference_path);
                 }
-                
+
               } else {
                 console.debug('no reference object available in inlcuded array for resource ' + i);
               }
@@ -239,11 +238,11 @@ export default class BasicMap extends React.Component {
             console.warn('no references for  resource ' + resource.attributes.title + 'found, falling back to deprecated map_view property');
             var mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
 
-            if (mapView != null && mapView.attributes != null && mapView.attributes.field_url != null 
+            if (mapView != null && mapView.attributes != null && mapView.attributes.field_url != null
               && mapView.attributes.field_url.length > 0) {
               // FIXME: field_url is now an array .. nor not? Doesn't matter. We discard map_view anyway, See #29
               layerUrl = _this.processUrl(resource, mapView.attributes.field_url[0]);
-              
+
             } else {
               console.debug('no map view object available for resource ' + i);
             }
@@ -251,7 +250,7 @@ export default class BasicMap extends React.Component {
             console.debug('no map view property available in references or resource ' + i);
           }
 
-          if(layerUrl != null) {
+          if (layerUrl != null) {
             var layerObject = {};
             layerObject.url = layerUrl;
             layerObject.title = resource.attributes.title;
@@ -259,7 +258,7 @@ export default class BasicMap extends React.Component {
             // WARNING: 
             // null == undefined  // true
             // null === undefined  // false -> compare value AND type
-            if(groupName == null || groupName.length > 0) {
+            if (groupName == null || groupName.length > 0) {
               layerObject.group = groupName;
             } else {
               layerObject.group = 'Default';
@@ -294,14 +293,14 @@ export default class BasicMap extends React.Component {
                         layerObject.group = hazard.attributes.name;
 
                         mapData.push(layerObject);
-                      } 
-                    }  
-                  }  
-                } 
-              } 
-            } 
-          } 
-        } 
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
     _this.finishMapExtraction(mapData, resourceLength);
@@ -317,7 +316,7 @@ export default class BasicMap extends React.Component {
     return url;
   }
 
- 
+
   /**
    * Drupal JSON API 'deeply' inlcudes objects, e.g. &include=field_references are provided onyl onace in a separate array name 'inlcuded'.
    * This method resolves the references and extracts the inlcuded  object.
@@ -341,52 +340,51 @@ export default class BasicMap extends React.Component {
    * @param {Number} resourceLength the resource count of the current study
    */
   finishMapExtraction(mapData, resourceLength) {
-      console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
-      var mapModel = [];
-      for (var i = 0; i < mapData.length; ++i) {
-        if (mapData[i].url && mapData[i].url != null) {
-          var layer = {};
-          layer.checked = false;
-          layer.groupTitle = (mapData[i].group === null ? 'Overlays' : mapData[i].group);
-          layer.name = this.titleToName(mapData[i].title);
-          layer.title = mapData[i].title;
-          layer.layers = this.extractLayers(mapData[i].url.toString());
-          layer.url = this.extractUrl(mapData[i].url.toString());
-          mapModel.push(layer);
-          console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
+    console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
+    var mapModel = [];
+    for (var i = 0; i < mapData.length; ++i) {
+      if (mapData[i].url && mapData[i].url != null) {
+        var layer = {};
+        layer.checked = false;
+        layer.groupTitle = (mapData[i].group === null ? 'Overlays' : mapData[i].group);
+        layer.name = this.titleToName(mapData[i].title);
+        layer.title = mapData[i].title;
+        layer.layers = this.extractLayers(mapData[i].url.toString());
+        layer.url = this.extractUrl(mapData[i].url.toString());
+        mapModel.push(layer);
+        console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
+      }
+    }
+
+    if (mapModel.length > 0) {
+      mapModel.sort(function (a, b) {
+        if ((a == null || a.name == null) && (b == null || b.name == null)) {
+          return 0;
+        } else if (a == null || a.name == null) {
+          return -1;
+        } else if (b == null || b.name == null) {
+          return 1;
+        } else if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        } else {
+          return 0;
         }
-      }
-
-      if (mapModel.length > 0) {
-        mapModel.sort(function (a, b) {
-          if ((a == null || a.name == null) && (b == null || b.name == null)) {
-            return 0;
-          } else if (a == null || a.name == null) {
-            return -1;
-          } else if (b == null || b.name == null) {
-            return 1;
-          } else if (a.name < b.name) {
-            return -1;
-          } else if (a.name > b.name) {
-            return 1;
-          } else {
-            return 0;
-          }
-        });
-        this.setState({
-          overlays: mapModel,
-          loading: false,
-          exclusiveGroups: this.extractGroups(mapModel)
-        });
-      } else if (this.overlaysBackup != null) {
-        this.setState({
-          overlays: this.overlaysBackup,
-          loading: false,
-          exclusiveGroups: this.extractGroups(this.overlaysBackup)
-        });
-      }
+      });
+      this.setState({
+        overlays: mapModel,
+        loading: false,
+        exclusiveGroups: this.extractGroups(mapModel)
+      });
+    } else if (this.overlaysBackup != null) {
+      this.setState({
+        overlays: this.overlaysBackup,
+        loading: false,
+        exclusiveGroups: this.extractGroups(this.overlaysBackup)
+      });
+    }
   }
-
 
   /**
    * Extract the groups from the given overlay layers
@@ -420,8 +418,7 @@ export default class BasicMap extends React.Component {
    * @param {String} url a get MapRequest
    */
   extractLayers(url) {
-    var layerParamName = 'layers=';
-    var layerParam = url.substring(url.toLowerCase().indexOf(layerParamName) + layerParamName.length)
+    var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
     return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
@@ -431,9 +428,8 @@ export default class BasicMap extends React.Component {
    * @param {String} url a get MapRequest
    */
   extractStyle(url) {
-    var styleParamName = 'styles=';
-    var styleParam = url.substring(url.toLowerCase().indexOf(styleParamName) + styleParamName.length)
-    return (styleParam.indexOf('&') !== -1 ? styleParam.substring(0, styleParam.indexOf('&')) : styleParam);
+    var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
+    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
   /**
@@ -442,30 +438,7 @@ export default class BasicMap extends React.Component {
    * @param {String} url 
    */
   extractUrl(url) {
-    //remove the parameters, which will be set by leaflet 
-    var parameterList = ['request', 'version', 'service', 'layers', 'bbox', 'width', 'height', 'srs', 'crs', 'format', 'styles', 'transparent', 'bgcolor', 'exceptions'];
-    var baseUrl = (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : url);
-
-    if (url.indexOf('?') != -1) {
-      var urlParameter = url.substring(url.indexOf('?'));
-
-      for (var index = 0; index < parameterList.length; ++index) {
-        var parameter = parameterList[index];
-        
-        if (urlParameter.toLowerCase().indexOf(parameter) != -1) {
-          var lastUrlPart = urlParameter.substring(urlParameter.toLowerCase().indexOf(parameter));
-          urlParameter = urlParameter.substring(0, urlParameter.toLowerCase().indexOf(parameter));
-
-          if (lastUrlPart.indexOf('&') != -1) {
-            urlParameter = urlParameter + lastUrlPart.substring(lastUrlPart.indexOf('&'));
-          }
-        }
-      }
-
-      return baseUrl + urlParameter;
-    } else {
-      return baseUrl;
-    }
+    return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
   }
 
   /**

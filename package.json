@@ -1,7 +1,9 @@
 {
   "name": "clarity-map-component",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "license": "LGPL",
+  "homepage": "./",
   "dependencies": {
     "@turf/boolean-within": "latest",
     "leaflet": "^1.5.1",

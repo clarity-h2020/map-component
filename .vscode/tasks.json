@@ -9,6 +9,11 @@
             "problemMatcher": [
                 "$jshint"
             ]
+        },
+        {
+            "type": "npm",
+            "script": "start",
+            "problemMatcher": []
         }
     ]
 }
