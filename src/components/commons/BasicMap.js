@@ -36,6 +36,10 @@ export default class BasicMap extends React.Component {
         this.setStudyURL(values.id, values.url);
       }
     }
+
+
+    //const layerObject = _this.processResources(resources, _this.props.mapSelectionId, _this.props.groupingCriteria);
+    //_this.finishMapExtraction(layerObject);
   }
 
   /**
@@ -53,6 +57,7 @@ export default class BasicMap extends React.Component {
     });
     const _this = this;
     // get and render the study area
+    // ARGH! WTF?!
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, { credentials: 'include' })
       .then(function (response) {
         if (!response.ok) {
@@ -126,12 +131,19 @@ export default class BasicMap extends React.Component {
    * Retrieves the study object from the server, extracts the layers from the study and add it to the map.
    * processResources processes the resources.
    * 
+   * FIXME: remove API requests from this component!
+   * 
    * @param {Object} study 
+   * @deprecated
    */
-  processStudy(study) {
+  processStudy(studyApiResponse) {
+
+    const studyAreaJson = CSISHelpers.extractStudyAreaFromStudyGroupNode(studyApiResponse.data);
+
     const _this = this;
     if (study != null && study.data[0] != null && study.data[0].relationships.field_data_package.links.related != null) {
       // get the 1st available data package
+      // ARGH!!
       fetch(study.data[0].relationships.field_data_package.links.related.href.replace('http://', _this.protocol), { credentials: 'include' })
         .then((resp) => resp.json())
         .then(function (dataPackage) {
@@ -144,11 +156,13 @@ export default class BasicMap extends React.Component {
             //var includes = 'include=field_resource_tags,field_references';
 
             var separator = (dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
-
+            
+            // ARGH!! NOT AGAIN!
             fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', _this.protocol) + separator + includes, { credentials: 'include' })
               .then((resp) => resp.json())
               .then(function (resources) {
-                _this.processResources(resources, _this.props.mapSelectionId, _this.props.groupingCriteria);
+                const layerObject = _this.processResources(resources, _this.props.mapSelectionId, _this.props.groupingCriteria);
+                _this.finishMapExtraction(layerObject);
               })
               .catch(function (error) {
                 console.log('could not load relationships', error);
@@ -170,15 +184,17 @@ export default class BasicMap extends React.Component {
   /**
    * Extracts the layers from the given RESOURCES array and add it to the map 
    * 
-   * @param {Object} originData the study object
+   * FIXME: externalise, eventually merge with finishMapExtraction()
+   * 
+   * @param {Object} resourcesApiResponse the resources API response
    * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
    * @param {String} groupingCriteria th grouping criteria of the layers. E.g. taxonomy_term--hazards
-   * @deprecated
+   * @return {Object[]}
    */
-  processResources(originData, mapType, groupingCriteria) {
+  processResources(resourcesApiResponse, mapType, groupingCriteria) {
     const _this = this;
-    const resourceArray = originData.data;
-    const includedArray = originData.included;
+    const resourceArray = resourcesApiResponse.data;
+    const includedArray = resourcesApiResponse.included;
     const referenceType = '@mapview:ogc:wms';
 
     var mapData = [];
@@ -220,126 +236,13 @@ export default class BasicMap extends React.Component {
       mapData.push(layerObject);
     }
 
-
-
-    
-  }
-
-
-
-
-
-
-  // iterate resources
-  for(var i = 0; i < resourceArray.length; ++i) {
-  const resource = resourceArray[i];
-
-  // iterate resource tags
-  if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null
-    && resource.relationships.field_resource_tags.data.length > 0) {
-    console.debug('inspecting ' + resource.relationships.field_resource_tags.data.length + ' tags of resource #' + i + ': ' + resource.attributes.title);
-    var euGlStep, groupName, layerUrl;
-    var correctEuGlStep = false;
-
-    for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
-      // step one: extract relevant tags
-      if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
-        let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
-        euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
-
-        if (euGlStep != null && euGlStep === mapType) {
-          correctEuGlStep = true;
-        }
-      } else if (resource.relationships.field_resource_tags.data[j].type === groupingCriteria) {
-        let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
-        groupName = tag.attributes.name;
-      }
-    }
-
-    // step two: create map layers
-    // e.g. mapType = eu-gl:risk-and-impact-assessment
-    if (correctEuGlStep) {
-      // FIXME: #29
-
-      // This is madness: iterate over references
-      if (resource.relationships.field_references != null && resource.relationships.field_references.data != null
-        && resource.relationships.field_references.data.length > 0) {
-        for (let referenceReference of resource.relationships.field_references.data) {
-          var reference = this.getIncludedObject(referenceReference.type, referenceReference.id, originData.included);
-          if (reference != null && reference.attributes != null && reference.attributes.field_reference_path != null
-            && reference.attributes.field_reference_qualifier != null
-            && reference.attributes.field_reference_type != null) {
-
-            // default: _this.referenceType = '@mapview:ogc:wms'
-            if (reference.attributes.field_reference_type === _this.referenceType) {
-              layerUrl = _this.processUrl(resource, reference.attributes.field_reference_path);
-            }
-
-          } else {
-            console.debug('no reference object available in inlcuded array for resource ' + i);
-          }
-        }
-      }
-
-
-      if (layerUrl != null) {
-        var layerObject = {};
-        layerObject.url = layerUrl;
-        layerObject.title = resource.attributes.title;
-        // if no taxonomy term is available, use default group name.
-        // WARNING: 
-        // null == undefined  // true
-        // null === undefined  // false -> compare value AND type
-        if (groupName == null || groupName.length > 0) {
-          layerObject.group = groupName;
-        } else {
-          layerObject.group = 'Default';
-        }
-        mapData.push(layerObject);
-      }
-    } else {
-      console.warn('resource ' + i + ' is not assiged to any Eu-GL step')
-    }
-  } else {
-    console.warn('no tags for resource ' + resource.attributes.title + 'found, falling back to deprecated EU-GL context object');
-
-    // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
-      var analysisContext = this.getIncludedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
-
-      if (analysisContext != null) {
-        if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
-          var methodologyData = this.getIncludedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
-
-          if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
-            if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
-              mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
-
-              if (mapView != null) {
-                if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
-                  var hazard = this.getIncludedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
-                  if (hazard != null) {
-                    layerObject = {};
-                    layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
-                    layerObject.title = resource.attributes.title;
-                    layerObject.group = hazard.attributes.name;
-
-                    mapData.push(layerObject);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-_this.finishMapExtraction(mapData, resourceLength);
+    return mapData; 
   }
 
 /**
- * Method can be overridden in subclasses to support custom behaviour
+ * Method can be overridden in subclasses to support custom behaviour.
+ * 
+ * FIXME: externalise, use callback method instead!
  * 
  * @param {*} resource 
  * @param {*} url 
@@ -352,27 +255,25 @@ processUrl(resource, url) {
 /**
  * Drupal JSON API 'deeply' includes objects, e.g. &include=field_references are provided only once in a separate array name 'included'.
  * This method resolves the references and extracts the included  object.
+ * 
+ * FIXME: Remove! Replace all occurrences with  CSISHelpers.getIncludedObject!
+ * 
+ * @deprecated
  */
 getIncludedObject(type, id, includedArray) {
-  if (type != null && id != null) {
-    for (let i = 0; i < includedArray.length; ++i) {
-      if (includedArray[i].type === type && includedArray[i].id === id) {
-        return includedArray[i];
-      }
-    }
-  }
-
-  return null;
+  return CSISHelpers.getIncludedObject(type, id, includedArray);
 }
 
 /**
  * Add the given overlay layers to the state
  *  
+ * FIXME: split method, externalise layer generation part
+ * 
  * @param {Array} mapData the overlay layers
  * @param {Number} resourceLength the resource count of the current study
+ * @deprecated
  */
-finishMapExtraction(mapData, resourceLength) {
-  console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
+finishMapExtraction(mapData) {
   var mapModel = [];
   for (var i = 0; i < mapData.length; ++i) {
     if (mapData[i].url && mapData[i].url != null) {
@@ -421,8 +322,11 @@ finishMapExtraction(mapData, resourceLength) {
 /**
  * Extract the groups from the given overlay layers
  * 
+ * FIXME: externalise method! Use a Set!
+ * 
  * @param {Array} mapData 
- * @returns an arrray with all group names
+ * @returns an array with all group names
+ * @deprecated
  */
 extractGroups(mapData) {
   var groups = [];

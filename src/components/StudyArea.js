@@ -10,6 +10,7 @@ import queryString from 'query-string';
  * 
  * FIXME: align with basic map, remove duplicated code!
  * 
+ * @deprecated
  */
 export default class StudyArea extends React.Component {
   constructor(props) {
