@@ -5,14 +5,15 @@
   "license": "LGPL",
   "homepage": "./",
   "dependencies": {
-	"csis-helpers-js": "https://github.com/clarity-h2020/csis-helpers-js.git#master",
     "@turf/boolean-within": "latest",
+    "csis-helpers-js": "https://github.com/clarity-h2020/csis-helpers-js.git#master",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
     "leaflet-groupedlayercontrol": "latest",
     "leaflet-loading": "latest",
     "leaflet-providers": "git://github.com/leaflet-extras/leaflet-providers#master",
     "leaflet.nontiledlayer": "latest",
+    "loglevel": "^1.6.3",
     "prop-types": "latest",
     "query-string": "^6.8.2",
     "react": "^16.9.0",
@@ -36,7 +37,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test  --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "styleguide": "styleguidist server",
+    "styleguide:build": "styleguidist build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -54,6 +57,7 @@
     ]
   },
   "devDependencies": {
-    "babel-polyfill": "^6.26.0"
+    "babel-polyfill": "^6.26.0",
+    "react-styleguidist": "^9.1.16"
   }
 }
