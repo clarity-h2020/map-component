@@ -9,6 +9,8 @@ import turfWithin from '@turf/boolean-within';
 /**
  * The main purpose is to render the map with the study area and the city. This class also allows to create a new study area. 
  * This component will be used by the class components/StudyArea
+ * 
+ * @deprecated
  */
 export default class StudyAreaMap extends React.Component {
   constructor(props) {
@@ -21,8 +23,11 @@ export default class StudyAreaMap extends React.Component {
   }
 
   /**
-   * This method solves some repaint problems
+   * This method solves some repaint problems.
    * 
+   * FIXME: Remove
+   * 
+   * @deprecated
    * @param {Object} nextProps 
    */
   componentWillReceiveProps(nextProps){
@@ -32,8 +37,12 @@ export default class StudyAreaMap extends React.Component {
   }
 
   /**
-   * Without an invocation of this method, the laflet map will not be rendered properly within drupal.
+   * Without an invocation of this method, the leaflet map will not be rendered properly within drupal.
    * Some map tiles will not be loaded.
+   * 
+   * FIXME: remove
+   * 
+   * @deprecated
    */
   init() {
     const map = this.map.leafletElement

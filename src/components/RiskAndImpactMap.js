@@ -6,7 +6,7 @@ import BasicMap from './commons/BasicMap';
 
 export default class RiskAndImpactMap extends BasicMap {
     constructor(props) {
-      super(props, 'eu-gl:risk-and-impact-assessment');
+      super({ ...props, mapSelectionId: 'eu-gl:risk-and-impact-assessment'});
       const corner1 = [39.853294, 13.305573];
       const corner2 = [41.853294, 15.305573];
       this.overlaysBackup = [

@@ -7,7 +7,7 @@ import BasicMap from './commons/BasicMap';
 
 export default class ExposureMap extends BasicMap {
     constructor(props) {
-      super(props, 'eu-gl:exposure-evaluation');
+      super({ ...props, mapSelectionId: 'eu-gl:exposure-evaluation'});
       const corner1 = [39.853294, 13.305573];
       const corner2 = [41.853294, 15.305573];
       this.overlaysBackup = [

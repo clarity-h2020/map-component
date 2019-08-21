@@ -1,7 +1,9 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import Wkt from 'wicket';
 import turf from 'turf';
 import queryString from 'query-string';
+import log from 'loglevel';
 
 
 /**
@@ -9,18 +11,8 @@ import queryString from 'query-string';
  * It implements the common way to extract the overlay layers from the study. 
  */
 export default class BasicMap extends React.Component {
-  constructor(props, mapSelectionId = 'eu-gl:risk-and-impact-assessment', groupingCriteria = 'taxonomy_term--hazards') {
+  constructor(props) {
     super(props);
-    /**
-     * ~ mapType, e.g. 'eu-gl:risk-and-impact-assessment' = Taxonomy Term
-     */
-    this.mapSelectionId = mapSelectionId;
-
-    /**
-     * Taxonomy for Layer Groups, e.g. 'taxonomy_term--hazards'
-     */
-
-    this.groupingCriteria = groupingCriteria;
 
     /**
      * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
@@ -29,7 +21,7 @@ export default class BasicMap extends React.Component {
 
     this.referenceType = '@mapview:ogc:wms';
 
-    console.log('creating new ' + this.mapSelectionId + ' map with layer group from ' + this.groupingCriteria);
+    console.log('creating new ' + props.mapSelectionId + ' map with layer group from ' + props.groupingCriteria);
   }
 
   /**
@@ -51,6 +43,7 @@ export default class BasicMap extends React.Component {
    * 
    * @param {String} studyUuid the uuid of the study
    * @param {String} hostName the hostname
+   * @deprecated
    */
   setStudyURL(studyUuid, hostName) {
     console.log('loading study ' + studyUuid + ' from ' + hostName);
@@ -68,6 +61,7 @@ export default class BasicMap extends React.Component {
         //console.debug(response);
         return response.json();
       })
+      // study area --------------------------------------------------
       .then(function (data) {
         var wktVar = new Wkt.Wkt();
 
@@ -81,7 +75,8 @@ export default class BasicMap extends React.Component {
           }
 
           // get and render the map layers
-          _this.processStudyJson(data);
+          // resources --------------------------------------------------
+          _this.processStudy(data);
 
 
         } else {
@@ -99,9 +94,9 @@ export default class BasicMap extends React.Component {
   /**
    * Add the given study area to the map
    * 
-   * @param {Object} geome the geometry of the study area
+   * @param {Object} studyAreaGeometry the geometry of the study area
    */
-  setStudyAreaGeom(geome) {
+  setStudyAreaGeom(studyAreaGeometry) {
     if (geome != null) {
       var study = {
         "type": "Feature",
@@ -115,24 +110,25 @@ export default class BasicMap extends React.Component {
             fillOpacity: 0.1
           }
         },
-        "geometry": JSON.parse(geome)
+        "geometry": JSON.parse(studyAreaGeometry)
       };
       this.setState({
         studyAreaPolygon: null
       });
       this.setState({
         studyAreaPolygon: study,
-        bounds: this.getBoundsFromArea(JSON.parse(geome))
+        bounds: this.getBoundsFromArea(JSON.parse(studyAreaGeometry))
       });
     }
   }
 
   /**
-   * Retrieves the study object from the server, extracts the layers from the study and add it to the map 
+   * Retrieves the study object from the server, extracts the layers from the study and add it to the map.
+   * processResources processes the resources.
    * 
    * @param {Object} study 
    */
-  processStudyJson(study) {
+  processStudy(study) {
     const _this = this;
     if (study != null && study.data[0] != null && study.data[0].relationships.field_data_package.links.related != null) {
       // get the 1st available data package
@@ -145,14 +141,14 @@ export default class BasicMap extends React.Component {
             var includes = 'include=field_resource_tags,field_map_view,field_references,field_analysis_context.field_field_eu_gl_methodology,field_analysis_context.field_hazard';
 
             // TODO: remove above line and uncomment line below when Data Packages have been updated in CSIS!
-            //var includes = 'include=field_resource_tags,field_map_view,field_references';
+            //var includes = 'include=field_resource_tags,field_references';
 
             var separator = (dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
 
             fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', _this.protocol) + separator + includes, { credentials: 'include' })
               .then((resp) => resp.json())
               .then(function (resources) {
-                _this.convertDataFromServer(resources, _this.mapSelectionId, _this.groupingCriteria);
+                _this.processResources(resources, _this.props.mapSelectionId, _this.props.groupingCriteria);
               })
               .catch(function (error) {
                 console.log('could not load relationships', error);
@@ -172,129 +168,163 @@ export default class BasicMap extends React.Component {
   }
 
   /**
-   * Extracts the layers from the given study and add it to the map 
+   * Extracts the layers from the given RESOURCES array and add it to the map 
    * 
    * @param {Object} originData the study object
    * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
    * @param {String} groupingCriteria th grouping criteria of the layers. E.g. taxonomy_term--hazards
+   * @deprecated
    */
-  convertDataFromServer(originData, mapType, groupingCriteria) {
-    var mapData = [];
-    var resourceArray = originData.data;
-    const resourceLength = resourceArray.length;
+  processResources(originData, mapType, groupingCriteria) {
     const _this = this;
+    const resourceArray = originData.data;
+    const includedArray = originData.included;
+    const referenceType = '@mapview:ogc:wms';
 
-    // iterate resources
-    for (var i = 0; i < resourceArray.length; ++i) {
+    var mapData = [];
+
+    const filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+      CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, 'taxonomy_term--eu_gl', mapType),
+      includedArray,
+      referenceType);
+
+    log.info(`$filteredResources.length valid resources for $mapType with $referenceType references found in $resourceArray.length available resources`);
+
+    for (var i = 0; i < filteredResources.length; ++i) {
       const resource = resourceArray[i];
+      const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
+      if (resourceReferences.length > 1) {
+        log.warn(`$resourceReferences.length $referenceType references in resource $resource.attributes.title, using only 1st reference $resourceReferences[0].attributes.field_reference_path`);
+      }
 
-      // iterate resource tags
-      if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null
-        && resource.relationships.field_resource_tags.data.length > 0) {
-        console.debug('inspecting ' + resource.relationships.field_resource_tags.data.length + ' tags of resource #' + i + ': ' + resource.attributes.title);
-        var euGlStep, groupName, layerUrl;
-        var correctEuGlStep = false;
+      const layerUrl = _this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
+      const groupName = 'taxonomy_term--hazards';
 
-        for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
-          // step one: extract relevant tags
-          if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
-            let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
-            euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
+      const tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
 
-            if (euGlStep != null && euGlStep === mapType) {
-              correctEuGlStep = true;
-            }
-          } else if (resource.relationships.field_resource_tags.data[j].type === groupingCriteria) {
-            let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
-            groupName = tag.attributes.name;
-          }
-        }
-
-        // step two: create map layers
-        // e.g. mapType = eu-gl:risk-and-impact-assessment
-        if (correctEuGlStep) {
-          // FIXME: #29
-
-          // This is madness: iteratve over references
-          if (resource.relationships.field_references != null && resource.relationships.field_references.data != null
-            && resource.relationships.field_references.data.length > 0) {
-            for (let referenceReference of resource.relationships.field_references.data) {
-              var reference = this.getIncludedObject(referenceReference.type, referenceReference.id, originData.included);
-              if (reference != null && reference.attributes != null && reference.attributes.field_reference_path != null
-                && reference.attributes.field_reference_qualifier != null
-                && reference.attributes.field_reference_type != null) {
-
-                // default: _this.referenceType = '@mapview:ogc:wms'
-                if (reference.attributes.field_reference_type === _this.referenceType) {
-                  layerUrl = _this.processUrl(resource, reference.attributes.field_reference_path);
-                }
-
-              } else {
-                console.debug('no reference object available in inlcuded array for resource ' + i);
-              }
-            }
-          }  // FIXME: #29 remove when all Data Packages have been updated!
-          else if (resource.relationships.field_references != null && resource.relationships.field_references.length > 0) {
-            console.warn('no references for  resource ' + resource.attributes.title + 'found, falling back to deprecated map_view property');
-            var mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
-
-            if (mapView != null && mapView.attributes != null && mapView.attributes.field_url != null
-              && mapView.attributes.field_url.length > 0) {
-              // FIXME: field_url is now an array .. nor not? Doesn't matter. We discard map_view anyway, See #29
-              layerUrl = _this.processUrl(resource, mapView.attributes.field_url[0]);
-
-            } else {
-              console.debug('no map view object available for resource ' + i);
-            }
-          } else {
-            console.debug('no map view property available in references or resource ' + i);
-          }
-
-          if (layerUrl != null) {
-            var layerObject = {};
-            layerObject.url = layerUrl;
-            layerObject.title = resource.attributes.title;
-            // if no taxonomy term is avaible, use default group name.
-            // WARNING: 
-            // null == undefined  // true
-            // null === undefined  // false -> compare value AND type
-            if (groupName == null || groupName.length > 0) {
-              layerObject.group = groupName;
-            } else {
-              layerObject.group = 'Default';
-            }
-            mapData.push(layerObject);
-          }
-        } else {
-          console.warn('resource ' + i + ' is not assiged to any Eu-GL step')
+      var layerObject = {};
+      layerObject.url = layerUrl;
+      layerObject.title = resource.attributes.title;
+      // if no taxonomy term is available, use default group name.
+      // WARNING: 
+      // null == undefined  // true
+      // null === undefined  // false -> compare value AND type
+      if (tags != null || tags.length > 0) {
+        layerObject.group = tags[0].attributes.name;
+        if(tags.length > 0) {
+          log.warn(`$tags.length $tagType tags in resource $resource.attributes.title, using only 1st tag $tags[0].attributes.name`);
         }
       } else {
-        console.warn('no tags for resource ' + resource.attributes.title + 'found, falling back to deprecated EU-GL context object');
+        layerObject.group = 'Default';
+      }
+      mapData.push(layerObject);
+    }
 
-        // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
-          var analysisContext = this.getIncludedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
 
-          if (analysisContext != null) {
-            if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
-              var methodologyData = this.getIncludedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
 
-              if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
-                if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
-                  mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+    
+  }
 
-                  if (mapView != null) {
-                    if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
-                      var hazard = this.getIncludedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
-                      if (hazard != null) {
-                        layerObject = {};
-                        layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
-                        layerObject.title = resource.attributes.title;
-                        layerObject.group = hazard.attributes.name;
 
-                        mapData.push(layerObject);
-                      }
-                    }
+
+
+
+
+  // iterate resources
+  for(var i = 0; i < resourceArray.length; ++i) {
+  const resource = resourceArray[i];
+
+  // iterate resource tags
+  if (resource.relationships.field_resource_tags != null && resource.relationships.field_resource_tags.data != null
+    && resource.relationships.field_resource_tags.data.length > 0) {
+    console.debug('inspecting ' + resource.relationships.field_resource_tags.data.length + ' tags of resource #' + i + ': ' + resource.attributes.title);
+    var euGlStep, groupName, layerUrl;
+    var correctEuGlStep = false;
+
+    for (var j = 0; j < resource.relationships.field_resource_tags.data.length; ++j) {
+      // step one: extract relevant tags
+      if (resource.relationships.field_resource_tags.data[j].type === 'taxonomy_term--eu_gl') {
+        let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
+        euGlStep = tag.attributes.field_eu_gl_taxonomy_id.value;
+
+        if (euGlStep != null && euGlStep === mapType) {
+          correctEuGlStep = true;
+        }
+      } else if (resource.relationships.field_resource_tags.data[j].type === groupingCriteria) {
+        let tag = this.getIncludedObject(resource.relationships.field_resource_tags.data[j].type, resource.relationships.field_resource_tags.data[j].id, originData.included);
+        groupName = tag.attributes.name;
+      }
+    }
+
+    // step two: create map layers
+    // e.g. mapType = eu-gl:risk-and-impact-assessment
+    if (correctEuGlStep) {
+      // FIXME: #29
+
+      // This is madness: iterate over references
+      if (resource.relationships.field_references != null && resource.relationships.field_references.data != null
+        && resource.relationships.field_references.data.length > 0) {
+        for (let referenceReference of resource.relationships.field_references.data) {
+          var reference = this.getIncludedObject(referenceReference.type, referenceReference.id, originData.included);
+          if (reference != null && reference.attributes != null && reference.attributes.field_reference_path != null
+            && reference.attributes.field_reference_qualifier != null
+            && reference.attributes.field_reference_type != null) {
+
+            // default: _this.referenceType = '@mapview:ogc:wms'
+            if (reference.attributes.field_reference_type === _this.referenceType) {
+              layerUrl = _this.processUrl(resource, reference.attributes.field_reference_path);
+            }
+
+          } else {
+            console.debug('no reference object available in inlcuded array for resource ' + i);
+          }
+        }
+      }
+
+
+      if (layerUrl != null) {
+        var layerObject = {};
+        layerObject.url = layerUrl;
+        layerObject.title = resource.attributes.title;
+        // if no taxonomy term is available, use default group name.
+        // WARNING: 
+        // null == undefined  // true
+        // null === undefined  // false -> compare value AND type
+        if (groupName == null || groupName.length > 0) {
+          layerObject.group = groupName;
+        } else {
+          layerObject.group = 'Default';
+        }
+        mapData.push(layerObject);
+      }
+    } else {
+      console.warn('resource ' + i + ' is not assiged to any Eu-GL step')
+    }
+  } else {
+    console.warn('no tags for resource ' + resource.attributes.title + 'found, falling back to deprecated EU-GL context object');
+
+    // DEPRECATED. SEE #28 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if (resource.relationships.field_analysis_context != null && resource.relationships.field_analysis_context.data != null) {
+      var analysisContext = this.getIncludedObject(resource.relationships.field_analysis_context.data.type, resource.relationships.field_analysis_context.data.id, originData.included);
+
+      if (analysisContext != null) {
+        if (analysisContext.relationships.field_field_eu_gl_methodology != null && analysisContext.relationships.field_field_eu_gl_methodology.data != null) {
+          var methodologyData = this.getIncludedObject(analysisContext.relationships.field_field_eu_gl_methodology.data[0].type, analysisContext.relationships.field_field_eu_gl_methodology.data[0].id, originData.included);
+
+          if (methodologyData.attributes.field_eu_gl_taxonomy_id.value === mapType) {
+            if (resource.relationships.field_map_view != null && resource.relationships.field_map_view.data != null) {
+              mapView = this.getIncludedObject(resource.relationships.field_map_view.data.type, resource.relationships.field_map_view.data.id, originData.included);
+
+              if (mapView != null) {
+                if (analysisContext.relationships.field_hazard != null && analysisContext.relationships.field_hazard.data != null && analysisContext.relationships.field_hazard.data.length > 0) {
+                  var hazard = this.getIncludedObject(analysisContext.relationships.field_hazard.data[0].type, analysisContext.relationships.field_hazard.data[0].id, originData.included);
+                  if (hazard != null) {
+                    layerObject = {};
+                    layerObject.url = _this.processUrl(resource, mapView.attributes.field_url[0]);
+                    layerObject.title = resource.attributes.title;
+                    layerObject.group = hazard.attributes.name;
+
+                    mapData.push(layerObject);
                   }
                 }
               }
@@ -303,155 +333,177 @@ export default class BasicMap extends React.Component {
         }
       }
     }
-    _this.finishMapExtraction(mapData, resourceLength);
+  }
+}
+_this.finishMapExtraction(mapData, resourceLength);
   }
 
-  /**
-   * Method can be overriden in subclasses to support custom behaviour
-   * 
-   * @param {*} resource 
-   * @param {*} url 
-   */
-  processUrl(resource, url) {
-    return url;
-  }
+/**
+ * Method can be overridden in subclasses to support custom behaviour
+ * 
+ * @param {*} resource 
+ * @param {*} url 
+ */
+processUrl(resource, url) {
+  return url;
+}
 
 
-  /**
-   * Drupal JSON API 'deeply' inlcudes objects, e.g. &include=field_references are provided onyl onace in a separate array name 'inlcuded'.
-   * This method resolves the references and extracts the inlcuded  object.
-   */
-  getIncludedObject(type, id, includedArray) {
-    if (type != null && id != null) {
-      for (let i = 0; i < includedArray.length; ++i) {
-        if (includedArray[i].type === type && includedArray[i].id === id) {
-          return includedArray[i];
-        }
+/**
+ * Drupal JSON API 'deeply' includes objects, e.g. &include=field_references are provided only once in a separate array name 'included'.
+ * This method resolves the references and extracts the included  object.
+ */
+getIncludedObject(type, id, includedArray) {
+  if (type != null && id != null) {
+    for (let i = 0; i < includedArray.length; ++i) {
+      if (includedArray[i].type === type && includedArray[i].id === id) {
+        return includedArray[i];
       }
     }
-
-    return null;
   }
 
-  /**
-   * Add the given overlay layers to the state
-   *  
-   * @param {Array} mapData the overlay layers
-   * @param {Number} resourceLength the resource count of the current study
-   */
-  finishMapExtraction(mapData, resourceLength) {
-    console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
-    var mapModel = [];
-    for (var i = 0; i < mapData.length; ++i) {
-      if (mapData[i].url && mapData[i].url != null) {
-        var layer = {};
-        layer.checked = false;
-        layer.groupTitle = (mapData[i].group === null ? 'Overlays' : mapData[i].group);
-        layer.name = this.titleToName(mapData[i].title);
-        layer.title = mapData[i].title;
-        layer.layers = this.extractLayers(mapData[i].url.toString());
-        layer.url = this.extractUrl(mapData[i].url.toString());
-        mapModel.push(layer);
-        console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
+  return null;
+}
+
+/**
+ * Add the given overlay layers to the state
+ *  
+ * @param {Array} mapData the overlay layers
+ * @param {Number} resourceLength the resource count of the current study
+ */
+finishMapExtraction(mapData, resourceLength) {
+  console.log(mapData.length + ' layers of ' + resourceLength + ' resources processed')
+  var mapModel = [];
+  for (var i = 0; i < mapData.length; ++i) {
+    if (mapData[i].url && mapData[i].url != null) {
+      var layer = {};
+      layer.checked = false;
+      layer.groupTitle = (mapData[i].group === null ? 'Overlays' : mapData[i].group);
+      layer.name = this.titleToName(mapData[i].title);
+      layer.title = mapData[i].title;
+      layer.layers = this.extractLayers(mapData[i].url.toString());
+      layer.url = this.extractUrl(mapData[i].url.toString());
+      mapModel.push(layer);
+      console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
+    }
+  }
+
+  if (mapModel.length > 0) {
+    mapModel.sort(function (a, b) {
+      if ((a == null || a.name == null) && (b == null || b.name == null)) {
+        return 0;
+      } else if (a == null || a.name == null) {
+        return -1;
+      } else if (b == null || b.name == null) {
+        return 1;
+      } else if (a.name < b.name) {
+        return -1;
+      } else if (a.name > b.name) {
+        return 1;
+      } else {
+        return 0;
       }
-    }
+    });
+    this.setState({
+      overlays: mapModel,
+      loading: false,
+      exclusiveGroups: this.extractGroups(mapModel)
+    });
+  } else if (this.overlaysBackup != null) {
+    this.setState({
+      overlays: this.overlaysBackup,
+      loading: false,
+      exclusiveGroups: this.extractGroups(this.overlaysBackup)
+    });
+  }
+}
 
-    if (mapModel.length > 0) {
-      mapModel.sort(function (a, b) {
-        if ((a == null || a.name == null) && (b == null || b.name == null)) {
-          return 0;
-        } else if (a == null || a.name == null) {
-          return -1;
-        } else if (b == null || b.name == null) {
-          return 1;
-        } else if (a.name < b.name) {
-          return -1;
-        } else if (a.name > b.name) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
-      this.setState({
-        overlays: mapModel,
-        loading: false,
-        exclusiveGroups: this.extractGroups(mapModel)
-      });
-    } else if (this.overlaysBackup != null) {
-      this.setState({
-        overlays: this.overlaysBackup,
-        loading: false,
-        exclusiveGroups: this.extractGroups(this.overlaysBackup)
-      });
+/**
+ * Extract the groups from the given overlay layers
+ * 
+ * @param {Array} mapData 
+ * @returns an arrray with all group names
+ */
+extractGroups(mapData) {
+  var groups = [];
+  for (var i = 0; i < mapData.length; ++i) {
+    if (!groups.includes(mapData[i].groupTitle)) {
+      groups.push(mapData[i].groupTitle);
     }
   }
 
+  return groups;
+}
+
+/**
+ * Replace spaces, because spaces are not allowed in leaflet layer names
+ * 
+ * @param {String} title 
+ */
+titleToName(title) {
+  return title.replace(' ', '_');
+}
+
+/**
+ * Extracts the layer name from the given wms GetMap request
+ * 
+ * @param {String} url a get MapRequest
+ */
+extractLayers(url) {
+  var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
+  return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+}
+
+/**
+ * Extracts the style name from the given wms GetMap request
+ * 
+ * @param {String} url a get MapRequest
+ */
+extractStyle(url) {
+  var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
+  return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+}
+
+/**
+ * Returns the given url without parameters
+ *  
+ * @param {String} url 
+ */
+extractUrl(url) {
+  return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
+}
+
+/**
+ * Returns the bounding box of the given polygon geometry
+ * 
+ * @param {Object} area 
+ */
+getBoundsFromArea(area) {
+  const bboxArray = turf.bbox(area);
+  const corner1 = [bboxArray[1], bboxArray[0]];
+  const corner2 = [bboxArray[3], bboxArray[2]];
+  var bounds = [corner1, corner2];
+
+  return bounds;
+}
+};
+
+BasicMap.propTypes = {
+
+  location: PropTypes.any,
   /**
-   * Extract the groups from the given overlay layers
-   * 
-   * @param {Array} mapData 
-   * @returns an arrray with all group names
+   * ~ mapType, e.g. 'eu-gl:risk-and-impact-assessment' = Taxonomy Term
    */
-  extractGroups(mapData) {
-    var groups = [];
-    for (var i = 0; i < mapData.length; ++i) {
-      if (!groups.includes(mapData[i].groupTitle)) {
-        groups.push(mapData[i].groupTitle);
-      }
-    }
 
-    return groups;
-  }
-
+  mapSelectionId: PropTypes.string,
   /**
-   * Replace spaces, because spaces are not allowed in leaflet layer names
-   * 
-   * @param {String} title 
+   * Taxonomy for Layer Groups, e.g. 'taxonomy_term--hazards'
    */
-  titleToName(title) {
-    return title.replace(' ', '_');
-  }
+  groupingCriteria: PropTypes.string
+}
 
-  /**
-   * Extracts the layer name from the given wms GetMap request
-   * 
-   * @param {String} url a get MapRequest
-   */
-  extractLayers(url) {
-    var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
-    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
-  }
+BasicMap.defaultProps = {
+  mapSelectionId: 'eu-gl:risk-and-impact-assessment',
+  groupingCriteria: 'taxonomy_term--hazards'
 
-  /**
-   * Extracts the style name from the given wms GetMap request
-   * 
-   * @param {String} url a get MapRequest
-   */
-  extractStyle(url) {
-    var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
-    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
-  }
-
-  /**
-   * Returns the given url without parameters
-   *  
-   * @param {String} url 
-   */
-  extractUrl(url) {
-    return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
-  }
-
-  /**
-   * Returns the bounding box of the given polygon geometry
-   * 
-   * @param {Object} area 
-   */
-  getBoundsFromArea(area) {
-    const bboxArray = turf.bbox(area);
-    const corner1 = [bboxArray[1], bboxArray[0]];
-    const corner2 = [bboxArray[3], bboxArray[2]];
-    var bounds = [corner1, corner2];
-
-    return bounds;
-  }
 };

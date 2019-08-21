@@ -7,6 +7,7 @@ import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
 import 'leaflet/dist/leaflet.css'
 
+// See https://github.com/mhasbie/react-leaflet-vectorgrid#usage-with-react-leaflet-v2
 const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerControlForLeafletv1);
 
 

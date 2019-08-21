@@ -7,6 +7,9 @@ import queryString from 'query-string';
 
 /**
  * This class is used by drupal to show the study area
+ * 
+ * FIXME: align with basic map, remove duplicated code!
+ * 
  */
 export default class StudyArea extends React.Component {
   constructor(props) {
@@ -38,6 +41,8 @@ export default class StudyArea extends React.Component {
   /**
    * Starts the loading of the selected city and the study area and render them on the map
    * 
+   * FIXME: use csis-helpers-js methods!
+   * 
    * @param {Number} studyUuid 
    * @param {String} hostName 
    */
@@ -48,10 +53,12 @@ export default class StudyArea extends React.Component {
         hname: hostName
     });
     const _this = this;
+    // FIXME! USE csis-helpers-js for common tasks!
     fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, {credentials: 'include'})
     .then((resp) => resp.json())
     .then(function(data) {
 
+      // FIXME! DON'T USE THE REST VIEWS!
       fetch(hostName + "/rest/study/" + data.data[0].attributes.drupal_internal__id + "/area?_format=json", {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
@@ -63,6 +70,7 @@ export default class StudyArea extends React.Component {
         console.log(JSON.stringify(error));
       });
 
+      // FIXME! USE INCLUDES!
      fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), {credentials: 'include'})
       .then((resp) => resp.json())
       .then(function(data) {
@@ -86,9 +94,9 @@ export default class StudyArea extends React.Component {
   /**
    * Set the city geometry and render it on the map
    * 
-   * @param {Object} geome 
+   * @param {Object} cityGeometry 
    */
-  setCityGeom(geome) {
+  setCityGeom(cityGeometry) {
     var p = {
       "type": "Feature",
       "properties": {
@@ -101,7 +109,7 @@ export default class StudyArea extends React.Component {
               fillOpacity: 0.0
           }
       },
-      "geometry": JSON.parse(geome)
+      "geometry": JSON.parse(cityGeometry)
     }
     this.setState({
             cityPolygon: null
@@ -114,10 +122,10 @@ export default class StudyArea extends React.Component {
   /**
    * Set the study area geometry and render it on the map
    * 
-   * @param {Object} geome 
+   * @param {Object} studyAreaGeometry 
    */
-  setStudyAreaGeom(geome) {
-    if (geome != null) {
+  setStudyAreaGeom(studyAreaGeometry) {
+    if (studyAreaGeometry != null) {
         var study = {
           "type": "Feature",
           "properties": {
@@ -130,7 +138,7 @@ export default class StudyArea extends React.Component {
                   fillOpacity: 0.10
               }
           },
-          "geometry": JSON.parse(geome)
+          "geometry": JSON.parse(studyAreaGeometry)
         };
         this.setState({
           studyAreaPolygon: null
