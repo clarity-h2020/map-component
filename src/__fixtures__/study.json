@@ -1,0 +1,282 @@
+{
+    "jsonapi": {
+        "version": "1.0",
+        "meta": {
+            "links": {
+                "self": {
+                    "href": "http:\/\/jsonapi.org\/format\/1.0\/"
+                }
+            }
+        }
+    },
+    "data": [
+        {
+            "type": "group--study",
+            "id": "c3609e3e-f80f-482b-9e9f-3a26226a6859",
+            "attributes": {
+                "drupal_internal__id": 1,
+                "langcode": "en",
+                "label": "Adaptation Scenarios for Metropolitan Resilience Planning",
+                "created": "2018-10-15T14:17:45+00:00",
+                "changed": "2019-07-29T11:53:00+00:00",
+                "path": {
+                    "alias": "\/study\/1",
+                    "pid": 20,
+                    "langcode": "en"
+                },
+                "default_langcode": true,
+                "field_area": {
+                    "value": "POLYGON((14.149017 40.8268,14.149017 40.894051,14.316902 40.894051,14.316902 40.8268,14.149017 40.8268))",
+                    "geo_type": "Polygon",
+                    "lat": 40.86042550007758,
+                    "lon": 14.232959500026919,
+                    "left": 14.149017,
+                    "top": 40.894051,
+                    "right": 14.316902,
+                    "bottom": 40.8268,
+                    "geohash": "sr60",
+                    "latlon": "40.860425500078,14.232959500027"
+                },
+                "field_emikat_id": "2846",
+                "field_name": null,
+                "field_progress_indicator": "7",
+                "field_publish": true,
+                "field_short_name": "DC1",
+                "field_study_goa": "This is just a test case for demonstration purposes."
+            },
+            "relationships": {
+                "group_type": {
+                    "data": {
+                        "type": "group_type--group_type",
+                        "id": "c7228e47-793b-488b-a370-6a25b1fa9596"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/group_type"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/group_type"
+                        }
+                    }
+                },
+                "uid": {
+                    "data": {
+                        "type": "user--user",
+                        "id": "77cf7390-cd8b-44d8-913d-d47829ff5cb7"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/uid"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/uid"
+                        }
+                    }
+                },
+                "field_city_region": {
+                    "data": {
+                        "type": "taxonomy_term--cities_regions",
+                        "id": "ee7b31d7-7df2-42b8-b908-55e3a8e6ac37"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_city_region"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_city_region"
+                        }
+                    }
+                },
+                "field_country": {
+                    "data": {
+                        "type": "taxonomy_term--countries",
+                        "id": "aeb9cc1d-9d3a-431c-8b4b-81e031749c87"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_country"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_country"
+                        }
+                    }
+                },
+                "field_data_package": {
+                    "data": {
+                        "type": "node--data_package",
+                        "id": "a8ff7930-4a9f-4289-8246-3383ba13c30f"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_data_package"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_data_package"
+                        }
+                    }
+                },
+                "field_intro": {
+                    "data": {
+                        "type": "taxonomy_term--eu_gl",
+                        "id": "755e32ab-2691-4a75-9dfd-9df494334205"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_intro"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_intro"
+                        }
+                    }
+                },
+                "field_mock_up": {
+                    "data": [
+                        {
+                            "type": "file--file",
+                            "id": "124c0096-ab54-4052-aeca-b72b279df2e5",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1682,
+                                "height": 1250
+                            }
+                        },
+                        {
+                            "type": "file--file",
+                            "id": "3beb1d50-183a-4f8e-aba4-e69ebf181d4a",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1212,
+                                "height": 671
+                            }
+                        },
+                        {
+                            "type": "file--file",
+                            "id": "f3659c6b-dcdb-4201-8ece-6ca6b148666b",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1262,
+                                "height": 716
+                            }
+                        },
+                        {
+                            "type": "file--file",
+                            "id": "284b2752-9fc6-487d-ba7a-646e5b0b16f1",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1267,
+                                "height": 721
+                            }
+                        },
+                        {
+                            "type": "file--file",
+                            "id": "360b083e-1560-4688-b223-f9d29076aa8f",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1260,
+                                "height": 783
+                            }
+                        },
+                        {
+                            "type": "file--file",
+                            "id": "0c21aa1f-d77b-4222-8706-c399038a3e57",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1258,
+                                "height": 711
+                            }
+                        },
+                        {
+                            "type": "file--file",
+                            "id": "9784f9ef-2b24-4ecb-9a91-39a926a5c18f",
+                            "meta": {
+                                "alt": "",
+                                "title": "",
+                                "width": 1251,
+                                "height": 699
+                            }
+                        }
+                    ],
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_mock_up"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_mock_up"
+                        }
+                    }
+                },
+                "field_sector": {
+                    "data": [
+                        {
+                            "type": "taxonomy_term--sector",
+                            "id": "46843e9c-782e-4be6-b61f-7673c86af13f"
+                        }
+                    ],
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_sector"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_sector"
+                        }
+                    }
+                },
+                "field_study_area_map": {
+                    "data": {
+                        "type": "node--react_mount_with_js",
+                        "id": "54232e62-1046-42c9-8f0d-39f68af36a20"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_study_area_map"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_study_area_map"
+                        }
+                    }
+                },
+                "field_study_type": {
+                    "data": {
+                        "type": "taxonomy_term--study_type",
+                        "id": "2a03ba0a-9356-4a38-96d6-0fed4835551c"
+                    },
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_study_type"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_study_type"
+                        }
+                    }
+                },
+                "field_under_construction": {
+                    "data": null,
+                    "links": {
+                        "self": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/relationships\/field_under_construction"
+                        },
+                        "related": {
+                            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859\/field_under_construction"
+                        }
+                    }
+                }
+            },
+            "links": {
+                "self": {
+                    "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study\/c3609e3e-f80f-482b-9e9f-3a26226a6859"
+                }
+            }
+        }
+    ],
+    "links": {
+        "self": {
+            "href": "https:\/\/csis.myclimateservice.eu\/jsonapi\/group\/study?filter%5Bid%5D%5Bcondition%5D%5Boperator%5D=%3D\u0026filter%5Bid%5D%5Bcondition%5D%5Bpath%5D=id\u0026filter%5Bid%5D%5Bcondition%5D%5Bvalue%5D=c3609e3e-f80f-482b-9e9f-3a26226a6859"
+        }
+    }
+}
