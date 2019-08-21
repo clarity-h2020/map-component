@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Map, TileLayer, GeoJSON, WMSTileLayer } from 'react-leaflet';
-import { ReactLeafletGroupedLayerControl } from 'react-leaflet-grouped-layer-control';
+import { Map, TileLayer, GeoJSON, WMSTileLayer, withLeaflet } from 'react-leaflet';
+import { ReactLeafletGroupedLayerControl as ReactLeafletGroupedLayerControlForLeafletv1} from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
 import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
 import 'leaflet/dist/leaflet.css'
+
+const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerControlForLeafletv1);
 
 
 /**
@@ -197,8 +199,10 @@ export default class MapComponent extends React.Component {
   }
 
   /**
-   * Without an invocation of this method, the laflet map will not be rendered properly within drupal.
+   * Without an invocation of this method, the leaflet map will not be rendered properly within drupal.
    * Some map tiles will not be loaded.
+   * 
+   * @deprecated
    */
   init() {
     this.map.leafletElement.invalidateSize();
