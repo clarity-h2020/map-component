@@ -1,6 +1,6 @@
 import axios from 'axios';
 import log from 'loglevel';
-import {CSISHelpers} from 'csis-helpers-js';
+import { CSISHelpers } from 'csis-helpers-js';
 import express from 'express'
 import apiResponseStudy from './../__fixtures__/study.json';
 import apiResponseDataPackage from './../__fixtures__/dataPackage.json';
@@ -87,11 +87,34 @@ test('find HC resources with @mapview:ogc:wms references in resource array', () 
     const includedArray = apiResponseResources.included;
 
     const filteredResources = CSISHelpers.filterResourcesbyReferenceType(
-        CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, tagType, tagName), 
-        includedArray, 
+        CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, tagType, tagName),
+        includedArray,
         referenceType);
     expect(filteredResources.length).toBeLessThan(resourcesArray.length);
     //expect(filteredResources).toHaveLength(30);
+});
+
+test('get taxonomy_term--hazards tags fro resources ', () => {
+    const tagType = 'taxonomy_term--hazards';
+    const resourcesArray = apiResponseResources.data;
+    const includedArray = apiResponseResources.included;
+    const distinctTags = new Set();
+
+    expect(resourcesArray).not.toBeNull();
+    expect(resourcesArray.length).toBeGreaterThan(0);
+    resourcesArray.map(resource => {
+        const tags = extractTagsfromResource(resourcesArray, includedArray, tagType);
+        tags(resourcesArray).not.toBeNull();
+        tags.map(tag => {
+            distinctTags.add(tag);
+        });
+    }
+    )
+
+    expect(distinctTags.length).toBeGreaterThan(0);
+    distinctTags.map(tag => {
+        log.debug(`found distinct tag $tag.attributes.name in $resourcesArray.length`);
+    });
 });
 
 test('get 1st "reference" for first HC resource with @mapview:ogc:wms references in resource array', () => {
@@ -103,20 +126,20 @@ test('get 1st "reference" for first HC resource with @mapview:ogc:wms references
     const includedArray = apiResponseResources.included;
 
     const filteredResources = CSISHelpers.filterResourcesbyReferenceType(
-        CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, tagType, tagName), 
-        includedArray, 
+        CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, tagType, tagName),
+        includedArray,
         referenceType);
     expect(filteredResources).not.toBeNull();
     expect(filteredResources.length).toBeGreaterThan(0);
-    const reference =  CSISHelpers.extractReferencesfromResource(filteredResources[0],includedArray, referenceType);
+    const reference = CSISHelpers.extractReferencesfromResource(filteredResources[0], includedArray, referenceType);
     expect(reference).not.toBeNull();
     expect(reference.length).toBeGreaterThan(0);
 
     //expect(filteredResources).toHaveLength(30);
 });
 
-test('check for emikat id in study',  () => {
-    const emikatId =  CSISHelpers.extractEmikatIdFromStudyGroupNode(apiResponseStudy.data[0]);
+test('check for emikat id in study', () => {
+    const emikatId = CSISHelpers.extractEmikatIdFromStudyGroupNode(apiResponseStudy.data[0]);
     expect(emikatId).toEqual(2846);
 
 });
