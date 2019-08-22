@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import Wkt from 'wicket';
 import turf from 'turf';
+import Wkt from 'wicket';
 import queryString from 'query-string';
 import log from 'loglevel';
-
+import { CSISRemoteHelpers, CSISHelpers } from 'csis-helpers-js'
+import MapComponent from './MapComponent';
 
 /**
  * This is the basic class of all map classes. 
@@ -14,12 +15,39 @@ export default class BasicMap extends React.Component {
   constructor(props) {
     super(props);
 
+    log.enableAll();
+
+    this.queryParams = {
+      "eea_city_field": undefined,
+      "host": "https://csis.myclimateservice.eu",
+      "resource_uuid": undefined,
+      "step": undefined,
+      "step_uuid": undefined,
+      "study": undefined,
+      "study_area": undefined,
+      "study_datapackage_uuid": undefined,
+      "study_emikat_id": undefined,
+      "study_uuid": undefined,
+      "write_permissions": undefined
+    };
+
+    if (this.props.location && this.props.location.search) {
+      this.queryParams = { ...this.queryParams, ...queryString.parse(this.props.location.search) }
+    } else {
+      log.warn('no query parameters found, showing empty map!')
+    }
+
     /**
      * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
+     * @deprecated
      */
     this.protocol = 'https://';
 
+    // TODO: Support for different reference types?!
     this.referenceType = '@mapview:ogc:wms';
+    this.groupingCriteria = props.groupingCriteria;
+    this.mapType = props.mapSelectionId;
+
 
     console.log('creating new ' + props.mapSelectionId + ' map with layer group from ' + props.groupingCriteria);
   }
@@ -29,71 +57,58 @@ export default class BasicMap extends React.Component {
    * http://localhost:3000//?url=https://csis.myclimateservice.eu&id=c3609e3e-f80f-482b-9e9f-3a26226a6859
    * 
    */
-  componentDidMount() {
-    if (this.props.location && this.props.location.search) {
-      const values = queryString.parse(this.props.location.search)
-      if (values.id && values.id != null && values.url && values.url != null) {
-        this.setStudyURL(values.id, values.url);
+  async componentDidMount() {
+
+    let studyApiResponse = undefined;
+    let resourcesApiResponse = undefined;
+
+    // apply the study area
+    if (this.queryParams.study_area) {
+      try {
+        const studyArea = new Wkt.Wkt();
+        studyArea.read(this.queryParams.study_area);
+        const studyAreaJson = studyArea.toJson();
+        this.applyStudyAreaGeometry(studyAreaJson);
+      } catch (error) {
+        log.error(error);
+        // if faulty coordinates submitted, try to lod them from study area
+        this.queryParams.study_area = undefined;
       }
     }
 
+    if (!this.queryParams.study_area && this.queryParams.study_uuid) {
+      log.warn(`no study area submitted via query params, trying to load it from API for study $this.queryParams.study_uuid`);
+      studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
+      const studyArea = CSISHelpers.extractStudyAreaFromStudyGroupNode(studyApiResponse.data);
+      this.applyStudyAreaGeometry(studyArea);
+    } else {
+      log.error(`no study_area nor study_uuid submitted via query params, cannot set study area bbox`);
+    }
 
-    //const layerObject = _this.processResources(resources, _this.props.mapSelectionId, _this.props.groupingCriteria);
-    //_this.finishMapExtraction(layerObject);
-  }
+    // load and process the resources to generate the overlay layers for the leaflet map
+    if (this.queryParams.study_datapackage_uuid) {
+      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
+    } else if (this.queryParams.resource_uuid) {
+      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourceFromCsis(this.queryParams.host, this.queryParams.resource_uuid);
+    } else if (this.queryParams.study_uuid) {
+      log.warn(`no study_datapackage_uuid or resource_uuid submitted via query params, trying to load it from API for study $this.queryParams.study_uuid`);
+      if (!studyApiResponse) {
+        studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
+      }
+      this.queryParams.study_datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
+      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
+    } else {
+      log.error(`no study_uuid nor study_datapackage_uuid nor resource_uuid submitted via query params, cannot load addtional resource layers`);
+    }
 
-  /**
-   * Starts the loading of the study layers and render them on the map
-   * 
-   * @param {String} studyUuid the uuid of the study
-   * @param {String} hostName the hostname
-   * @deprecated
-   */
-  setStudyURL(studyUuid, hostName) {
-    console.log('loading study ' + studyUuid + ' from ' + hostName);
-    this.setState({
-      studyUuid: studyUuid,
-      hname: hostName
-    });
-    const _this = this;
-    // get and render the study area
-    // ARGH! WTF?!
-    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, { credentials: 'include' })
-      .then(function (response) {
-        if (!response.ok) {
-          throw Error(response.statusText);
-        }
-        //console.debug(response);
-        return response.json();
-      })
-      // study area --------------------------------------------------
-      .then(function (data) {
-        var wktVar = new Wkt.Wkt();
-
-        if (data != null && data.data[0] != null) {
-
-          if (data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-            wktVar.read(data.data[0].attributes.field_area.value);
-            _this.setStudyAreaGeom(JSON.stringify(wktVar.toJson()));
-          } else {
-            console.error('no study area in study ' + studyUuid);
-          }
-
-          // get and render the map layers
-          // resources --------------------------------------------------
-          _this.processStudy(data);
-
-
-        } else {
-          console.error('no data in study ' + studyUuid);
-          console.debug(JSON.stringify(data));
-        }
-      })
-      .catch(function (error) {
-        console.error('could not load study area from ' + hostName, error);
-      });
-
-
+    if (resourcesApiResponse && resourcesApiResponse.data && resourcesApiResponse.included) {
+      const leafletMapModel = this.processResources(resourcesApiResponse, this.mapType, this.groupingCriteria, this.referenceType)
+      if (leafletMapModel.length > 0) {
+        this.applyLeafletMapModel(leafletMapModel);
+      }
+    } else {
+      log.warn(`cannot load additional resource layers`);
+    }
   }
 
   /**
@@ -101,9 +116,9 @@ export default class BasicMap extends React.Component {
    * 
    * @param {Object} studyAreaGeometry the geometry of the study area
    */
-  setStudyAreaGeom(studyAreaGeometry) {
-    if (geome != null) {
-      var study = {
+  applyStudyAreaGeometry(studyAreaGeometry) {
+    if (studyAreaGeometry != null) {
+      var studyArea = {
         "type": "Feature",
         "properties": {
           "popupContent": "study",
@@ -115,182 +130,117 @@ export default class BasicMap extends React.Component {
             fillOpacity: 0.1
           }
         },
-        "geometry": JSON.parse(studyAreaGeometry)
+        "geometry": studyAreaGeometry
       };
       this.setState({
         studyAreaPolygon: null
       });
       this.setState({
-        studyAreaPolygon: study,
-        bounds: this.getBoundsFromArea(JSON.parse(studyAreaGeometry))
+        studyAreaPolygon: studyArea,
+        bounds: this.getBoundsFromArea(studyAreaGeometry)
       });
     }
   }
 
   /**
-   * Retrieves the study object from the server, extracts the layers from the study and add it to the map.
-   * processResources processes the resources.
-   * 
-   * FIXME: remove API requests from this component!
-   * 
-   * @param {Object} study 
-   * @deprecated
-   */
-  processStudy(studyApiResponse) {
+ * Add the given overlay layers to the state
+ *  
+ * FIXME: split method, externalize layer generation part
+ * 
+ * @param {Array} mapData the overlay layers
+ * @param {Number} resourceLength the resource count of the current study
+ * @deprecated
+ */
+  applyLeafletMapModel(leafletMapModel) {
 
-    const studyAreaJson = CSISHelpers.extractStudyAreaFromStudyGroupNode(studyApiResponse.data);
-
-    const _this = this;
-    if (study != null && study.data[0] != null && study.data[0].relationships.field_data_package.links.related != null) {
-      // get the 1st available data package
-      // ARGH!!
-      fetch(study.data[0].relationships.field_data_package.links.related.href.replace('http://', _this.protocol), { credentials: 'include' })
-        .then((resp) => resp.json())
-        .then(function (dataPackage) {
-          if (dataPackage.data.relationships.field_resources.links.related != null) {
-
-            //FIXME: #28
-            var includes = 'include=field_resource_tags,field_map_view,field_references,field_analysis_context.field_field_eu_gl_methodology,field_analysis_context.field_hazard';
-
-            // TODO: remove above line and uncomment line below when Data Packages have been updated in CSIS!
-            //var includes = 'include=field_resource_tags,field_references';
-
-            var separator = (dataPackage.data.relationships.field_resources.links.related.href.indexOf('?') === - 1 ? '?' : '&');
-            
-            // ARGH!! NOT AGAIN!
-            fetch(dataPackage.data.relationships.field_resources.links.related.href.replace('http://', _this.protocol) + separator + includes, { credentials: 'include' })
-              .then((resp) => resp.json())
-              .then(function (resources) {
-                const layerObject = _this.processResources(resources, _this.props.mapSelectionId, _this.props.groupingCriteria);
-                _this.finishMapExtraction(layerObject);
-              })
-              .catch(function (error) {
-                console.log('could not load relationships', error);
-              });
-          } else {
-            console.error('no resources in study!');
-            console.debug(JSON.stringify(dataPackage));
-          }
-        })
-        .catch(function (error) {
-          console.error(error);
-        });
-    } else {
-      console.error('no data in study!');
-      console.debug(JSON.stringify(study));
+    if (leafletMapModel.length > 0) {
+      this.setState({
+        overlays: leafletMapModel,
+        loading: false,
+        exclusiveGroups: this.extractGroups(leafletMapModel)
+      });
+    } else if (this.overlaysBackup != null) {
+      this.setState({
+        overlays: this.overlaysBackup,
+        loading: false,
+        exclusiveGroups: this.extractGroups(this.overlaysBackup)
+      });
     }
   }
 
   /**
    * Extracts the layers from the given RESOURCES array and add it to the map 
    * 
-   * FIXME: externalise, eventually merge with finishMapExtraction()
+   * FIXME: externalize, eventually merge with finishMapExtraction()
    * 
    * @param {Object} resourcesApiResponse the resources API response
    * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
-   * @param {String} groupingCriteria th grouping criteria of the layers. E.g. taxonomy_term--hazards
+   * @param {String} groupingCriteria the grouping criteria of the layers. E.g. taxonomy_term--hazards
    * @return {Object[]}
    */
-  processResources(resourcesApiResponse, mapType, groupingCriteria) {
+  processResources(resourcesApiResponse, mapType, groupingCriteria, referenceType) {
     const _this = this;
-    const resourceArray = resourcesApiResponse.data;
+    // if we requested a single resource, with getDatapackageResourceFromCsis() add put it onto an array.
+    const resourceArray = Array.isArray(resourcesApiResponse.data) ? resourcesApiResponse.data : [resourcesApiResponse.data];
     const includedArray = resourcesApiResponse.included;
-    const referenceType = '@mapview:ogc:wms';
 
-    var mapData = [];
 
-    const filteredResources = CSISHelpers.filterResourcesbyReferenceType(
-      CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, 'taxonomy_term--eu_gl', mapType),
-      includedArray,
-      referenceType);
+    log.debug(`log.debug -> process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
+    console.debug(`console.debug -> process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
+    //CHROME SUCKS! EVEN WITH THIS "TRICK" (https://stackoverflow.com/questions/52730747/google-chrome-console-does-not-allow-log-level-change)
+    //the log messages above are not shown! WTF!
+    log.info(`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
 
-    log.info(`$filteredResources.length valid resources for $mapType with $referenceType references found in $resourceArray.length available resources`);
+    var leafletMapModel = [];
+    let filteredResources;
+
+    if (mapType) {
+      filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+        CSISHelpers.filterResourcesByEuglId(resourceArray, includedArray, mapType),
+        includedArray,
+        referenceType);
+    } else {
+      filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+        resourceArray, includedArray, referenceType);
+    }
+
+    log.info(`${filteredResources.length} valid resources for  ${mapType} map type with ${referenceType} references found in ${resourceArray.length} available resources`);
 
     for (var i = 0; i < filteredResources.length; ++i) {
-      const resource = resourceArray[i];
+      const resource = filteredResources[i];
       const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
       if (resourceReferences.length > 1) {
-        log.warn(`$resourceReferences.length $referenceType references in resource $resource.attributes.title, using only 1st reference $resourceReferences[0].attributes.field_reference_path`);
+        log.warn(`${resourceReferences.length} ${referenceType} references in resource ${resource.attributes.title}, using only 1st reference ${resourceReferences[0].attributes.field_reference_path}`);
+      } else if (resourceReferences.length === 0) {
+        log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
       }
 
       const layerUrl = _this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
-      const groupName = 'taxonomy_term--hazards';
-
+      const tagType = groupingCriteria;
       const tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
+      let groupTitle = 'Default';
 
-      var layerObject = {};
-      layerObject.url = layerUrl;
-      layerObject.title = resource.attributes.title;
-      // if no taxonomy term is available, use default group name.
-      // WARNING: 
-      // null == undefined  // true
-      // null === undefined  // false -> compare value AND type
-      if (tags != null || tags.length > 0) {
-        layerObject.group = tags[0].attributes.name;
-        if(tags.length > 0) {
-          log.warn(`$tags.length $tagType tags in resource $resource.attributes.title, using only 1st tag $tags[0].attributes.name`);
+      if (tags != null && tags.length > 0) {
+        groupTitle = tags[0].attributes.name;
+        if (tags.length > 1) {
+          log.warn(`${tags.length} ${tagType} tags in resource ${resource.attributes.title}, using only 1st tag ${tags[0].attributes.name} as group title for layer ${resource.attributes.title}`);
         }
       } else {
-        layerObject.group = 'Default';
+        log.warn(`no ${tagType} tag found in resource ${resource.attributes.title}, using default group name`);
       }
-      mapData.push(layerObject);
+
+      var leafletLayer = {};
+      leafletLayer.checked = false;
+      leafletLayer.groupTitle = groupTitle;
+      leafletLayer.name = this.titleToName(resource.attributes.title);
+      leafletLayer.title = resource.attributes.title;
+      leafletLayer.layers = this.extractLayers(layerUrl.toString());
+      leafletLayer.url = this.extractUrl(layerUrl.toString());
+      leafletMapModel.push(leafletLayer);
+      log.debug('layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
     }
 
-    return mapData; 
-  }
-
-/**
- * Method can be overridden in subclasses to support custom behaviour.
- * 
- * FIXME: externalise, use callback method instead!
- * 
- * @param {*} resource 
- * @param {*} url 
- */
-processUrl(resource, url) {
-  return url;
-}
-
-
-/**
- * Drupal JSON API 'deeply' includes objects, e.g. &include=field_references are provided only once in a separate array name 'included'.
- * This method resolves the references and extracts the included  object.
- * 
- * FIXME: Remove! Replace all occurrences with  CSISHelpers.getIncludedObject!
- * 
- * @deprecated
- */
-getIncludedObject(type, id, includedArray) {
-  return CSISHelpers.getIncludedObject(type, id, includedArray);
-}
-
-/**
- * Add the given overlay layers to the state
- *  
- * FIXME: split method, externalise layer generation part
- * 
- * @param {Array} mapData the overlay layers
- * @param {Number} resourceLength the resource count of the current study
- * @deprecated
- */
-finishMapExtraction(mapData) {
-  var mapModel = [];
-  for (var i = 0; i < mapData.length; ++i) {
-    if (mapData[i].url && mapData[i].url != null) {
-      var layer = {};
-      layer.checked = false;
-      layer.groupTitle = (mapData[i].group === null ? 'Overlays' : mapData[i].group);
-      layer.name = this.titleToName(mapData[i].title);
-      layer.title = mapData[i].title;
-      layer.layers = this.extractLayers(mapData[i].url.toString());
-      layer.url = this.extractUrl(mapData[i].url.toString());
-      mapModel.push(layer);
-      console.debug('layer #' + i + ': ' + layer.groupTitle + '/' + layer.title + ' added: ' + layer.url);
-    }
-  }
-
-  if (mapModel.length > 0) {
-    mapModel.sort(function (a, b) {
+    leafletMapModel.sort(function (a, b) {
       if ((a == null || a.name == null) && (b == null || b.name == null)) {
         return 0;
       } else if (a == null || a.name == null) {
@@ -305,95 +255,110 @@ finishMapExtraction(mapData) {
         return 0;
       }
     });
-    this.setState({
-      overlays: mapModel,
-      loading: false,
-      exclusiveGroups: this.extractGroups(mapModel)
-    });
-  } else if (this.overlaysBackup != null) {
-    this.setState({
-      overlays: this.overlaysBackup,
-      loading: false,
-      exclusiveGroups: this.extractGroups(this.overlaysBackup)
-    });
-  }
-}
 
-/**
- * Extract the groups from the given overlay layers
- * 
- * FIXME: externalise method! Use a Set!
- * 
- * @param {Array} mapData 
- * @returns an array with all group names
- * @deprecated
- */
-extractGroups(mapData) {
-  var groups = [];
-  for (var i = 0; i < mapData.length; ++i) {
-    if (!groups.includes(mapData[i].groupTitle)) {
-      groups.push(mapData[i].groupTitle);
+    return leafletMapModel;
+  }
+
+  /**
+   * Method can be overridden in subclasses to support custom behaviour.
+   * 
+   * FIXME: externalize, use callback method instead!
+   * 
+   * @param {*} resource 
+   * @param {*} url 
+   */
+  processUrl(resource, url) {
+    return url;
+  }
+
+
+  /**
+   * Drupal JSON API 'deeply' includes objects, e.g. &include=field_references are provided only once in a separate array name 'included'.
+   * This method resolves the references and extracts the included  object.
+   * 
+   * FIXME: Remove! Replace all occurrences with  CSISHelpers.getIncludedObject!
+   * 
+   * @deprecated
+   */
+  getIncludedObject(type, id, includedArray) {
+    return CSISHelpers.getIncludedObject(type, id, includedArray);
+  }
+
+  /**
+   * Extract the groups from the given overlay layers
+   * 
+   * FIXME: externalize method! Use a Set!
+   * 
+   * @param {Array} mapData 
+   * @returns an array with all group names
+   * @deprecated
+   */
+  extractGroups(mapData) {
+    var groups = [];
+    for (var i = 0; i < mapData.length; ++i) {
+      if (!groups.includes(mapData[i].groupTitle)) {
+        groups.push(mapData[i].groupTitle);
+      }
     }
+
+    return groups;
   }
 
-  return groups;
-}
+  /**
+   * Replace spaces, because spaces are not allowed in leaflet layer names
+   * 
+   * @param {String} title 
+   */
+  titleToName(title) {
+    return title.replace(' ', '_');
+  }
 
-/**
- * Replace spaces, because spaces are not allowed in leaflet layer names
- * 
- * @param {String} title 
- */
-titleToName(title) {
-  return title.replace(' ', '_');
-}
+  /**
+   * Extracts the layer name from the given wms GetMap request
+   * 
+   * @param {String} url a get MapRequest
+   */
+  extractLayers(url) {
+    var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
+    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+  }
 
-/**
- * Extracts the layer name from the given wms GetMap request
- * 
- * @param {String} url a get MapRequest
- */
-extractLayers(url) {
-  var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
-  return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
-}
+  /**
+   * Extracts the style name from the given wms GetMap request
+   * 
+   * @param {String} url a get MapRequest
+   */
+  extractStyle(url) {
+    var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
+    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+  }
 
-/**
- * Extracts the style name from the given wms GetMap request
- * 
- * @param {String} url a get MapRequest
- */
-extractStyle(url) {
-  var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
-  return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
-}
+  /**
+   * Returns the given url without parameters
+   *  
+   * @param {String} url 
+   */
+  extractUrl(url) {
+    return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
+  }
 
-/**
- * Returns the given url without parameters
- *  
- * @param {String} url 
- */
-extractUrl(url) {
-  return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
-}
+  /**
+   * Returns the bounding box of the given polygon geometry
+   * 
+   * @param {Object} area 
+   */
+  getBoundsFromArea(area) {
+    const bboxArray = turf.bbox(area);
+    const corner1 = [bboxArray[1], bboxArray[0]];
+    const corner2 = [bboxArray[3], bboxArray[2]];
+    var bounds = [corner1, corner2];
 
-/**
- * Returns the bounding box of the given polygon geometry
- * 
- * @param {Object} area 
- */
-getBoundsFromArea(area) {
-  const bboxArray = turf.bbox(area);
-  const corner1 = [bboxArray[1], bboxArray[0]];
-  const corner2 = [bboxArray[3], bboxArray[2]];
-  var bounds = [corner1, corner2];
-
-  return bounds;
-}
+    return bounds;
+  }
 };
 
 BasicMap.propTypes = {
-
+  match: PropTypes.object,
   location: PropTypes.any,
   /**
    * ~ mapType, e.g. 'eu-gl:risk-and-impact-assessment' = Taxonomy Term
@@ -404,10 +369,12 @@ BasicMap.propTypes = {
    * Taxonomy for Layer Groups, e.g. 'taxonomy_term--hazards'
    */
   groupingCriteria: PropTypes.string
+
 }
 
-BasicMap.defaultProps = {
-  mapSelectionId: 'eu-gl:risk-and-impact-assessment',
-  groupingCriteria: 'taxonomy_term--hazards'
 
+
+BasicMap.defaultProps = {
+  mapSelectionId: undefined,
+  groupingCriteria: undefined,
 };

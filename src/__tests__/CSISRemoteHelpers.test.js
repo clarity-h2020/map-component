@@ -82,7 +82,7 @@ describe('Remote API tests with authentication', () => {
     });
 
     it('test get complete Study', async (done) => {
-        const studyGroupNode = await CSISRemoteHelpers.getStudyGroupNodeFromCsis('c3609e3e-f80f-482b-9e9f-3a26226a6859');
+        const studyGroupNode = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(undefined, 'c3609e3e-f80f-482b-9e9f-3a26226a6859');
         expect.assertions(5);
         expect(studyGroupNode).toBeDefined();
         expect(studyGroupNode).not.toBeNull();

@@ -5,7 +5,7 @@
             "type": "chrome",
             "request": "attach",
             "port": 9222,
-            "url": "http://localhost:3000/StudyArea/?url=https://csis.myclimateservice.eu&id=c3609e3e-f80f-482b-9e9f-3a26226a6859",
+            "url": "http://localhost:3000/CharacteriseHazardMap/?url=https://csis.myclimateservice.eu&study_uuid=c3609e3e-f80f-482b-9e9f-3a26226a6859",
             "webRoot": "${workspaceFolder}/src",
             "sourceMapPathOverrides": {
                 "webpack:///src/*": "${webRoot}/*"

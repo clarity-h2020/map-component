@@ -138,8 +138,9 @@ export default class MapComponent extends React.Component {
    * This method prevents repaint problems, when a new overlay layer was selected
    * 
    * @param {Object} nextProps 
+   * @deprecated
    */
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (nextProps.overlays !== this.props.overlays) {
       this.setState({ overlays: nextProps.overlays });
       const thisObj = this;
