@@ -25,6 +25,7 @@ export default class App extends React.Component {
     console.log('public url: "', process.env.PUBLIC_URL+'"'); 
     console.log('THIS_SUCKS: ', process.env.THIS_SUCKS); 
     console.log('REACT_APP_THIS_SUCKS: ', process.env.REACT_APP_THIS_SUCKS); 
+    console.log(`CharacteriseHazardMapTest url: ${process.env.PUBLIC_URL}/CharacteriseHazardMapTest/`);
     return (
         <main> 
           <BrowserRouter>
@@ -33,6 +34,7 @@ export default class App extends React.Component {
               
               <Route path="/CharacteriseHazardMap/" component={CharacteriseHazardMap} />
               <Route path={`${process.env.PUBLIC_URL}/CharacteriseHazardMapTest/`} component={CharacteriseHazardMap} />
+              <Route exact path={`${process.env.PUBLIC_URL}/CharacteriseHazardMapTest2/`} component={CharacteriseHazardMap} />
               <Route exact path="/ExposureMap/" component={ExposureMap} />
               <Route exact path="/HazardLocalEffectsMap/" component={HazardLocalEffectsMap} />
               <Route exact path="/StudyArea/" component={StudyArea} />
