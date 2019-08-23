@@ -20,19 +20,25 @@ export const history = createBrowserHistory({
 export default class App extends React.Component {
 
   render() {
-    console.log(history.location.pathname);
+    
+    console.log(process.env); 
+    console.log('public url: "', process.env.PUBLIC_URL+'"'); 
+    console.log('THIS_SUCKS: ', process.env.THIS_SUCKS); 
+    console.log('REACT_APP_THIS_SUCKS: ', process.env.REACT_APP_THIS_SUCKS); 
     return (
-        <main>
+        <main> 
           <BrowserRouter>
             <Switch>
-              <Route exact path={`${history.location.pathname}`} component={GenericMap} />
-              <Route exact path={`${history.location.pathname}/CharacteriseHazardMap`} component={CharacteriseHazardMap} />
+              <Route exact path="/" component={GenericMap} />
+              
+              <Route path="/CharacteriseHazardMap/" component={CharacteriseHazardMap} />
+              <Route path={`${process.env.PUBLIC_URL}/CharacteriseHazardMapTest/`} component={CharacteriseHazardMap} />
               <Route exact path="/ExposureMap/" component={ExposureMap} />
               <Route exact path="/HazardLocalEffectsMap/" component={HazardLocalEffectsMap} />
               <Route exact path="/StudyArea/" component={StudyArea} />
               <Route exact path="/RiskAndImpactMap/" component={RiskAndImpactMap} />
               <Route exact path="/VulnerabilityMap/" component={VulnerabilityMap} />
-              <Route component={GenericMap} />
+              <Route component={GenericMap} /> 
             </Switch>
           </BrowserRouter>
         </main>
