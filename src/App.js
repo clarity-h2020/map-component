@@ -17,7 +17,6 @@ export default class App extends React.Component {
   // ARGH! FIXME: fixed height?!!
   render() {
     return (
-      <div style={{ height: "500px" }}>
         <main>
           <BrowserRouter>
             <Switch>
@@ -32,7 +31,6 @@ export default class App extends React.Component {
             </Switch>
           </BrowserRouter>
         </main>
-      </div>
     );
   }
 }

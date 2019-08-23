@@ -145,8 +145,8 @@ export default class CharacteriseHazardMap extends BasicMap {
 };
 
 
-if (document.getElementById('characteriseHazard-map-container') != null) {
+/*if (document.getElementById('characteriseHazard-map-container') != null) {
   ReactDOM.render(<CharacteriseHazardMap />, document.getElementById('characteriseHazard-map-container'));
   document.getElementById('characteriseHazard-map-container').style.width = "100%";
   document.getElementById('characteriseHazard-map-container').style.height = "500px";
-}
+}*/

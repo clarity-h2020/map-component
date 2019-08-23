@@ -194,8 +194,8 @@ export default class RiskAndImpactMap extends BasicMap {
 };
 
 
-if (document.getElementById('riskAndImpact-map-container') != null) {
+/*if (document.getElementById('riskAndImpact-map-container') != null) {
     ReactDOM.render(<RiskAndImpactMap />, document.getElementById('riskAndImpact-map-container'));
     document.getElementById('riskAndImpact-map-container').style.width = "100%";
     document.getElementById('riskAndImpact-map-container').style.height = "500px";
-}
+}*/

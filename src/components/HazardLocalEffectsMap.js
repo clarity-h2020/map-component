@@ -82,8 +82,8 @@ export default class HazardLocalEffectsMap extends BasicMap {
 };
 
 
-if (document.getElementById('hazardLocalEffects-map-container') != null) {
+/*if (document.getElementById('hazardLocalEffects-map-container') != null) {
     ReactDOM.render(<HazardLocalEffectsMap />, document.getElementById('hazardLocalEffects-map-container'));
     document.getElementById('hazardLocalEffects-map-container').style.width = "100%";
     document.getElementById('hazardLocalEffects-map-container').style.height = "500px";
-}
+}*/

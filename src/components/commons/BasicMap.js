@@ -5,7 +5,6 @@ import Wkt from 'wicket';
 import queryString from 'query-string';
 import log from 'loglevel';
 import { CSISRemoteHelpers, CSISHelpers } from 'csis-helpers-js'
-import MapComponent from './MapComponent';
 
 /**
  * This is the basic class of all map classes. 

@@ -75,8 +75,8 @@ export default class ExposureMap extends BasicMap {
 };
 
 
-if (document.getElementById('exposure-map-container') != null) {
+/*if (document.getElementById('exposure-map-container') != null) {
   ReactDOM.render(<ExposureMap />, document.getElementById('exposure-map-container'));
   document.getElementById('exposure-map-container').style.width = "100%";
   document.getElementById('exposure-map-container').style.height = "500px";
-}
+}*/

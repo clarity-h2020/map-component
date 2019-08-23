@@ -167,8 +167,8 @@ export default class StudyArea extends React.Component {
   }
 };
 
-if (document.getElementById('study-area-map-container') != null) {
+/*if (document.getElementById('study-area-map-container') != null) {
   ReactDOM.render(<StudyArea />, document.getElementById('study-area-map-container'));
   document.getElementById('study-area-map-container').style.width = "100%";
   document.getElementById('study-area-map-container').style.height = "500px";
-}
+}*/

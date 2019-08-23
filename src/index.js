@@ -1,10 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-//import { render } from 'react-dom';
-import App from './App';
-// import "../node_modules/leaflet-loading/src/Control.Loading.js";
-// import "../node_modules/leaflet-loading/src/Control.Loading.css";
-
+import App from './App'; 
+import './index.css';
 
 const target = document.querySelector('.root');
 

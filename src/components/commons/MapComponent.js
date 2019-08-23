@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Map, TileLayer, GeoJSON, WMSTileLayer, withLeaflet } from 'react-leaflet';
-import { ReactLeafletGroupedLayerControl as ReactLeafletGroupedLayerControlForLeafletv1} from 'react-leaflet-grouped-layer-control';
+import { Map, TileLayer, GeoJSON, WMSTileLayer, withLeaflet, LeafletConsumer } from 'react-leaflet';
+import { ReactLeafletGroupedLayerControl as ReactLeafletGroupedLayerControlForLeafletv1 } from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
 import 'leaflet-loading'
 import LegendComponent from './LegendComponent.js'
@@ -29,19 +29,30 @@ export default class MapComponent extends React.Component {
     this.baseLayers = props.baseLayers;
     this.tileLayerUrl = props.baseLayers[0].url;
     this.fly = true;
+    // the leaflet instance, retrieved from the leaflet context
+    // see https://stackoverflow.com/questions/51308835/how-to-use-react-leaflet-context
+
+    /**
+     * @type {Leaflet.Map}
+     */
+    this.leafletMapInstance = undefined;
   }
 
   /**
    * Creates the reportInfoElement
+   * @deprecated See https://github.com/clarity-h2020/map-component/issues/22#issuecomment-524189978
    */
   componentDidMount() {
-    var mapElement = this.map.leafletElement;
-    mapElement.invalidateSize();
-    var element = document.getElementsByClassName("react-app-container");
 
-    if (element != null && element.length > 0) {
-      var infoDiv = this.htmlToElement('<div id="reportInfoElement" style="visibility: hidden;height: 0px"></div>');
-      element[0].appendChild(infoDiv);
+    if(this.leafletMapInstance) {
+      this.leafletMapInstance.invalidateSize();
+    }
+
+    var appContainerElement = document.getElementsByClassName("react-app-container");
+
+    if (appContainerElement != null && appContainerElement.length > 0) {
+      var reportInfoElement = this.htmlToElement('<div id="reportInfoElement" style="visibility: hidden;height: 0px"></div>');
+      appContainerElement[0].appendChild(reportInfoElement);
     }
 
     this.updateInfoElement();
@@ -49,14 +60,14 @@ export default class MapComponent extends React.Component {
 
   /**
    * Adds the reportInfoElement (see https://github.com/clarity-h2020/map-component/issues/22)
+   * @deprecated See https://github.com/clarity-h2020/map-component/issues/22#issuecomment-524189978
    */
   updateInfoElement() {
-    if (this.map != null) {
-      var mapElement = this.map.leafletElement;
-      var element = document.getElementById("reportInfoElement");
+    if (this.leafletMapInstance) {
+      var reportInfoElement = document.getElementById("reportInfoElement");
 
-      if (element != null) {
-        element.innerHTML = 'zoom level:' + mapElement.getZoom() + ' bounding box: ' + mapElement.getBounds().toBBoxString();
+      if (reportInfoElement != null) {
+        reportInfoElement.innerHTML = 'zoom level:' + this.leafletMapInstance.getZoom() + ' bounding box: ' + this.leafletMapInstance.getBounds().toBBoxString();
         var overlays = this.getOverlayForLegend(this.state.overlays)
         if (overlays != null && overlays.length > 0) {
           var layers = null;
@@ -68,7 +79,7 @@ export default class MapComponent extends React.Component {
             }
           }
 
-          element.innerHTML = element.innerHTML + ' layer: ' + layers;
+          reportInfoElement.innerHTML = reportInfoElement.innerHTML + ' layer: ' + layers;
         }
       }
     }
@@ -78,12 +89,19 @@ export default class MapComponent extends React.Component {
    * Updates the reportInfoElement and prepares the layer groups so that they can be collapsed and expanded
    */
   componentDidUpdate() {
-    const map = this.map.leafletElement;
-    map.invalidateSize();
+    /**
+     * You can directly access the Leaflet element created by a component using 
+     * this.leafletElement in the component. This leaflet element is usually created in componentWillMount() 
+     * and therefore accessible in componentDidMount(), except for the Map component where it can 
+     * only be created after the <div> container is rendered.
+     */
+    if(this.leafletMapInstance) {
+      this.leafletMapInstance.invalidateSize();
 
-    if (this.fly && (this.props.studyAreaPolygon != null)) {
-      map.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
-      this.fly = false;
+      if (this.fly && (this.props.studyAreaPolygon != null)) {
+        this.leafletMapInstance.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
+        this.fly = false;
+      }
     }
 
     if (this.layerControl != null) {
@@ -103,6 +121,7 @@ export default class MapComponent extends React.Component {
 
       var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName("rlglc-grouptitle");
       const self = this;
+
 
       if (this.hideListener != null) {
         for (var ind = 0; ind < groupTitles.length; ++ind) {
@@ -126,6 +145,7 @@ export default class MapComponent extends React.Component {
    * Creates a html element from the given html string
    * 
    * @param {String} html 
+   * @deprecated
    */
   htmlToElement(html) {
     var template = document.createElement('template');
@@ -207,8 +227,11 @@ export default class MapComponent extends React.Component {
    * @deprecated
    */
   init() {
-    this.map.leafletElement.invalidateSize();
-
+    if(this.leafletMapInstance)
+    {
+      this.leafletMapInstance.invalidateSize();
+    }
+    
     this.setState({
       init: true
     });
@@ -409,10 +432,9 @@ export default class MapComponent extends React.Component {
   onViewportChanged(center, zoom) {
     this.updateInfoElement();
 
-    if (this.map != null) {
-      var mapElement = this.map.leafletElement;
-      mapElement.getBounds().toBBoxString();
-      mapElement.getZoom();
+    if (this.leafletMapInstance) {
+      this.leafletMapInstance.getBounds().toBBoxString();
+      this.leafletMapInstance.getZoom();
     }
   }
 
@@ -434,13 +456,24 @@ export default class MapComponent extends React.Component {
 
     var mapElement = (
       <div>
-        <Map style={{ height: "500px" }} ref={(comp) => this.map = comp}
+        {/* 
+          Refs provide a way to access DOM nodes or React elements created in the render method.
+          https://reactjs.org/docs/forwarding-refs.html
+          ref={(comp) => this.leafletMapInstance = comp.leafletElement}
+        */}
+        <Map 
+         
+          id="#map"
           className="simpleMap"
           scrollWheelZoom={true}
           bounds={bbox}
           loadingControl={true}
           onViewportChanged={this.onViewportChanged.bind(this)}
-          >
+        >
+          <LeafletConsumer>
+            {(context) =>  {this.leafletMapInstance = context.map}}
+          </LeafletConsumer>
+          
           {this.props.studyAreaPolygon != null &&
             <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
           }
@@ -460,9 +493,10 @@ export default class MapComponent extends React.Component {
           />
           <LegendComponent layer={this.getOverlayForLegend(overlays)} />
         </Map>
-        
+
       </div>
     )
+    //@deprecated
     window.mapCom = this;
     return mapElement;
   }
