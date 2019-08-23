@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch, BrowserRouter, withRouter } from "react-router-dom";
+import { Route, Switch, BrowserRouter} from "react-router-dom";
 import { createBrowserHistory } from 'history';
 import GenericMap from "./components/GenericMap";
 import CharacteriseHazardMap from "./components/CharacteriseHazardMap";
