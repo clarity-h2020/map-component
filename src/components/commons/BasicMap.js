@@ -187,12 +187,9 @@ export default class BasicMap extends React.Component {
     const resourceArray = Array.isArray(resourcesApiResponse.data) ? resourcesApiResponse.data : [resourcesApiResponse.data];
     const includedArray = resourcesApiResponse.included;
 
-
-    log.debug(`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
-    //CHROME SUCKS! EVEN WITH THIS "TRICK" (https://stackoverflow.com/questions/52730747/google-chrome-console-does-not-allow-log-level-change)
-    //the log messages above are not shown! WTF!
-    log.info(`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
-
+    log.debug(`process ${resourceArray.length} resources and 
+    ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
+    
     var leafletMapModel = [];
     let filteredResources;
 

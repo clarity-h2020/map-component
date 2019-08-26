@@ -3129,9 +3129,9 @@ crypto-browserify@^3.11.0:
     randombytes "^2.0.0"
     randomfill "^1.0.3"
 
-"csis-helpers-js@git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.2.1":
+"csis-helpers-js@git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.2.2":
   version "0.1.0"
-  resolved "git://github.com/clarity-h2020/csis-helpers-js.git#3af5a07629f3d625eb4d8582dc9faad4f49e6040"
+  resolved "git://github.com/clarity-h2020/csis-helpers-js.git#0a7eb6a72deff44554a3c5e33a413050aa4a60ae"
   dependencies:
     "@babel/runtime" "^7.5.5"
     axios "^0.19.0"
