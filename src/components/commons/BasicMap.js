@@ -4,7 +4,7 @@ import turf from 'turf';
 import Wkt from 'wicket';
 import queryString from 'query-string';
 import log from 'loglevel';
-import { CSISRemoteHelpers, CSISHelpers } from 'csis-helpers-js'
+import { CSISRemoteHelpers, CSISHelpers, EMIKATHelpers } from 'csis-helpers-js'
 
 /**
  * This is the basic class of all map classes. 
@@ -31,6 +31,7 @@ export default class BasicMap extends React.Component {
     };
 
     if (this.props.location && this.props.location.search) {
+      // copy and extend queryParams using spread operator :o
       this.queryParams = { ...this.queryParams, ...queryString.parse(this.props.location.search) }
     } else {
       log.warn('no query parameters found, showing empty map!')
@@ -44,7 +45,8 @@ export default class BasicMap extends React.Component {
 
     // TODO: Support for different reference types?!
     this.referenceType = '@mapview:ogc:wms';
-    this.groupingCriteria = props.groupingCriteria;
+    // grouping_tag query params overwrites the grouping criteria set by the child class in this.props!
+    this.groupingCriteria =  this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
     this.mapType = props.mapSelectionId;
 
 
@@ -73,9 +75,7 @@ export default class BasicMap extends React.Component {
         // if faulty coordinates submitted, try to lod them from study area
         this.queryParams.study_area = undefined;
       }
-    }
-
-    if (!this.queryParams.study_area && this.queryParams.study_uuid) {
+    } else if (!this.queryParams.study_area && this.queryParams.study_uuid) {
       log.warn(`no study area submitted via query params, trying to load it from API for study $this.queryParams.study_uuid`);
       studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
       const studyArea = CSISHelpers.extractStudyAreaFromStudyGroupNode(studyApiResponse.data);
@@ -94,8 +94,13 @@ export default class BasicMap extends React.Component {
       if (!studyApiResponse) {
         studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
       }
-      this.queryParams.study_datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
-      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
+      if(studyApiResponse && studyApiResponse.data && studyApiResponse.data.relationships 
+        && studyApiResponse.data.relationships.field_data_package && studyApiResponse.data.relationships.field_data_package.data) {
+          this.queryParams.study_datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
+          resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
+        } else {
+          log.warn(`no data package associated with study {this.queryParams.study_uuid}, cannot load resources!`);
+        }
     } else {
       log.error(`no study_uuid nor study_datapackage_uuid nor resource_uuid submitted via query params, cannot load addtional resource layers`);
     }
@@ -184,8 +189,7 @@ export default class BasicMap extends React.Component {
     const includedArray = resourcesApiResponse.included;
 
 
-    log.debug(`log.debug -> process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
-    console.debug(`console.debug -> process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
+    log.debug(`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
     //CHROME SUCKS! EVEN WITH THIS "TRICK" (https://stackoverflow.com/questions/52730747/google-chrome-console-does-not-allow-log-level-change)
     //the log messages above are not shown! WTF!
     log.info(`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
@@ -267,7 +271,7 @@ export default class BasicMap extends React.Component {
    * @param {*} url 
    */
   processUrl(resource, url) {
-    return url;
+    return EMIKATHelpers.addEmikatId(this.queryParams.EmikatId);
   }
 
 
