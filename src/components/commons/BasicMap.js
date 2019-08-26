@@ -183,7 +183,6 @@ export default class BasicMap extends React.Component {
    * @return {Object[]}
    */
   processResources(resourcesApiResponse, mapType, groupingCriteria, referenceType) {
-    const _this = this;
     // if we requested a single resource, with getDatapackageResourceFromCsis() add put it onto an array.
     const resourceArray = Array.isArray(resourcesApiResponse.data) ? resourcesApiResponse.data : [resourcesApiResponse.data];
     const includedArray = resourcesApiResponse.included;
@@ -218,7 +217,7 @@ export default class BasicMap extends React.Component {
         log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
       }
 
-      const layerUrl = _this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
+      const layerUrl = this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
       const tagType = groupingCriteria;
       const tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
       let groupTitle = 'Default';
@@ -271,7 +270,7 @@ export default class BasicMap extends React.Component {
    * @param {*} url 
    */
   processUrl(resource, url) {
-    return EMIKATHelpers.addEmikatId(this.queryParams.EmikatId);
+    return EMIKATHelpers.addEmikatId(url, this.queryParams.EmikatId);
   }
 
 
