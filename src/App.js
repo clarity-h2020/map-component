@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch, BrowserRouter} from "react-router-dom";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
 import { createBrowserHistory } from 'history';
 import GenericMap from "./components/GenericMap";
 import CharacteriseHazardMap from "./components/CharacteriseHazardMap";
@@ -20,30 +20,22 @@ export const history = createBrowserHistory({
 export default class App extends React.Component {
 
   render() {
-    
-    console.log(process.env); 
-    console.log('public url: "', process.env.PUBLIC_URL+'"'); 
-    console.log('THIS_SUCKS: ', process.env.THIS_SUCKS); 
-    console.log('REACT_APP_THIS_SUCKS: ', process.env.REACT_APP_THIS_SUCKS); 
-    console.log(`CharacteriseHazardMapTest url: ${process.env.PUBLIC_URL}/CharacteriseHazardMapTest/`);
     return (
-        <main> 
-          <BrowserRouter>
-            <Switch>
-              <Route exact path="/" component={GenericMap} />
-              
-              <Route path="/CharacteriseHazardMap/" component={CharacteriseHazardMap} />
-              <Route path={`${process.env.PUBLIC_URL}/CharacteriseHazardMapTest/`} component={CharacteriseHazardMap} />
-              <Route exact path={`${process.env.PUBLIC_URL}/CharacteriseHazardMapTest2/`} component={CharacteriseHazardMap} />
-              <Route exact path="/ExposureMap/" component={ExposureMap} />
-              <Route exact path="/HazardLocalEffectsMap/" component={HazardLocalEffectsMap} />
-              <Route exact path="/StudyArea/" component={StudyArea} />
-              <Route exact path="/RiskAndImpactMap/" component={RiskAndImpactMap} />
-              <Route exact path="/VulnerabilityMap/" component={VulnerabilityMap} />
-              <Route component={GenericMap} /> 
-            </Switch>
-          </BrowserRouter>
-        </main>
+      <main>
+        <BrowserRouter>
+          <Switch>
+            <Route exact path={process.env.PUBLIC_URL} component={GenericMap} />
+
+            <Route exact path={`${process.env.PUBLIC_URL}/CharacteriseHazardMap/`} component={CharacteriseHazardMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/ExposureMap/`} component={ExposureMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/HazardLocalEffectsMap/`} component={HazardLocalEffectsMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/StudyArea/`} component={StudyArea} />
+            <Route exact path={`${process.env.PUBLIC_URL}/RiskAndImpactMap/`} component={RiskAndImpactMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/VulnerabilityMap/`} component={VulnerabilityMap} />
+            <Route component={GenericMap} />
+          </Switch>
+        </BrowserRouter>
+      </main>
     );
   }
 }

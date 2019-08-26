@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "license": "LGPL",
-  "homepage": "./",
   "dependencies": {
     "@turf/boolean-within": "latest",
-    "csis-helpers-js": "git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.2",
+    "csis-helpers-js": "git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.2.1",
     "history": "^4.9.0",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
