@@ -5,10 +5,13 @@ pipeline {
             args '-p 3000:3000'
         }
     }
+    environment {
+        CI = 'true' 
+    }
     stages {
         stage('Install') {
             steps {
-                sh 'yarn install'
+                sh 'yarn install --network-concurrency 1'
             }
         }
         stage('Test') { 
