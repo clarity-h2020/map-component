@@ -387,54 +387,7 @@ export default class BasicMap extends React.Component {
       }
   }
 
-  print() {
-    const _this = this;
-    var callback = function (b) {
-            prompt(b);
-            _this.blob2file(b);
-    }
-    html2canvas(document.getElementById("riskAndImpact-map-container"),
-      {
-        "foreignObjectRendering": true,
-        "allowTaint": true,
-        "useCORS": true
-      }).then(canvas => {
-    canvas.toBlob(callback)});
-  }
 
- blob2file(blobData) {
-//  const fd = new FormData();
-//  fd.set('a', blobData);
-//  return fd.get('a');
-
-    // var a = document.createElement("a");
-    // document.body.appendChild(a);
-    // a.style = "display: none";
-    // var blob = new Blob(blobData, {type: "octet/stream"}),
-    // url = window.URL.createObjectURL(blob);
-    // a.href = url;
-    // a.download = 'reportImage';
-    // a.click();
-    // window.URL.revokeObjectURL(url);
-
-    var saveData = (function () {
-      var a = document.createElement("a");
-      document.body.appendChild(a);
-      a.style = "display: none";
-      return function (data, fileName) {
-          // var json = JSON.stringify(data),
-          //     blob = new Blob([json], {type: "octet/stream"});
-          var url = window.URL.createObjectURL(data);
-          a.href = url;
-          a.download = fileName;
-          a.click();
-          window.URL.revokeObjectURL(url);
-      };
-  }());
-
-  saveData(blobData, 'ReportImage');
- }
- 
   /**
    * Extract the groups from the given overlay layers
    * 
@@ -467,7 +420,8 @@ export default class BasicMap extends React.Component {
    * @param {String} url a get MapRequest
    */
   extractLayers(url) {
-    var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
+    var layerParamName = 'layers=';
+    var layerParam = url.substring(url.toLowerCase().indexOf(layerParamName) + layerParamName.length)
     return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
@@ -477,8 +431,9 @@ export default class BasicMap extends React.Component {
    * @param {String} url a get MapRequest
    */
   extractStyle(url) {
-    var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
-    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+    var styleParamName = 'styles=';
+    var styleParam = url.substring(url.toLowerCase().indexOf(styleParamName) + styleParamName.length)
+    return (styleParam.indexOf('&') !== -1 ? styleParam.substring(0, styleParam.indexOf('&')) : styleParam);
   }
 
   /**
@@ -487,7 +442,30 @@ export default class BasicMap extends React.Component {
    * @param {String} url 
    */
   extractUrl(url) {
-    return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
+    //remove the parameters, which will be set by leaflet 
+    var parameterList = ['request', 'version', 'service', 'layers', 'bbox', 'width', 'height', 'srs', 'crs', 'format', 'styles', 'transparent', 'bgcolor', 'exceptions'];
+    var baseUrl = (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : url);
+
+    if (url.indexOf('?') != -1) {
+      var urlParameter = url.substring(url.indexOf('?'));
+
+      for (var index = 0; index < parameterList.length; ++index) {
+        var parameter = parameterList[index];
+        
+        if (urlParameter.toLowerCase().indexOf(parameter) != -1) {
+          var lastUrlPart = urlParameter.substring(urlParameter.toLowerCase().indexOf(parameter));
+          urlParameter = urlParameter.substring(0, urlParameter.toLowerCase().indexOf(parameter));
+
+          if (lastUrlPart.indexOf('&') != -1) {
+            urlParameter = urlParameter + lastUrlPart.substring(lastUrlPart.indexOf('&'));
+          }
+        }
+      }
+
+      return baseUrl + urlParameter;
+    } else {
+      return baseUrl;
+    }
   }
 
   /**

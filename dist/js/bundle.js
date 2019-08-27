@@ -18521,56 +18521,6 @@ var BasicMap = function (_React$Component) {
         });
       }
     }
-  }, {
-    key: 'print',
-    value: function print() {
-      var _this = this;
-      var callback = function callback(b) {
-        prompt(b);
-        _this.blob2file(b);
-      };
-      html2canvas(document.getElementById("riskAndImpact-map-container"), {
-        "foreignObjectRendering": true,
-        "allowTaint": true,
-        "useCORS": true
-      }).then(function (canvas) {
-        canvas.toBlob(callback);
-      });
-    }
-  }, {
-    key: 'blob2file',
-    value: function blob2file(blobData) {
-      //  const fd = new FormData();
-      //  fd.set('a', blobData);
-      //  return fd.get('a');
-
-      // var a = document.createElement("a");
-      // document.body.appendChild(a);
-      // a.style = "display: none";
-      // var blob = new Blob(blobData, {type: "octet/stream"}),
-      // url = window.URL.createObjectURL(blob);
-      // a.href = url;
-      // a.download = 'reportImage';
-      // a.click();
-      // window.URL.revokeObjectURL(url);
-
-      var saveData = function () {
-        var a = document.createElement("a");
-        document.body.appendChild(a);
-        a.style = "display: none";
-        return function (data, fileName) {
-          // var json = JSON.stringify(data),
-          //     blob = new Blob([json], {type: "octet/stream"});
-          var url = window.URL.createObjectURL(data);
-          a.href = url;
-          a.download = fileName;
-          a.click();
-          window.URL.revokeObjectURL(url);
-        };
-      }();
-
-      saveData(blobData, 'ReportImage');
-    }
 
     /**
      * Extract the groups from the given overlay layers
@@ -18613,7 +18563,8 @@ var BasicMap = function (_React$Component) {
   }, {
     key: 'extractLayers',
     value: function extractLayers(url) {
-      var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length);
+      var layerParamName = 'layers=';
+      var layerParam = url.substring(url.toLowerCase().indexOf(layerParamName) + layerParamName.length);
       return layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam;
     }
 
@@ -18626,8 +18577,9 @@ var BasicMap = function (_React$Component) {
   }, {
     key: 'extractStyle',
     value: function extractStyle(url) {
-      var layerParam = url.substring(url.indexOf('style=') + 'style='.length);
-      return layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam;
+      var styleParamName = 'styles=';
+      var styleParam = url.substring(url.toLowerCase().indexOf(styleParamName) + styleParamName.length);
+      return styleParam.indexOf('&') !== -1 ? styleParam.substring(0, styleParam.indexOf('&')) : styleParam;
     }
 
     /**
@@ -18639,7 +18591,30 @@ var BasicMap = function (_React$Component) {
   }, {
     key: 'extractUrl',
     value: function extractUrl(url) {
-      return url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null;
+      //remove the parameters, which will be set by leaflet 
+      var parameterList = ['request', 'version', 'service', 'layers', 'bbox', 'width', 'height', 'srs', 'crs', 'format', 'styles', 'transparent', 'bgcolor', 'exceptions'];
+      var baseUrl = url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : url;
+
+      if (url.indexOf('?') != -1) {
+        var urlParameter = url.substring(url.indexOf('?'));
+
+        for (var index = 0; index < parameterList.length; ++index) {
+          var parameter = parameterList[index];
+
+          if (urlParameter.toLowerCase().indexOf(parameter) != -1) {
+            var lastUrlPart = urlParameter.substring(urlParameter.toLowerCase().indexOf(parameter));
+            urlParameter = urlParameter.substring(0, urlParameter.toLowerCase().indexOf(parameter));
+
+            if (lastUrlPart.indexOf('&') != -1) {
+              urlParameter = urlParameter + lastUrlPart.substring(lastUrlPart.indexOf('&'));
+            }
+          }
+        }
+
+        return baseUrl + urlParameter;
+      } else {
+        return baseUrl;
+      }
     }
 
     /**
@@ -76840,16 +76815,11 @@ var StudyArea = function (_React$Component) {
       fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, { credentials: 'include' }).then(function (resp) {
         return resp.json();
       }).then(function (data) {
-
-        fetch(hostName + "/rest/study/" + data.data[0].attributes.drupal_internal__id + "/area?_format=json", { credentials: 'include' }).then(function (resp) {
-          return resp.json();
-        }).then(function (data) {
+        if (data != null && data.data != null && data.data[0] != null && data.data[0].attributes != null && data.data[0].attributes.field_area != null) {
           var wkt = new _wicket2.default.Wkt();
-          wkt.read(data[0].field_area);
+          wkt.read(data.data[0].attributes.field_area.value);
           _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
-        }).catch(function (error) {
-          console.log(JSON.stringify(error));
-        });
+        }
 
         fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), { credentials: 'include' }).then(function (resp) {
           return resp.json();
