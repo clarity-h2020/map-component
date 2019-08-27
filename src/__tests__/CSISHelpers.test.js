@@ -94,25 +94,28 @@ test('find HC resources with @mapview:ogc:wms references in resource array', () 
     //expect(filteredResources).toHaveLength(30);
 });
 
-test('get taxonomy_term--hazards tags fro resources ', () => {
+test('get taxonomy_term--hazards tags from resources ', () => {
     const tagType = 'taxonomy_term--hazards';
     const resourcesArray = apiResponseResources.data;
     const includedArray = apiResponseResources.included;
+    /**
+     * @type{Set}
+     */
     const distinctTags = new Set();
 
     expect(resourcesArray).not.toBeNull();
     expect(resourcesArray.length).toBeGreaterThan(0);
     resourcesArray.map(resource => {
-        const tags = extractTagsfromResource(resourcesArray, includedArray, tagType);
-        tags(resourcesArray).not.toBeNull();
-        tags.map(tag => {
-            distinctTags.add(tag);
-        });
-    }
-    )
+        const tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
+        if (tags) {
+            tags.map(tag => {
+                distinctTags.add(tag);
+            });
+        }
+    });
 
-    expect(distinctTags.length).toBeGreaterThan(0);
-    distinctTags.map(tag => {
+    expect(distinctTags.size).toBeGreaterThan(0);
+    distinctTags.forEach(tag => {
         log.debug(`found distinct tag $tag.attributes.name in $resourcesArray.length`);
     });
 });
