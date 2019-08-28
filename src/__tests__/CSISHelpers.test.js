@@ -1,4 +1,14 @@
-import axios from 'axios';
+/* 
+ * ***************************************************
+ * 
+ * cismet GmbH, Saarbruecken, Germany
+ * 
+ *               ... and it just works.
+ * 
+ * ***************************************************
+ */
+
+ import axios from 'axios';
 import log from 'loglevel';
 import { CSISHelpers } from 'csis-helpers-js';
 import express from 'express'
