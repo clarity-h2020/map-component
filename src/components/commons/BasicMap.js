@@ -318,7 +318,8 @@ export default class BasicMap extends React.Component {
    * @param {String} url a get MapRequest
    */
   extractLayers(url) {
-    var layerParam = url.substring(url.indexOf('layers=') + 'layers='.length)
+    var layerParamName = 'layers=';
+    var layerParam = url.substring(url.toLowerCase().indexOf(layerParamName) + layerParamName.length)
     return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
   }
 
@@ -328,8 +329,9 @@ export default class BasicMap extends React.Component {
    * @param {String} url a get MapRequest
    */
   extractStyle(url) {
-    var layerParam = url.substring(url.indexOf('style=') + 'style='.length)
-    return (layerParam.indexOf('&') !== -1 ? layerParam.substring(0, layerParam.indexOf('&')) : layerParam);
+    var styleParamName = 'styles=';
+    var styleParam = url.substring(url.toLowerCase().indexOf(styleParamName) + styleParamName.length)
+    return (styleParam.indexOf('&') !== -1 ? styleParam.substring(0, styleParam.indexOf('&')) : styleParam);
   }
 
   /**
@@ -338,7 +340,30 @@ export default class BasicMap extends React.Component {
    * @param {String} url 
    */
   extractUrl(url) {
-    return (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : null);
+    //remove the parameters, which will be set by leaflet 
+    var parameterList = ['request', 'version', 'service', 'layers', 'bbox', 'width', 'height', 'srs', 'crs', 'format', 'styles', 'transparent', 'bgcolor', 'exceptions'];
+    var baseUrl = (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : url);
+
+    if (url.indexOf('?') !== -1) {
+      var urlParameter = url.substring(url.indexOf('?'));
+
+      for (var index = 0; index < parameterList.length; ++index) {
+        var parameter = parameterList[index];
+        
+        if (urlParameter.toLowerCase().indexOf(parameter) !== -1) {
+          var lastUrlPart = urlParameter.substring(urlParameter.toLowerCase().indexOf(parameter));
+          urlParameter = urlParameter.substring(0, urlParameter.toLowerCase().indexOf(parameter));
+
+          if (lastUrlPart.indexOf('&') !== -1) {
+            urlParameter = urlParameter + lastUrlPart.substring(lastUrlPart.indexOf('&'));
+          }
+        }
+      }
+
+      return baseUrl + urlParameter;
+    } else {
+      return baseUrl;
+    }
   }
 
   /**
