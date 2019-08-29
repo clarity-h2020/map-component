@@ -6,6 +6,8 @@ import queryString from 'query-string';
 import log from 'loglevel';
 import { CSISRemoteHelpers, CSISHelpers, EMIKATHelpers } from 'csis-helpers-js'
 
+log.enableAll();
+
 /**
  * This is the basic class of all map classes. 
  * It implements the common way to extract the overlay layers from the study. 
@@ -14,7 +16,36 @@ export default class BasicMap extends React.Component {
   constructor(props) {
     super(props);
 
-    log.enableAll();
+    this.initialBounds = this.props.initialBounds ? this.props.initialBounds: [[39.853294, 13.305573],[41.853294, 15.305573]];
+
+    /**
+     * Base Layers
+     * 
+     * FIXME: Attribution not shown!
+     * 
+     * @type {Object[]}
+     */
+    this.baseLayers = this.props.baseLayers ? this.props.baseLayers: [
+      {
+        name: 'WorldTopoMap',
+        title: 'World Topo Map',
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+                  'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+      },
+      {
+        name: 'OpenStreetMap',
+        title: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+                  'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+      },
+      {
+        name: 'OpenTopoMap',
+        title: 'Open Topo Map',
+        url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+      }
+      ]
 
     this.queryParams = {
       "eea_city_field": undefined,
@@ -46,8 +77,11 @@ export default class BasicMap extends React.Component {
     // TODO: Support for different reference types?!
     this.referenceType = '@mapview:ogc:wms';
     // grouping_tag query params overwrites the grouping criteria set by the child class in this.props!
+    // if we use child.groupingCriteria =M x ist will override queryParams, terfore we put them in props
     this.groupingCriteria =  this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
     this.mapType = props.mapSelectionId;
+
+
 
 
     console.log('creating new ' + props.mapSelectionId + ' map with layer group from ' + props.groupingCriteria);
@@ -157,18 +191,14 @@ export default class BasicMap extends React.Component {
  */
   applyLeafletMapModel(leafletMapModel) {
 
-    if (leafletMapModel.length > 0) {
+    if (leafletMapModel && leafletMapModel.length > 0) {
       this.setState({
         overlays: leafletMapModel,
         loading: false,
         exclusiveGroups: this.extractGroups(leafletMapModel)
       });
-    } else if (this.overlaysBackup != null) {
-      this.setState({
-        overlays: this.overlaysBackup,
-        loading: false,
-        exclusiveGroups: this.extractGroups(this.overlaysBackup)
-      });
+    } else {
+      log.error('no leafletMapModel set, cannot shoe addtional layers');
     }
   }
 

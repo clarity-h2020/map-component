@@ -44,7 +44,7 @@ export default class MapComponent extends React.Component {
    */
   componentDidMount() {
 
-    if(this.leafletMapInstance) {
+    if (this.leafletMapInstance) {
       this.leafletMapInstance.invalidateSize();
     }
 
@@ -95,7 +95,7 @@ export default class MapComponent extends React.Component {
      * and therefore accessible in componentDidMount(), except for the Map component where it can 
      * only be created after the <div> container is rendered.
      */
-    if(this.leafletMapInstance) {
+    if (this.leafletMapInstance) {
       this.leafletMapInstance.invalidateSize();
 
       if (this.fly && (this.props.studyAreaPolygon != null)) {
@@ -227,11 +227,10 @@ export default class MapComponent extends React.Component {
    * @deprecated
    */
   init() {
-    if(this.leafletMapInstance)
-    {
+    if (this.leafletMapInstance) {
       this.leafletMapInstance.invalidateSize();
     }
-    
+
     this.setState({
       init: true
     });
@@ -331,8 +330,28 @@ export default class MapComponent extends React.Component {
   getStyle(name) {
     for (var i = 0; i < this.props.overlays.length; i++) {
       if (this.props.overlays[i].name === name) {
-        if (this.props.overlays[i].style != null) {
+        if (this.props.overlays[i].style && this.props.overlays[i].style != null) {
           return this.props.overlays[i].style;
+        } else {
+          return "";
+        }
+      }
+    }
+
+    return "";
+  }
+
+  /**
+   * Extracts the style name of the overlay layer with the given name.
+   * 
+   * @param {String} name  the name of the layer
+   * @returns the style name of the overlay layer with the given name.
+   */
+  getAttribution(name) {
+    for (var i = 0; i < this.props.overlays.length; i++) {
+      if (this.props.overlays[i].name === name) {
+        if (this.props.overlays[i].attribution && this.props.overlays[i].attribution != null) {
+          return this.props.overlays[i].attribution;
         } else {
           return "";
         }
@@ -345,24 +364,25 @@ export default class MapComponent extends React.Component {
   /**
    * Creates the jsx code for the overlay layers, that can be used in the render method
    * 
-   * @param {Array} layers the array with all overlay layers
+   * @param {Object[]} layers the array with all overlay layers
    * @returns the array with all overlay layers
    */
-  createLayer(layers) {
+  createLayers(layers) {
     var layerArray = [];
     var opac = 0.5;
 
     for (var i = 0; i < layers.length; ++i) {
-      var obj = layers[i];
-      if (obj.checked) {
+      var layer = layers[i];
+      if (layer.checked) {
         layerArray.push(<WMSTileLayer
-          layers={this.getLayers(obj.name)}
-          url={this.getUrl(obj.name)}
-          transparent="true"
+          layers={this.getLayers(layer.name)}
+          url={this.getUrl(layer.name)}
+          transparent='true'
           format='image/png'
           opacity={opac}
-          styles={this.getStyle(obj.name)}
+          styles={this.getStyle(layer.name)}
           tileSize={1536}
+          attribution={this.getAttribution()}
         />);
       }
     }
@@ -406,6 +426,7 @@ export default class MapComponent extends React.Component {
    * 
    * @param {Array} d the array with all base layers 
    * @returns the jsx code for the base layers
+   * @deprecated
    */
   createBaseLayer(d) {
     var layerArray = [];
@@ -461,28 +482,29 @@ export default class MapComponent extends React.Component {
           https://reactjs.org/docs/forwarding-refs.html
           ref={(comp) => this.leafletMapInstance = comp.leafletElement}
         */}
-        <Map 
-         
+        <Map
+
           id="#map"
           className="simpleMap"
           scrollWheelZoom={true}
           bounds={bbox}
-          loadingControl={true}
+          loadingControl={false}
           onViewportChanged={this.onViewportChanged.bind(this)}
+
         >
           <LeafletConsumer>
-            {(context) =>  {this.leafletMapInstance = context.map}}
+            {(context) => { this.leafletMapInstance = context.map }}
           </LeafletConsumer>
-          
+
           {this.props.studyAreaPolygon != null &&
             <GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
           }
           <TileLayer noWrap={true} url={this.tileLayerUrl} />
           {
-            this.createLayer(this.state.overlays)
+            this.createLayers(this.state.overlays)
           }
           <ReactLeafletGroupedLayerControl
-            ref={(comp) => this.layerControl = comp}
+            ref={(layerControl) => this.layerControl = layerControl}
             position="topright"
             baseLayers={this.props.baseLayers}
             checkedBaseLayer={this.state.checkedBaseLayer}
