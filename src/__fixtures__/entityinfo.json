@@ -3,7 +3,7 @@
     "step_uuid": "f91d3bab-f222-485e-b543-1cbeaa7b9465",
     "study": "1",
     "study_area": "POLYGON((14.150047 40.830437,14.150047 40.892753,14.322395 40.892753,14.322395 40.830437,14.150047 40.830437))",
-    "study_datapackage_uuid": "a8ff7930-4a9f-4289-8246-3383ba13c30f",
+    "datapackage_uuid": "a8ff7930-4a9f-4289-8246-3383ba13c30f",
     "study_emikat_id": "2846",
     "study_uuid": "c3609e3e-f80f-482b-9e9f-3a26226a6859",
     "write_permissions": 1

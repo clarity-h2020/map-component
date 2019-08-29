@@ -55,7 +55,7 @@ export default class BasicMap extends React.Component {
       "step_uuid": undefined,
       "study": undefined,
       "study_area": undefined,
-      "study_datapackage_uuid": undefined,
+      "datapackage_uuid": undefined,
       "study_emikat_id": undefined,
       "study_uuid": undefined,
       "write_permissions": undefined
@@ -119,24 +119,24 @@ export default class BasicMap extends React.Component {
     }
 
     // load and process the resources to generate the overlay layers for the leaflet map
-    if (this.queryParams.study_datapackage_uuid) {
+    if (this.queryParams.datapackage_uuid) {
       resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
     } else if (this.queryParams.resource_uuid) {
       resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourceFromCsis(this.queryParams.host, this.queryParams.resource_uuid);
     } else if (this.queryParams.study_uuid) {
-      log.warn(`no study_datapackage_uuid or resource_uuid submitted via query params, trying to load it from API for study $this.queryParams.study_uuid`);
+      log.warn(`no datapackage_uuid or resource_uuid submitted via query params, trying to load it from API for study $this.queryParams.study_uuid`);
       if (!studyApiResponse) {
         studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
       }
       if(studyApiResponse && studyApiResponse.data && studyApiResponse.data.relationships 
         && studyApiResponse.data.relationships.field_data_package && studyApiResponse.data.relationships.field_data_package.data) {
-          this.queryParams.study_datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
+          this.queryParams.datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
           resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
         } else {
           log.warn(`no data package associated with study {this.queryParams.study_uuid}, cannot load resources!`);
         }
     } else {
-      log.error(`no study_uuid nor study_datapackage_uuid nor resource_uuid submitted via query params, cannot load addtional resource layers`);
+      log.error(`no study_uuid nor datapackage_uuid nor resource_uuid submitted via query params, cannot load addtional resource layers`);
     }
 
     if (resourcesApiResponse && resourcesApiResponse.data && resourcesApiResponse.included) {
