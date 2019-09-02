@@ -297,7 +297,7 @@ export default class BasicMap extends React.Component {
    * @param {*} url 
    */
   processUrl(resource, url) {
-    return EMIKATHelpers.addEmikatId(url, this.queryParams.EmikatId);
+    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.EmikatId);
   }
 
 
