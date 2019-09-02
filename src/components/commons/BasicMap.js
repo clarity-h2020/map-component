@@ -93,12 +93,14 @@ export default class BasicMap extends React.Component {
     this.initialBounds[1][0] = this.queryParams.maxx;
     this.initialBounds[1][1] = this.queryParams.maxy;
 
-    log.info(`creating new ${props.mapSelectionId} map with layer group from ${props.groupingCriteria} and initial bbox [${this.initialBounds[0][0]}, ${this.initialBounds[0][1]}][${this.initialBounds[1][0]}, ${this.initialBounds[1][1]}]`);
+    log.info(`creating new ${props.mapSelectionId} map with layer group from ${props.groupingCriteria} and initial bbox [${this.initialBounds[0][0]},${this.initialBounds[0][1]}][${this.initialBounds[1][0]},${this.initialBounds[1][1]}]`);
   }
 
   /**
+   * Main work is done here. 
+   * 
    * For standalone use, e.g.
-   * http://localhost:3000//?url=https://csis.myclimateservice.eu&id=c3609e3e-f80f-482b-9e9f-3a26226a6859
+   * http://localhost:3000//?url=https://csis.myclimateservice.eu&study_id=c3609e3e-f80f-482b-9e9f-3a26226a6859
    * 
    */
   async componentDidMount() {
@@ -124,16 +126,18 @@ export default class BasicMap extends React.Component {
       const studyArea = CSISHelpers.extractStudyAreaFromStudyGroupNode(studyApiResponse.data);
       this.applyStudyAreaGeometry(studyArea);
     } else {
-      log.error(`no study_area nor study_uuid submitted via query params, cannot set study area bbox`);
+      log.warn(`no study_area nor study_uuid submitted via query params, cannot set study area bbox`);
     }
 
     // load and process the resources to generate the overlay layers for the leaflet map
-    if (this.queryParams.datapackage_uuid) {
-      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
-    } else if (this.queryParams.resource_uuid) {
+    if (this.queryParams.resource_uuid) {
+      log.debug(`loading resource ${this.queryParams.resource_uuid}`);
       resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourceFromCsis(this.queryParams.host, this.queryParams.resource_uuid);
+    } else if (this.queryParams.datapackage_uuid) {
+      log.debug(`loading data package ${this.queryParams.resource_uuid}`);
+      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
     } else if (this.queryParams.study_uuid) {
-      log.warn(`no datapackage_uuid or resource_uuid submitted via query params, trying to load it from API for study $this.queryParams.study_uuid`);
+      log.warn(`no datapackage_uuid or resource_uuid submitted via query params, trying to load it from API for study ${this.queryParams.study_uuid}`);
       if (!studyApiResponse) {
         studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
       }
@@ -142,7 +146,7 @@ export default class BasicMap extends React.Component {
           this.queryParams.datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
           resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
         } else {
-          log.warn(`no data package associated with study {this.queryParams.study_uuid}, cannot load resources!`);
+          log.error(`no data package associated with study ${this.queryParams.study_uuid}, cannot load resources!`);
         }
     } else {
       log.error(`no study_uuid nor datapackage_uuid nor resource_uuid submitted via query params, cannot load addtional resource layers`);
