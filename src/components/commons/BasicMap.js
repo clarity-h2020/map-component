@@ -16,7 +16,7 @@ export default class BasicMap extends React.Component {
   constructor(props) {
     super(props);
 
-    this.initialBounds = this.props.initialBounds ? this.props.initialBounds: [[39.853294, 13.305573],[41.853294, 15.305573]];
+    this.initialBounds = this.props.initialBounds ? this.props.initialBounds: [[72, 55],[30, -30]];
 
     /**
      * Base Layers
@@ -47,18 +47,25 @@ export default class BasicMap extends React.Component {
       }
       ]
 
+    // FIXME: write_permissions as query param?! OMFG!
+
+    /**
+     * Query params extracted from CSIS Helpers. See /examples and /fixtures/csisHelpers.json
+     */
     this.queryParams = {
-      "eea_city_field": undefined,
       "host": "https://csis.myclimateservice.eu",
-      "resource_uuid": undefined,
-      "step": undefined,
-      "step_uuid": undefined,
-      "study": undefined,
-      "study_area": undefined,
-      "datapackage_uuid": undefined,
-      "study_emikat_id": undefined,
       "study_uuid": undefined,
-      "write_permissions": undefined
+      "step_uuid": undefined,
+      "datapackage_uuid": undefined,
+      "resource_uuid": undefined,
+      "study_area": undefined,
+      "emikat_id": undefined,
+      "grouping_tag": undefined,
+      "write_permissions": undefined,
+      "minx": this.initialBounds[0][0],
+      "miny": this.initialBounds[0][1],
+      "maxx": this.initialBounds[1][0],
+      "maxy": this.initialBounds[1][1]      
     };
 
     if (this.props.location && this.props.location.search) {
@@ -81,10 +88,12 @@ export default class BasicMap extends React.Component {
     this.groupingCriteria =  this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
     this.mapType = props.mapSelectionId;
 
+    this.initialBounds[0][0] = this.queryParams.minx;
+    this.initialBounds[1][0] = this.queryParams.miny;
+    this.initialBounds[1][0] = this.queryParams.maxx;
+    this.initialBounds[1][1] = this.queryParams.maxy;
 
-
-
-    console.log('creating new ' + props.mapSelectionId + ' map with layer group from ' + props.groupingCriteria);
+    log.info(`creating new ${props.mapSelectionId} map with layer group from ${props.groupingCriteria} and initial bbox [${this.initialBounds[0][0]}, ${this.initialBounds[0][1]}][${this.initialBounds[1][0]}, ${this.initialBounds[1][1]}]`);
   }
 
   /**
@@ -120,7 +129,7 @@ export default class BasicMap extends React.Component {
 
     // load and process the resources to generate the overlay layers for the leaflet map
     if (this.queryParams.datapackage_uuid) {
-      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
+      resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
     } else if (this.queryParams.resource_uuid) {
       resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourceFromCsis(this.queryParams.host, this.queryParams.resource_uuid);
     } else if (this.queryParams.study_uuid) {
@@ -297,7 +306,7 @@ export default class BasicMap extends React.Component {
    * @param {*} url 
    */
   processUrl(resource, url) {
-    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.EmikatId);
+    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikatId);
   }
 
 
