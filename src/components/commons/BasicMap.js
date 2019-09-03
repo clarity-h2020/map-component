@@ -89,7 +89,7 @@ export default class BasicMap extends React.Component {
     this.mapType = props.mapSelectionId;
 
     this.initialBounds[0][0] = this.queryParams.minx;
-    this.initialBounds[1][0] = this.queryParams.miny;
+    this.initialBounds[0][1] = this.queryParams.miny;
     this.initialBounds[1][0] = this.queryParams.maxx;
     this.initialBounds[1][1] = this.queryParams.maxy;
 
