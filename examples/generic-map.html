@@ -21,10 +21,11 @@
             try {
 
                 if (undefined == iFrameMapComponent || null == iFrameMapComponent) {
-                    HTMLFormControlsCollection.warn('initMapComponent(): no iFrameMapComponent available');
+                    console.warn('initMapComponent(): no iFrameMapComponent available');
                 }
 
-                var host = window.location.host, study_uuid, study_area, emikat_id, datapackage_uuid, write_permissions, resource_uuid, minx, miny, maxx, maxy;
+                // window.location.origin instead of window.location.host: we need the protocol, too!
+                var host = window.location.origin, study_uuid, study_area, emikat_id, datapackage_uuid, write_permissions, resource_uuid, minx, miny, maxx, maxy;
 
                 if (undefined !== drupalSettings && undefined !== drupalSettings.csisHelpers) {
                     var csisHelpers = drupalSettings.csisHelpers;
@@ -69,7 +70,7 @@
                      * 
                      * @type {String}
                      */
-                    var mapComponentUrl = `https://${host}/apps/map-component/build/${mapType}/?host=${host}`;
+                    var mapComponentUrl = `${host}/apps/map-component/build/${mapType}/?host=${host}`;
 
                     mapComponentUrl += study_uuid ? `&study_uuid=${study_uuid}` : '';
                     mapComponentUrl += study_area ? `&study_area=${study_area}` : '';

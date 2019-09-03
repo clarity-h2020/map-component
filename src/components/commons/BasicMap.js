@@ -144,7 +144,7 @@ export default class BasicMap extends React.Component {
       if(studyApiResponse && studyApiResponse.data && studyApiResponse.data.relationships 
         && studyApiResponse.data.relationships.field_data_package && studyApiResponse.data.relationships.field_data_package.data) {
           this.queryParams.datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
-          resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.study_datapackage_uuid);
+          resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
         } else {
           log.error(`no data package associated with study ${this.queryParams.study_uuid}, cannot load resources!`);
         }
