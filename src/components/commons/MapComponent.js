@@ -463,9 +463,6 @@ export default class MapComponent extends React.Component {
    * Renders the map
    */
   render() {
-    const corner1 = [35.746512, -30.234375];
-    const corner2 = [71.187754, 39.199219];
-    var bbox = [corner1, corner2];
     var studyAreaStyle = {
       "color": "#ff0000",
       "weight": 2,
@@ -487,7 +484,7 @@ export default class MapComponent extends React.Component {
           id="#map"
           className="simpleMap"
           scrollWheelZoom={true}
-          bounds={bbox}
+          bounds={this.state.bounds}
           loadingControl={false}
           onViewportChanged={this.onViewportChanged.bind(this)}
 
