@@ -26,12 +26,15 @@ export default class App extends React.Component {
           <Switch>
             <Route exact path={process.env.PUBLIC_URL} component={GenericMap} />
             <Route exact path={`${process.env.PUBLIC_URL}/GenericMap/`} component={GenericMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/ResourcePreviewMap/`} component={GenericMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/DataPackagePreviewMap/`} component={GenericMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/StudyPreviewMap/`} component={GenericMap} />
             <Route exact path={`${process.env.PUBLIC_URL}/CharacteriseHazardMap/`} component={CharacteriseHazardMap} />
             <Route exact path={`${process.env.PUBLIC_URL}/ExposureMap/`} component={ExposureMap} />
             <Route exact path={`${process.env.PUBLIC_URL}/HazardLocalEffectsMap/`} component={HazardLocalEffectsMap} />
-            <Route exact path={`${process.env.PUBLIC_URL}/StudyArea/`} component={StudyArea} />
             <Route exact path={`${process.env.PUBLIC_URL}/RiskAndImpactMap/`} component={RiskAndImpactMap} />
             <Route exact path={`${process.env.PUBLIC_URL}/VulnerabilityMap/`} component={VulnerabilityMap} />
+            <Route exact path={`${process.env.PUBLIC_URL}/StudyArea/`} component={StudyArea} />
             <Route component={GenericMap} />
           </Switch>
         </BrowserRouter>
