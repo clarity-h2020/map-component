@@ -1,5 +1,9 @@
 <html>
 
+<head>
+    <meta charset="utf-8" />
+</head>
+
 <body>
     <iframe name="map-component" id="map-component" src="https://csis.myclimateservice.eu/apps/map-component/build/"
         style="width:100%;height:500px;border:1px solid">
@@ -10,6 +14,9 @@
         const grouping_tag = 'taxonomy_term--eu_gl';
         const iFrameMapComponent = document.getElementById('map-component');
 
+        /**
+         * ATTENTION: Duplicate of https://github.com/clarity-h2020/csis-helpers-module/blob/dev/js/csis_iframe_connector.js
+         */
         function initMapComponent(mapType = 'GenericMap', grouping_tag = 'taxonomy_term--eu_gl', iFrameMapComponent = document.getElementById('map-component')) {
             try {
 
