@@ -62,10 +62,10 @@ export default class BasicMap extends React.Component {
       "emikat_id": undefined,
       "grouping_tag": undefined,
       "write_permissions": undefined,
-      "minx": this.initialBounds[0][0],
-      "miny": this.initialBounds[0][1],
-      "maxx": this.initialBounds[1][0],
-      "maxy": this.initialBounds[1][1]      
+      "minx": this.initialBounds[0][0], // deprecated
+      "miny": this.initialBounds[0][1], // deprecated
+      "maxx": this.initialBounds[1][0], // deprecated
+      "maxy": this.initialBounds[1][1]  // deprecated     
     };
 
     if (this.props.location && this.props.location.search) {
@@ -84,16 +84,20 @@ export default class BasicMap extends React.Component {
     // TODO: Support for different reference types?!
     this.referenceType = '@mapview:ogc:wms';
     // grouping_tag query params overwrites the grouping criteria set by the child class in this.props!
-    // if we use child.groupingCriteria =M x ist will override queryParams, terfore we put them in props
+    // if we use child.groupingCriteria =M x ist will override queryParams, therefore we put them in props
     this.groupingCriteria =  this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
     this.mapType = props.mapSelectionId;
 
+    // Actually, this parameters are not used anymore! For data package and resource we use study_area as initial bbox
+    // Yeah, that's inconsitent and not correct, but we reuse this query param since we don't want to re-implement 
+    // handling of initial bbox just because the data model contains rubbish. :-/
+    // See https://github.com/clarity-h2020/map-component/issues/53
     this.initialBounds[0][0] = this.queryParams.minx;
     this.initialBounds[0][1] = this.queryParams.miny;
     this.initialBounds[1][0] = this.queryParams.maxx;
     this.initialBounds[1][1] = this.queryParams.maxy;
 
-    log.info(`creating new ${props.mapSelectionId} map with layer group from ${props.groupingCriteria} and initial bbox [${this.initialBounds[0][0]},${this.initialBounds[0][1]}][${this.initialBounds[1][0]},${this.initialBounds[1][1]}]`);
+    log.info(`creating new ${props.mapSelectionId} map with layer group from ${props.groupingCriteria} and initial bbox ${this.queryParams.study_area}`);
   }
 
   /**
@@ -379,6 +383,7 @@ export default class BasicMap extends React.Component {
 
   /**
    * Returns the given url without parameters
+   * FIXME: use queryString.parse() !
    *  
    * @param {String} url 
    */
@@ -388,22 +393,34 @@ export default class BasicMap extends React.Component {
     var baseUrl = (url.indexOf('?') !== -1 ? url.substring(0, url.indexOf('?')) : url);
 
     if (url.indexOf('?') !== -1) {
-      var urlParameter = url.substring(url.indexOf('?'));
+      /**
+       * The parameters part of the URL
+       * @deprecated use queryString.parse() instead!
+       * @type String
+       */
+      var urlParameters = url.substring(url.indexOf('?'));
 
       for (var index = 0; index < parameterList.length; ++index) {
+        /**
+         * e.g. 'request'
+         */
         var parameter = parameterList[index];
         
-        if (urlParameter.toLowerCase().indexOf(parameter) !== -1) {
-          var lastUrlPart = urlParameter.substring(urlParameter.toLowerCase().indexOf(parameter));
-          urlParameter = urlParameter.substring(0, urlParameter.toLowerCase().indexOf(parameter));
+        // automatically generated parameter from  parameterList found in URL ..
+        if (urlParameters.toLowerCase().indexOf(parameter) !== -1) {
+          // ???
+          var lastUrlPart = urlParameters.substring(urlParameters.toLowerCase().indexOf(parameter));
+
+          
+          urlParameters = urlParameters.substring(0, urlParameters.toLowerCase().indexOf(parameter));
 
           if (lastUrlPart.indexOf('&') !== -1) {
-            urlParameter = urlParameter + lastUrlPart.substring(lastUrlPart.indexOf('&'));
+            urlParameters = urlParameters + lastUrlPart.substring(lastUrlPart.indexOf('&'));
           }
         }
       }
 
-      return baseUrl + urlParameter;
+      return baseUrl + urlParameters;
     } else {
       return baseUrl;
     }
