@@ -24,16 +24,40 @@ log.enableAll();
  * Set auth headers for live API test
  */
 beforeAll(async (done) => {
+
+    jest.setTimeout(60000);
+    let cookie = process.env.COOKIE;
+
+    if (process.env.ORIGIN) {
+        CSISRemoteHelpers.csisClient.defaults.headers.common['Origin'] = process.env.Origin;
+    }
+
     //axios.defaults.withCredentials = true;
-    if (process.env.COOKIE && process.env.ORIGIN) {
-        log.info('headers.js fixture found, executing remote API tests');
+    if (process.env.CSIS_USERNAME && process.env.CSIS_PASSWORD) {
+        try {
+            const apiResponse = await CSISRemoteHelpers.login('https://csis.myclimateservice.eu', process.env.CSIS_USERNAME, process.env.CSIS_PASSWORD);
+            // Unfortunately, this does not work!
+            // See https://github.com/axios/axios/issues/295#issuecomment-381485257
+            if(apiResponse.headers['set-cookie'] && Array.isArray(apiResponse.headers['set-cookie']) && apiResponse.headers['set-cookie'].length > 0) {
+                cookie = apiResponse.headers['set-cookie'][0];
+                log.debug(`login cookie retrieved: ${cookie}`);     
+            } else {
+                log.warn('login with credentials from process.env.CSIS_USERNAME && process.env.CSIS_PASSWORD failed, please check file .env.test.local')
+            }
+            
+        } catch(error) {
+            log.error('login to remote CSIS API failed', error);
+        }
+    }
+
+    if (cookie) {
+        log.info('cookie available, executing remote API tests');
         // this will fail when a new instance of axios has been created in CSISRemoteHelpers
         // because the instance is created with the *previous* defaults! :o
         //axios.defaults.headers.common[header[0]] = header[1];
 
         // therefore we change the instance in CSISRemoteHelpers :o
-        CSISRemoteHelpers.csisClient.defaults.headers.common['Cookie'] = process.env.COOKIE;
-        CSISRemoteHelpers.csisClient.defaults.headers.common['Origin'] = process.env.Origin;
+        CSISRemoteHelpers.csisClient.defaults.headers.common['Cookie'] = cookie;
     } else {
         log.warn('no headers ENV VAR (.env.test.local) found, skipping remote API tests');
     }
@@ -43,10 +67,12 @@ beforeAll(async (done) => {
 afterAll(() => {
     //delete axios.defaults.withCredentials;
     delete CSISRemoteHelpers.csisClient.defaults.headers.common[axios.defaults.xsrfHeaderName];
-    if (process.env.COOKIE && process.env.ORIGIN) {
+    if ((process.env.CSIS_USERNAME && process.env.CSIS_PASSWORD) || (process.env.COOKIE && process.env.ORIGIN)) {
         delete CSISRemoteHelpers.csisClient.defaults.headers.common['Cookie'];
         delete CSISRemoteHelpers.csisClient.defaults.headers.common['Origin'];
     }
+
+    jest.setTimeout(5000);
 });
 
 
@@ -56,7 +82,7 @@ describe('Remote API tests without authentication', () => {
         const token1 = await CSISRemoteHelpers.getXCsrfToken();
         const token2 = await CSISRemoteHelpers.getXCsrfToken();
         // if not logged in by session cookie, token will be different for each request
-        if (!process.env.COOKIE || !process.env.ORIGIN) {
+        if ((!process.env.COOKIE || !process.env.ORIGIN) && (!process.env.CSIS_USERNAME || !process.env.CSIS_PASSWORD)) {
             expect(token1).not.toEqual(token2);
         } else {
             expect(token1).toEqual(token2);
@@ -67,7 +93,7 @@ describe('Remote API tests without authentication', () => {
 
 describe('Remote API tests with authentication', () => {
 
-    if (!process.env.COOKIE || !process.env.ORIGIN) {
+    if ((!process.env.COOKIE || !process.env.ORIGIN) && (!process.env.CSIS_USERNAME || !process.env.CSIS_PASSWORD)) {
         it.only('no headers.js fixture found, skipping remote API tests', () => {
             log.warn('no headers.js fixture found, skipping remote API tests');
         });
