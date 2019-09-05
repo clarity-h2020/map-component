@@ -97,7 +97,7 @@ export default class BasicMap extends React.Component {
     this.initialBounds[1][0] = this.queryParams.maxx;
     this.initialBounds[1][1] = this.queryParams.maxy;
 
-    log.info(`creating new ${props.mapSelectionId} map with layer group from ${props.groupingCriteria} and initial bbox ${this.queryParams.study_area}`);
+    log.info(`creating new ${props.mapSelectionId} map with layer group from ${this.groupingCriteria} and initial bbox ${this.queryParams.study_area}`);
   }
 
   /**
@@ -138,7 +138,7 @@ export default class BasicMap extends React.Component {
       log.debug(`loading resource ${this.queryParams.resource_uuid}`);
       resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourceFromCsis(this.queryParams.host, this.queryParams.resource_uuid);
     } else if (this.queryParams.datapackage_uuid) {
-      log.debug(`loading data package ${this.queryParams.resource_uuid}`);
+      log.debug(`loading data package ${this.queryParams.datapackage_uuid}`);
       resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
     } else if (this.queryParams.study_uuid) {
       log.warn(`no datapackage_uuid or resource_uuid submitted via query params, trying to load it from API for study ${this.queryParams.study_uuid}`);
@@ -411,11 +411,10 @@ export default class BasicMap extends React.Component {
           // ???
           var lastUrlPart = urlParameters.substring(urlParameters.toLowerCase().indexOf(parameter));
 
-          
           urlParameters = urlParameters.substring(0, urlParameters.toLowerCase().indexOf(parameter));
 
           if (lastUrlPart.indexOf('&') !== -1) {
-            urlParameters = urlParameters + lastUrlPart.substring(lastUrlPart.indexOf('&'));
+            urlParameters = urlParameters + lastUrlPart.substring(lastUrlPart.indexOf('&') + 1);
           }
         }
       }
