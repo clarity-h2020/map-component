@@ -282,8 +282,15 @@ export default class BasicMap extends React.Component {
       leafletLayer.title = resource.attributes.title;
       leafletLayer.layers = this.extractLayers(layerUrl.toString());
       leafletLayer.url = this.extractUrl(layerUrl.toString());
-      leafletMapModel.push(leafletLayer);
-      log.debug('layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
+      
+      // TODO: #54
+      // If no variables can be set, we currently remove the layer until #54 is implemented
+      if(leafletLayer.url.indexOf('$') === -1) {
+        leafletMapModel.push(leafletLayer);
+        log.debug('layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
+      } else {
+        log.warn(`layer ${leafletLayer.name} not added! URL contains unprocessed $EMIKAT variables: \n${leafletLayer.url}`)
+      } 
     }
 
     leafletMapModel.sort(function (a, b) {
@@ -314,7 +321,7 @@ export default class BasicMap extends React.Component {
    * @param {*} url 
    */
   processUrl(resource, url) {
-    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikatId);
+    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikat_Id);
   }
 
 
