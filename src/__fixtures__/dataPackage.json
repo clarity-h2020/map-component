@@ -1,0 +1,406 @@
+{
+    "jsonapi": {
+        "version": "1.0",
+        "meta": {
+            "links": {
+                "self": {
+                    "href": "http://jsonapi.org/format/1.0/"
+                }
+            }
+        }
+    },
+    "data": {
+        "type": "node--data_package",
+        "id": "a8ff7930-4a9f-4289-8246-3383ba13c30f",
+        "attributes": {
+            "drupal_internal__nid": 221,
+            "drupal_internal__vid": 270,
+            "langcode": "en",
+            "revision_timestamp": "2019-03-01T12:11:04+00:00",
+            "revision_log": null,
+            "status": true,
+            "title": "Naples Metropolitan Area Data Package",
+            "created": "2019-03-01T12:11:04+00:00",
+            "changed": "2019-07-15T13:52:31+00:00",
+            "promote": false,
+            "sticky": false,
+            "default_langcode": true,
+            "revision_translation_affected": true,
+            "path": null,
+            "content_translation_source": "und",
+            "content_translation_outdated": false,
+            "field_description": "This is the CLARITY data package for the Naples metropolitan area corresponding to the Demonstrator Case (DC1). \\r\\n Further description to be completed",
+            "field_dp_name": "dc1-naples-data-package",
+            "field_imagepath": null,
+            "field_language": "eng",
+            "field_path": "http://www.clarity-h2020.eu",
+            "field_profile": "http://csis.myclimateservice.eu/data/schemas/clarity-data-package-json-schema.json",
+            "field_title": "Naples Metropolitan Area Data Package - OBSOLETE",
+            "field_version": "1.0.0"
+        },
+        "relationships": {
+            "node_type": {
+                "data": {
+                    "type": "node_type--node_type",
+                    "id": "66f70948-fbd4-4269-be70-23645141cccf"
+                },
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/node_type?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/node_type?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "revision_uid": {
+                "data": {
+                    "type": "user--user",
+                    "id": "0859f3c9-3dae-474b-b5d1-9217f0fb8f0e"
+                },
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/revision_uid?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/revision_uid?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "uid": {
+                "data": {
+                    "type": "user--user",
+                    "id": "0859f3c9-3dae-474b-b5d1-9217f0fb8f0e"
+                },
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/uid?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/uid?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "menu_link": {
+                "data": null,
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/menu_link?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/menu_link?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_adaptation_options": {
+                "data": [],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_adaptation_options?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_adaptation_options?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_contributors": {
+                "data": [
+                    {
+                        "type": "node--dp_contributors",
+                        "id": "f4bcddb4-233b-4499-be44-0f7320f1c1b8"
+                    },
+                    {
+                        "type": "node--dp_contributors",
+                        "id": "7f995a69-f920-438c-89dd-446d6bf46206"
+                    }
+                ],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_contributors?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_contributors?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_key": {
+                "data": [
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "f35c3289-120b-4193-a727-7761152cbeaf"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "34f97a8a-a701-4b0d-b1dd-e60731ad037b"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "3ca19ea9-f50e-4f46-8dee-f31ea4596153"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "83802c79-a805-4c34-bb40-ef19cd0d166e"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "73f16162-eced-439f-8fbe-a7d47bd9fd1e"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "b09fe79e-99c1-451a-a068-365477032a85"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "675c273f-afae-4604-92a6-4087d085f15a"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "4286ae38-54f2-4c50-b7cc-bd062dc0fdc9"
+                    },
+                    {
+                        "type": "taxonomy_term--data_package_keywords",
+                        "id": "bf95753c-8897-4035-9439-27ad2b4aef0e"
+                    }
+                ],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_key?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_key?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_licenses": {
+                "data": [
+                    {
+                        "type": "node--dp_license",
+                        "id": "abf37666-11d6-4708-be1d-ae4af62419aa"
+                    }
+                ],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_licenses?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_licenses?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_price": {
+                "data": {
+                    "type": "node--price",
+                    "id": "80040534-47d3-47c4-beb8-74901f848464"
+                },
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_price?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_price?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_references": {
+                "data": [],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_references?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_references?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_resources": {
+                "data": [
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "b834a248-1817-44ce-9cb3-f882198c1e1f"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "4c59948c-81cd-4e43-a075-353e6796bd4c"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "69cd6b48-32f4-4b33-8c58-a44ae721fd0e"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "d1573013-5a25-49c7-99e1-a97d3c79dd7b"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "035e883b-1471-490b-92a7-83a62eedd69c"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "fe6238e3-ff86-4b4a-8a78-76e5c424b6f6"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "7c79d522-9338-4894-bdf3-ca66f592c028"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "761ce363-bb68-476e-ad9b-21a49afcbe72"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "9c44e6a5-987e-488c-80e5-e256d3869673"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "5c6bf638-b73e-43d0-b1cc-ab64a9dfb4c9"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "41c0ef63-c438-4ebb-8dd9-ee1ffdb06c6b"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "eb2b82ec-dfc3-4704-87f7-140c4ce2e8e9"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "e121cd2b-4531-4506-981c-b3993f2b927e"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "ae6bc7b6-ade2-4263-bb4f-cac32f7b0920"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "f6c017a0-3834-4046-8e19-3d1de10a8d69"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "d322ff9d-fb69-4c8e-af73-1a744a666b49"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "e2d3d807-b070-4a4b-98f2-16a7a83e7718"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "0b2b9144-bdbf-4730-abbf-cd05a57680db"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "96b40541-3047-4890-8472-e1b0ff198e9f"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "0234e456-c1b0-4bb3-ae41-1f2f47d4c2eb"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "dcef8256-a208-4e44-a1a6-6b8c8bbf949f"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "a204e75f-3716-4262-8f59-97c1880f7741"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "589ef52b-8abf-4c4d-a752-ab3e6607a28c"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "df03b3bb-d0ee-43a3-aad2-72854cb18862"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "9c62e7d3-33c8-41a6-825f-9da36d6d7bda"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "66fa0cb8-0a3f-4552-af76-99a40a4ec3db"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "851d9b9a-1d08-4eae-9775-aa64406577d0"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "cbad493a-1e3c-45c4-96d3-1d649def5029"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "cd1e3696-317d-49ee-b5d3-e6cb649b9c5e"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "8bb73c12-fd1b-4c2e-9a8a-386dff204ad5"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "2b8d2564-9ceb-4266-ab7a-4a838297eec3"
+                    },
+                    {
+                        "type": "node--data_package_metadata",
+                        "id": "234b8e60-d4cd-4773-87e1-8febfcdaf7cf"
+                    }
+                ],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_resources?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_resources?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_sources": {
+                "data": [],
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_sources?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_sources?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_spatial_extent": {
+                "data": {
+                    "type": "node--spatialextent",
+                    "id": "6e3ec213-8271-4652-889d-f1d3ba0ee97a"
+                },
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_spatial_extent?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_spatial_extent?resourceVersion=id%3A270"
+                    }
+                }
+            },
+            "field_temporal_extent": {
+                "data": {
+                    "type": "node--temporalextent_",
+                    "id": "a06479de-5f29-4d2e-812b-6d1a16eb4b4a"
+                },
+                "links": {
+                    "self": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/relationships/field_temporal_extent?resourceVersion=id%3A270"
+                    },
+                    "related": {
+                        "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f/field_temporal_extent?resourceVersion=id%3A270"
+                    }
+                }
+            }
+        },
+        "links": {
+            "self": {
+                "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f?resourceVersion=id%3A270"
+            }
+        }
+    },
+    "links": {
+        "self": {
+            "href": "https://csis.myclimateservice.eu/jsonapi/node/data_package/a8ff7930-4a9f-4289-8246-3383ba13c30f"
+        }
+    }
+}

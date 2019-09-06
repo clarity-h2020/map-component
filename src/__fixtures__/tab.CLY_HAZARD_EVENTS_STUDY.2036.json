@@ -1,0 +1,115 @@
+{
+    "name": "Hazard Events for current Study",
+    "description": "Hazard Events for current Study",
+    "columnnames": [
+        "Oid",
+        "latitude",
+        "longitude",
+        "urban_area",
+        "country",
+        "Hazard Event Type ID",
+        "Hazard Event Type",
+        "RCP",
+        "Time period",
+        "Frequence",
+        "Event Descriptor"
+    ],
+    "rows": [
+        {
+            "rownum": 0,
+            "values": [
+                183,
+                40.833246,
+                14.281113,
+                "Napoli",
+                "Italy",
+                1,
+                "HW",
+                "rcp45",
+                "20110101-20401231",
+                "Frequent",
+                "34.5_3.033d"
+            ]
+        },
+        {
+            "rownum": 1,
+            "values": [
+                181,
+                40.833246,
+                14.281113,
+                "Napoli",
+                "Italy",
+                1,
+                "HW",
+                "rcp45",
+                "20110101-20401231",
+                "Ocassional",
+                "39_0.333d"
+            ]
+        },
+        {
+            "rownum": 2,
+            "values": [
+                179,
+                40.833246,
+                14.281113,
+                "Napoli",
+                "Italy",
+                1,
+                "HW",
+                "rcp45",
+                "20110101-20401231",
+                "Rare",
+                "40_0.166d"
+            ]
+        },
+        {
+            "rownum": 3,
+            "values": [
+                184,
+                40.833246,
+                14.281113,
+                "Napoli",
+                "Italy",
+                1,
+                "HW",
+                "rcp45",
+                "20410101-20701231",
+                "Frequent",
+                "35_3.433d"
+            ]
+        },
+        {
+            "rownum": 4,
+            "values": [
+                182,
+                40.833246,
+                14.281113,
+                "Napoli",
+                "Italy",
+                1,
+                "HW",
+                "rcp45",
+                "20410101-20701231",
+                "Ocassional",
+                "39_0.500d"
+            ]
+        },
+        {
+            "rownum": 5,
+            "values": [
+                180,
+                40.833246,
+                14.281113,
+                "Napoli",
+                "Italy",
+                1,
+                "HW",
+                "rcp45",
+                "20410101-20701231",
+                "Rare",
+                "40.5_0.200d"
+            ]
+        }
+    ]
+}

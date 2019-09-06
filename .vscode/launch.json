@@ -1,0 +1,56 @@
+{
+    "version": "0.2.0",
+    "configurations": [{
+            "name": "Chrome",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "url": "http://localhost:3000/CharacteriseHazardMap/?url=https://csis.myclimateservice.eu&study_uuid=c3609e3e-f80f-482b-9e9f-3a26226a6859",
+            "webRoot": "${workspaceFolder}/src",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*"
+            }
+        }, {
+            "name": "Debug ALL CRA Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/react-scripts",
+            "args": [
+                "test",
+                "--runInBand",
+                "--no-cache",
+                "--env=jsdom",
+                "--watchAll=false"
+            ],
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*"
+            }
+        }, {
+            "name": "Debug CRA Current File",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/react-scripts",
+            "args": [
+                "test",
+                "${fileBasenameNoExtension}",
+                "--no-cache",
+                "--env=jsdom",
+                "--verbose=false",
+                "--watchAll=false"
+            ],
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/*",
+            }
+        }
+    ]
+}

@@ -1,3 +1,14 @@
-.leaflet-container {
-  height: 500px;
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, .root {
+    height: 100%;
+    width: 100%;
+    
+}
+
+.leaflet-container, #map {
+  width: 100vw;    
+  height: 100vh;    
 }
