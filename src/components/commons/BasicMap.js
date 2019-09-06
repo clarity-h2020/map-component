@@ -317,11 +317,12 @@ export default class BasicMap extends React.Component {
    * 
    * FIXME: externalize, use callback method instead!
    * 
-   * @param {*} resource 
-   * @param {*} url 
+   * @param {Object} resource 
+   * @param {String} url 
+   * @return String
    */
   processUrl(resource, url) {
-    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikat_Id);
+    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikat_id);
   }
 
 

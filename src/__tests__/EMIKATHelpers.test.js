@@ -30,3 +30,18 @@ test ('[RELEASE] URL with EmikatId', ()=>{
   expect(url).not.toEqual(transformedUrl);
   expect(transformedUrl.includes('31337'));
 });
+
+test ('[RELEASE] URL with EmikatId', ()=>{
+  /**
+   * @type {String}
+   */
+  const url = 'https://service.emikat.at/geoserver/clarity/wms?CQL_FILTER=SZ_ID=$emikat_id';
+  /**
+   * @type {String}
+   */
+  const transformedUrl = EMIKATHelpers.addEmikatId(url, 31337);
+  expect(url).not.toEqual(transformedUrl);
+  expect(transformedUrl.includes('$')).toBeFalsy();
+  expect(transformedUrl.includes('31337')).toBeTruthy();
+  expect(transformedUrl).toEqual('https://service.emikat.at/geoserver/clarity/wms?CQL_FILTER=SZ_ID=31337');
+});
