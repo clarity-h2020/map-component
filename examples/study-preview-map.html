@@ -2,40 +2,36 @@
 
 <head>
     <meta charset="utf-8" />
+    <title>Map Component: Generic Preview Map for Studies</title>
 </head>
 
 <body>
     <script>
-        /* global $ */
-        /* jshint ignore:start */
-        if (typeof $ === 'undefined') {
-            var $ = jQuery;
-        }
-        if (typeof $ === 'undefined') {
-            var $ = window.jQuery;
-        }
-        /* jshint ignore:end */
+        (function ($, Drupal) {
+            window.Drupal.behaviors.mapComponentIFrameConnector = {
+                attach: function (context, drupalSettings) {
+                    // Using once() to apply the mapComponentIFrameConnector effect when you want to run just one function.
+                    $(window, context).once('mapComponentIFrameConnector').each(function () {
 
-        window.Drupal.behaviors.iFrameConnector = {
-            attach: function (context, drupalSettings) {
-                // Using once() to apply the scenarioAnalysisIFrameBehavior effect when you want to run just one function.
-                $(window, context).once('scenarioAnalysisIFrameBehavior').each(function () {
-                    const mapType = 'StudyPreviewMap';
-                    const grouping_tag = 'taxonomy_term--eu_gl';
-                    const iFrameMapComponent = document.getElementById('map-component');
+                        const mapType = 'StudyPreviewMap';
+                        const grouping_tag = 'taxonomy_term--eu_gl';
+                        const iFrameMapComponent = document.getElementById('map-component');
 
-                    if (undefined !== drupalSettings && undefined !== drupalSettings.csisHelpers && undefined !== drupalSettings.csisHelpers.initMapComponent) {
-                        drupalSettings.csisHelpers.initMapComponent(mapType, grouping_tag, iFrameMapComponent);
-                    } else {
-                        console.error('no global drupalSettings object found, probably not connected to Drupal!');
-                    }
-                });
-            }
-        };
+                        if (undefined !== drupalSettings && undefined !== drupalSettings.csisHelpers && undefined !== drupalSettings.csisHelpers.initMapComponent) {
+                            drupalSettings.csisHelpers.initMapComponent(mapType, grouping_tag, iFrameMapComponent);
+                            return;
+                        } else {
+                            console.error('no global drupalSettings object found, probably not connected to Drupal!');
+                        }
+                    });
+                }
+            };
+
+        })(jQuery, Drupal);
     </script>
 
-    <iframe name="map-component" id="map-component" src="https://csis.myclimateservice.eu/apps/map-component/build/loader.html"
-        style="width:100%;height:500px;">
+    <iframe name="map-component" id="map-component"
+        src="https://csis.myclimateservice.eu/apps/map-component/build/loader.html" style="width:100%;height:500px;">
     </iframe>
 </body>
 
