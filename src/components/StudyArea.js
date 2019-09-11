@@ -11,7 +11,8 @@ export default class StudyArea extends React.Component {
   constructor(props) {
     super(props);
     this.state ={
-      cityPolygon: null
+      cityPolygon: null,
+      cityPolygonRequired: true
     };
 
     /**
@@ -32,39 +33,53 @@ export default class StudyArea extends React.Component {
         hname: hostName
     });
     const _this = this;
-    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, {credentials: 'include'})
+    var includes = 'include=field_study_type.field_study_calculation,field_city_region';
+    fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid + '&' + includes, {credentials: 'include'})
     .then((resp) => resp.json())
     .then(function(data) {
 
-      fetch(hostName + "/rest/study/" + data.data[0].attributes.drupal_internal__id + "/area?_format=json", {credentials: 'include'})
-      .then((resp) => resp.json())
-      .then(function(data) {
+      if (data != null && data[0] != null && data.data[0].field_area != null) {
         var wkt = new Wkt.Wkt();
-        wkt.read(data[0].field_area);
+        wkt.read(data.data[0].field_area);
         _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
-      })
-      .catch(function(error) {
-        console.log(JSON.stringify(error));
-      });
+      }
+      const calculationMethod = 'taxonomy_term--calculation_methods';
+      var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
+      var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name === 'EMIKAT screening';
+      var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
 
-     fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), {credentials: 'include'})
-      .then((resp) => resp.json())
-      .then(function(data) {
-          if (data.data === null) {
-            alert("There is no city selected");
-          } else {
-            var wkt = new Wkt.Wkt();
-            wkt.read(data.data.attributes.field_boundaries.value);
-            _this.setCityGeom(JSON.stringify(wkt.toJson()));
-          }
-      })
-      .catch(function(error) {
-        console.log(JSON.stringify(error));
-      });
+
+      if (cityObject != null && cityObject.attributes.field_boundaries != null && cityObject.attributes.field_boundaries.value != null) {
+        var wkt = new Wkt.Wkt();
+        wkt.read(cityObject.attributes.field_boundaries.value);
+        _this.setCityGeom(JSON.stringify(wkt.toJson()));
+      } else {
+        if (cityRequired) {
+          alert("There is no city selected");
+        }
+      }
+      if (!cityRequired) {
+        _this.setState({cityPolygonRequired: cityRequired});
+      }
     })
     .catch(function(error) {
       console.log(JSON.stringify(error));
     });         
+  }
+
+  /**
+   * This method resolves the included references and extracts the inlcuded object.
+   */
+  getIncludeByType(type, includedArray) {
+    if (type != null && includedArray != null) {
+      for (let i = 0; i < includedArray.length; ++i) {
+        if (includedArray[i].type === type) {
+          return includedArray[i];
+        }
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -134,6 +149,7 @@ export default class StudyArea extends React.Component {
     return (
       <StudyAreaMap 
         cityPolygon={this.state.cityPolygon}
+        cityPolygonRequired={this.state.cityPolygonRequired}
         studyAreaPolygon={this.state.studyAreaPolygon}
         hostname={this.state.hname}
         uuid={this.state.studyUuid}

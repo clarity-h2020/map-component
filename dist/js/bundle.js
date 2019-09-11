@@ -76811,7 +76811,8 @@ var StudyArea = function (_React$Component) {
     var _this2 = _possibleConstructorReturn(this, (StudyArea.__proto__ || Object.getPrototypeOf(StudyArea)).call(this, props));
 
     _this2.state = {
-      cityPolygon: null
+      cityPolygon: null,
+      cityPolygonRequired: true
     };
 
     /**
@@ -76837,36 +76838,54 @@ var StudyArea = function (_React$Component) {
         hname: hostName
       });
       var _this = this;
-      fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid, { credentials: 'include' }).then(function (resp) {
+      var includes = 'include=field_study_type.field_study_calculation,field_city_region';
+      fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid + '&' + includes, { credentials: 'include' }).then(function (resp) {
         return resp.json();
       }).then(function (data) {
 
-        fetch(hostName + "/rest/study/" + data.data[0].attributes.drupal_internal__id + "/area?_format=json", { credentials: 'include' }).then(function (resp) {
-          return resp.json();
-        }).then(function (data) {
+        if (data != null && data[0] != null && data.data[0].field_area != null) {
           var wkt = new _wicket2.default.Wkt();
-          wkt.read(data[0].field_area);
+          wkt.read(data.data[0].field_area);
           _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
-        }).catch(function (error) {
-          console.log(JSON.stringify(error));
-        });
+        }
+        var calculationMethod = 'taxonomy_term--calculation_methods';
+        var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
+        var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name === 'EMIKAT screening';
+        var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
 
-        fetch(data.data[0].relationships.field_city_region.links.related.href.replace('http:', _this.protocol), { credentials: 'include' }).then(function (resp) {
-          return resp.json();
-        }).then(function (data) {
-          if (data.data === null) {
+        if (cityObject != null && cityObject.attributes.field_boundaries != null && cityObject.attributes.field_boundaries.value != null) {
+          var wkt = new _wicket2.default.Wkt();
+          wkt.read(cityObject.attributes.field_boundaries.value);
+          _this.setCityGeom(JSON.stringify(wkt.toJson()));
+        } else {
+          if (cityRequired) {
             alert("There is no city selected");
-          } else {
-            var wkt = new _wicket2.default.Wkt();
-            wkt.read(data.data.attributes.field_boundaries.value);
-            _this.setCityGeom(JSON.stringify(wkt.toJson()));
           }
-        }).catch(function (error) {
-          console.log(JSON.stringify(error));
-        });
+        }
+        if (!cityRequired) {
+          _this.setState({ cityPolygonRequired: cityRequired });
+        }
       }).catch(function (error) {
         console.log(JSON.stringify(error));
       });
+    }
+
+    /**
+     * This method resolves the included references and extracts the inlcuded object.
+     */
+
+  }, {
+    key: 'getIncludeByType',
+    value: function getIncludeByType(type, includedArray) {
+      if (type != null && includedArray != null) {
+        for (var i = 0; i < includedArray.length; ++i) {
+          if (includedArray[i].type === type) {
+            return includedArray[i];
+          }
+        }
+      }
+
+      return null;
     }
 
     /**
@@ -76944,6 +76963,7 @@ var StudyArea = function (_React$Component) {
 
       return _react2.default.createElement(_StudyAreaMap2.default, {
         cityPolygon: this.state.cityPolygon,
+        cityPolygonRequired: this.state.cityPolygonRequired,
         studyAreaPolygon: this.state.studyAreaPolygon,
         hostname: this.state.hname,
         uuid: this.state.studyUuid
@@ -77070,7 +77090,7 @@ var StudyAreaMap = function (_React$Component) {
       var area = _turf2.default.area(e.layer.toGeoJSON());
       var _this = this;
 
-      if (!(0, _booleanWithin2.default)(e.layer.toGeoJSON(), this.props.cityPolygon)) {
+      if (this.props.cityPolygonRequired && !(0, _booleanWithin2.default)(e.layer.toGeoJSON(), this.props.cityPolygon)) {
         alert('The selected area is not within the selected city.');
         this.map.leafletElement.removeLayer(e.layer);
       } else if (area > allowedSize * qkmToQm) {
@@ -77143,7 +77163,7 @@ var StudyAreaMap = function (_React$Component) {
   }, {
     key: 'setReadOnly',
     value: function setReadOnly(ro) {
-      if (!ro && this.props.cityPolygon == null) {
+      if (!ro && this.props.cityPolygonRequired && this.props.cityPolygon == null) {
         alert("You cannot create a study area before you select a city");
       } else {
         this.setState({
@@ -77160,7 +77180,7 @@ var StudyAreaMap = function (_React$Component) {
   }, {
     key: 'changeReadOnly',
     value: function changeReadOnly() {
-      if (this.state.readOnly && this.props.cityPolygon == null) {
+      if (this.state.readOnly && this.props.cityPolygonRequired && this.props.cityPolygon == null) {
         alert("You cannot create a study area before you select a city");
       } else {
         this.setState({

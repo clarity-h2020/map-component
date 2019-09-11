@@ -52,7 +52,7 @@ export default class StudyAreaMap extends React.Component {
     var area = turf.area(e.layer.toGeoJSON());
     const _this = this;
 
-    if (!turfWithin(e.layer.toGeoJSON(), this.props.cityPolygon)) {
+    if (this.props.cityPolygonRequired && !turfWithin(e.layer.toGeoJSON(), this.props.cityPolygon)) {
       alert('The selected area is not within the selected city.');
       this.map.leafletElement.removeLayer(e.layer);
     } else if (area > (allowedSize * qkmToQm)) {
@@ -117,7 +117,7 @@ export default class StudyAreaMap extends React.Component {
    * @param {Boolean} ro 
    */
   setReadOnly(ro) {
-    if (!ro && this.props.cityPolygon == null) {
+    if (!ro && this.props.cityPolygonRequired && this.props.cityPolygon == null) {
       alert("You cannot create a study area before you select a city");
     } else {
       this.setState(
@@ -133,7 +133,7 @@ export default class StudyAreaMap extends React.Component {
    * 
    */
   changeReadOnly() {
-    if (this.state.readOnly && this.props.cityPolygon == null) {
+    if (this.state.readOnly && this.props.cityPolygonRequired && this.props.cityPolygon == null) {
       alert("You cannot create a study area before you select a city");
     } else {
       this.setState(
