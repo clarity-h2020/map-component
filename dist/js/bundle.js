@@ -76843,9 +76843,9 @@ var StudyArea = function (_React$Component) {
         return resp.json();
       }).then(function (data) {
 
-        if (data != null && data[0] != null && data.data[0].field_area != null) {
+        if (data != null && data[0] != null && data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
           var wkt = new _wicket2.default.Wkt();
-          wkt.read(data.data[0].field_area);
+          wkt.read(data.data[0].attributes.field_area.value);
           _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
         }
         var calculationMethod = 'taxonomy_term--calculation_methods';
