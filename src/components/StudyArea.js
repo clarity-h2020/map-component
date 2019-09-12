@@ -38,7 +38,7 @@ export default class StudyArea extends React.Component {
     .then((resp) => resp.json())
     .then(function(data) {
 
-      if (data != null && data[0] != null && data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
+      if (data != null && data.data[0] != null && data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
         var wkt = new Wkt.Wkt();
         wkt.read(data.data[0].attributes.field_area.value);
         _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
