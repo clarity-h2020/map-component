@@ -19,6 +19,7 @@ export default class StudyArea extends React.Component {
      * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
      */
     this.protocol = 'https://';
+    this.studyId = -1;
   }
   
   /**
@@ -47,7 +48,7 @@ export default class StudyArea extends React.Component {
       var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
       var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name === 'EMIKAT screening';
       var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
-
+      _this.studyId = data.data[0].attributes.drupal_internal__id;
 
       if (cityObject != null && cityObject.attributes.field_boundaries != null && cityObject.attributes.field_boundaries.value != null) {
         var wkt = new Wkt.Wkt();
@@ -153,6 +154,7 @@ export default class StudyArea extends React.Component {
         studyAreaPolygon={this.state.studyAreaPolygon}
         hostname={this.state.hname}
         uuid={this.state.studyUuid}
+        id={this.studyId}
       />
     );
   }

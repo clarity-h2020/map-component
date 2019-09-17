@@ -66,11 +66,20 @@ export default class StudyAreaMap extends React.Component {
           //set the new study area
           var wkt = new Wkt.Wkt();
           wkt.fromJson(e.layer.toGeoJSON());
-          var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
-          var mimeType = "application/vnd.api+json";      //hal+json
+          // var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
+          // var mimeType = "application/vnd.api+json";      //hal+json
+          // var xmlHttp = new XMLHttpRequest();
+          // xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true);  // true : asynchrone false: synchrone
+          // xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');  
+          // xmlHttp.setRequestHeader('Content-Type', mimeType);  
+          // xmlHttp.setRequestHeader('X-CSRF-Token', key);  
+          // xmlHttp.send(data);
+
+          var data = '{"type": [{"target_id": "study", "target_type":"group_type"}], "field_area": [{"value": "' + wkt.write() + '"}]}';
+          var mimeType = "application/json";      //hal+json
           var xmlHttp = new XMLHttpRequest();
-          xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true);  // true : asynchrone false: synchrone
-          xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');  
+          xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/group/' + _this.props.id + '?_format=json' , true);  // true : asynchrone false: synchrone
+          xmlHttp.setRequestHeader('Accept', 'application/json');  
           xmlHttp.setRequestHeader('Content-Type', mimeType);  
           xmlHttp.setRequestHeader('X-CSRF-Token', key);  
           xmlHttp.send(data);

@@ -76819,6 +76819,7 @@ var StudyArea = function (_React$Component) {
      * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
      */
     _this2.protocol = 'https://';
+    _this2.studyId = -1;
     return _this2;
   }
 
@@ -76852,6 +76853,7 @@ var StudyArea = function (_React$Component) {
         var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
         var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name === 'EMIKAT screening';
         var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
+        _this.studyId = data.data[0].attributes.drupal_internal__id;
 
         if (cityObject != null && cityObject.attributes.field_boundaries != null && cityObject.attributes.field_boundaries.value != null) {
           var wkt = new _wicket2.default.Wkt();
@@ -76966,7 +76968,8 @@ var StudyArea = function (_React$Component) {
         cityPolygonRequired: this.state.cityPolygonRequired,
         studyAreaPolygon: this.state.studyAreaPolygon,
         hostname: this.state.hname,
-        uuid: this.state.studyUuid
+        uuid: this.state.studyUuid,
+        id: this.studyId
       });
     }
   }]);
@@ -77104,11 +77107,20 @@ var StudyAreaMap = function (_React$Component) {
           //set the new study area
           var wkt = new _wicket2.default.Wkt();
           wkt.fromJson(e.layer.toGeoJSON());
-          var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
-          var mimeType = "application/vnd.api+json"; //hal+json
+          // var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
+          // var mimeType = "application/vnd.api+json";      //hal+json
+          // var xmlHttp = new XMLHttpRequest();
+          // xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true);  // true : asynchrone false: synchrone
+          // xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');  
+          // xmlHttp.setRequestHeader('Content-Type', mimeType);  
+          // xmlHttp.setRequestHeader('X-CSRF-Token', key);  
+          // xmlHttp.send(data);
+
+          var data = '{"type": [{"target_id": "study", "target_type":"group_type"}], "field_area": [{"value": "' + wkt.write() + '"}]}';
+          var mimeType = "application/json"; //hal+json
           var xmlHttp = new XMLHttpRequest();
-          xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true); // true : asynchrone false: synchrone
-          xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');
+          xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/group/' + _this.props.id + '?_format=json', true); // true : asynchrone false: synchrone
+          xmlHttp.setRequestHeader('Accept', 'application/json');
           xmlHttp.setRequestHeader('Content-Type', mimeType);
           xmlHttp.setRequestHeader('X-CSRF-Token', key);
           xmlHttp.send(data);
