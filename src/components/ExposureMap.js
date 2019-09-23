@@ -22,6 +22,10 @@ export default class ExposureMap extends BasicMap {
      * Render the map
      */
     render() {
+      if (!this.queryParams || (!this.queryParams.study_uuid && !this.queryParams.resource_uuid && !this.queryParams.datapackage_uuid)) {
+        return super.render();
+      }
+      
       return (
         <MapComponent 
         loading={this.state.loading}
