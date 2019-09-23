@@ -6,6 +6,9 @@ import queryString from 'query-string';
 import log from 'loglevel';
 import { CSISRemoteHelpers, CSISHelpers, EMIKATHelpers } from 'csis-helpers-js'
 
+import logo from './../../logo.svg';
+import './../../App.css';
+
 log.enableAll();
 
 /**
@@ -16,7 +19,7 @@ export default class BasicMap extends React.Component {
   constructor(props) {
     super(props);
 
-    this.initialBounds = this.props.initialBounds ? this.props.initialBounds: [[72, 55],[30, -30]];
+    this.initialBounds = this.props.initialBounds ? this.props.initialBounds : [[72, 55], [30, -30]];
 
     /**
      * Base Layers
@@ -25,48 +28,34 @@ export default class BasicMap extends React.Component {
      * 
      * @type {Object[]}
      */
-    this.baseLayers = this.props.baseLayers ? this.props.baseLayers: [
+    this.baseLayers = this.props.baseLayers ? this.props.baseLayers : [
       {
         name: 'WorldTopoMap',
         title: 'World Topo Map',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
         attribution: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
-                  'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+          'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
       },
       {
         name: 'OpenStreetMap',
         title: 'OpenStreetMap',
         url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         attribution: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
-                  'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+          'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
       },
       {
         name: 'OpenTopoMap',
         title: 'Open Topo Map',
         url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
       }
-      ]
+    ]
 
     // FIXME: write_permissions as query param?! OMFG!
 
     /**
      * Query params extracted from CSIS Helpers. See /examples and /fixtures/csisHelpers.json
      */
-    this.queryParams = {
-      "host": "https://csis.myclimateservice.eu",
-      "study_uuid": undefined,
-      "step_uuid": undefined,
-      "datapackage_uuid": undefined,
-      "resource_uuid": undefined,
-      "study_area": undefined,
-      "emikat_id": undefined,
-      "grouping_tag": undefined,
-      "write_permissions": undefined,
-      "minx": this.initialBounds[0][0], // deprecated
-      "miny": this.initialBounds[0][1], // deprecated
-      "maxx": this.initialBounds[1][0], // deprecated
-      "maxy": this.initialBounds[1][1]  // deprecated     
-    };
+    this.queryParams = { ...CSISHelpers.defaultQueryParams };
 
     if (this.props.location && this.props.location.search) {
       // copy and extend queryParams using spread operator :o
@@ -85,11 +74,11 @@ export default class BasicMap extends React.Component {
     this.referenceType = '@mapview:ogc:wms';
     // grouping_tag query params overwrites the grouping criteria set by the child class in this.props!
     // if we use child.groupingCriteria =M x ist will override queryParams, therefore we put them in props
-    this.groupingCriteria =  this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
+    this.groupingCriteria = this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
     this.mapType = props.mapSelectionId;
 
     // Actually, this parameters are not used anymore! For data package and resource we use study_area as initial bbox
-    // Yeah, that's inconsitent and not correct, but we reuse this query param since we don't want to re-implement 
+    // Yeah, that's inconsistent and not correct, but we reuse this query param since we don't want to re-implement 
     // handling of initial bbox just because the data model contains rubbish. :-/
     // See https://github.com/clarity-h2020/map-component/issues/53
     this.initialBounds[0][0] = this.queryParams.minx;
@@ -145,13 +134,13 @@ export default class BasicMap extends React.Component {
       if (!studyApiResponse) {
         studyApiResponse = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(this.queryParams.host, this.queryParams.study_uuid);
       }
-      if(studyApiResponse && studyApiResponse.data && studyApiResponse.data.relationships 
+      if (studyApiResponse && studyApiResponse.data && studyApiResponse.data.relationships
         && studyApiResponse.data.relationships.field_data_package && studyApiResponse.data.relationships.field_data_package.data) {
-          this.queryParams.datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
-          resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
-        } else {
-          log.error(`no data package associated with study ${this.queryParams.study_uuid}, cannot load resources!`);
-        }
+        this.queryParams.datapackage_uuid = studyApiResponse.data.relationships.field_data_package.data.id;
+        resourcesApiResponse = await CSISRemoteHelpers.getDatapackageResourcesFromCsis(this.queryParams.host, this.queryParams.datapackage_uuid);
+      } else {
+        log.error(`no data package associated with study ${this.queryParams.study_uuid}, cannot load resources!`);
+      }
     } else {
       log.error(`no study_uuid nor datapackage_uuid nor resource_uuid submitted via query params, cannot load addtional resource layers`);
     }
@@ -236,7 +225,7 @@ export default class BasicMap extends React.Component {
 
     log.debug(`process ${resourceArray.length} resources and 
     ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
-    
+
     var leafletMapModel = [];
     let filteredResources;
 
@@ -282,15 +271,15 @@ export default class BasicMap extends React.Component {
       leafletLayer.title = resource.attributes.title;
       leafletLayer.layers = this.extractLayers(layerUrl.toString());
       leafletLayer.url = this.extractUrl(layerUrl.toString());
-      
+
       // TODO: #54
       // If no variables can be set, we currently remove the layer until #54 is implemented
-      if(leafletLayer.url.indexOf('$') === -1) {
+      if (leafletLayer.url.indexOf('$') === -1) {
         leafletMapModel.push(leafletLayer);
         log.debug('layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
       } else {
         log.warn(`layer ${leafletLayer.name} not added! URL contains unprocessed $EMIKAT variables: \n${leafletLayer.url}`)
-      } 
+      }
     }
 
     leafletMapModel.sort(function (a, b) {
@@ -309,6 +298,10 @@ export default class BasicMap extends React.Component {
       }
     });
 
+    if(leafletMapModel.length > 0) {
+      leafletMapModel[0].checked = true;
+    }
+
     return leafletMapModel;
   }
 
@@ -322,9 +315,16 @@ export default class BasicMap extends React.Component {
    * @return String
    */
   processUrl(resource, url) {
-    return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikat_id);
-  }
+    //return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikat_id);
+    const parametersMap = new Map();
+    EMIKATHelpers.QUERY_PARAMS.forEach((value, key) => {
+      if (this.queryParams[value]) {
+        parametersMap.set(key, this.queryParams[value]);
+      }
+    });
 
+    return EMIKATHelpers.addEmikatParameters(url, parametersMap);
+  }
 
   /**
    * Drupal JSON API 'deeply' includes objects, e.g. &include=field_references are provided only once in a separate array name 'included'.
@@ -413,7 +413,7 @@ export default class BasicMap extends React.Component {
          * e.g. 'request'
          */
         var parameter = parameterList[index];
-        
+
         // automatically generated parameter from  parameterList found in URL ..
         if (urlParameters.toLowerCase().indexOf(parameter) !== -1) {
           // ???
@@ -446,6 +446,17 @@ export default class BasicMap extends React.Component {
 
     return bounds;
   }
+
+  render() {
+    return (
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <h2>Map Component not initilaised correctly</h2>
+          <p>Query Parametes, e.g. <i>study_id</i> missing!</p>
+        </header>
+      </div>);
+  }
 };
 
 BasicMap.propTypes = {
@@ -462,8 +473,6 @@ BasicMap.propTypes = {
   groupingCriteria: PropTypes.string
 
 }
-
-
 
 BasicMap.defaultProps = {
   mapSelectionId: undefined,

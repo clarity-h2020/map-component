@@ -32,7 +32,10 @@ export default class Generic extends BasicMap {
    * Render the map
    */
   render() {
-    window.specificMapComponent = this;
+    
+    if (!this.queryParams || (!this.queryParams.study_uuid && !this.queryParams.resource_uuid && !this.queryParams.datapackage_uuid)) {
+      return super.render();
+    }
 
     return (
       <MapComponent
