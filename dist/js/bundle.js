@@ -77283,14 +77283,19 @@ var StudyAreaMap = function (_React$Component) {
             position: 'topright',
             onCreated: this._onCreated.bind(this),
             draw: {
-              polygon: {
-                showArea: true,
-                metric: ['km', 'm']
-              },
+              polygon: false,
+              circle: false,
+              marker: false,
+              polyline: false,
+              circlemarker: false,
               rectangle: {
                 showArea: true,
                 metric: ['km', 'm']
               }
+            },
+            edit: {
+              edit: false,
+              remove: false
             }
             // onEditResize={this._onEditResize.bind(this)}
           })
