@@ -4,7 +4,7 @@ import turf from 'turf';
 import Wkt from 'wicket';
 import queryString from 'query-string';
 import log from 'loglevel';
-import { CSISRemoteHelpers, CSISHelpers, EMIKATHelpers } from 'csis-helpers-js'
+import { CSISRemoteHelpers, CSISHelpers, EMIKATHelpers } from 'csis-helpers-js';
 
 import logo from './../../logo.svg';
 import './../../App.css';
@@ -271,7 +271,8 @@ export default class BasicMap extends React.Component {
       leafletLayer.title = resource.attributes.title;
       leafletLayer.layers = this.extractLayers(layerUrl.toString());
       leafletLayer.url = this.extractUrl(layerUrl.toString());
-
+      leafletLayer.style = this.extractStyle(layerUrl.toString());
+      
       // TODO: #54
       // If no variables can be set, we currently remove the layer until #54 is implemented
       if (leafletLayer.url.indexOf('$') === -1) {
@@ -385,8 +386,12 @@ export default class BasicMap extends React.Component {
    */
   extractStyle(url) {
     var styleParamName = 'styles=';
-    var styleParam = url.substring(url.toLowerCase().indexOf(styleParamName) + styleParamName.length)
-    return (styleParam.indexOf('&') !== -1 ? styleParam.substring(0, styleParam.indexOf('&')) : styleParam);
+    if (url !== null && url.toLowerCase().indexOf(styleParamName) !== -1) {
+      var styleParam = url.substring(url.toLowerCase().indexOf(styleParamName) + styleParamName.length);
+      return (styleParam.indexOf('&') !== -1 ? styleParam.substring(0, styleParam.indexOf('&')) : styleParam);
+    } else {
+      return null;
+    }
   }
 
   /**
