@@ -6,7 +6,8 @@ import React from 'react';
 export default class SingleLegend extends React.Component {
     constructor(props) {
         super(props);
-        var lUrl = this.props.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + this.props.layer.layers;
+        var styleParameter = (this.props.layer.style != null ? "&style=" + this.props.layer.style : "");
+        var lUrl = this.props.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + this.props.layer.layers + styleParameter;
 
         this.state = {
             legendUrl: lUrl,
@@ -21,7 +22,8 @@ export default class SingleLegend extends React.Component {
      */
     componentWillReceiveProps(nextProps) {
         if (nextProps.layer != null) {
-            var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers;
+            var styleParameter = (nextProps.layer.style != null ? "&style=" + nextProps.layer.style : "");
+            var lUrl = nextProps.layer.url + "?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=" + nextProps.layer.layers + styleParameter;
 
             this.setState({
                 legendUrl: lUrl,
