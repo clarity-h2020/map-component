@@ -256,6 +256,7 @@ export default class MapComponent extends React.Component {
    * It is only one checked overlay layer allowed
    * 
    * @param {Array} newOverlays 
+   * @deprecated
    */
   overlayChange(newOverlays) {
     if (this.state.oldOverlay != null) {
@@ -271,6 +272,14 @@ export default class MapComponent extends React.Component {
       count: this.state.count + 1,
       oldOverlay: newOverlays
     })
+  }
+
+  onOverlayChange(newOverlays) {
+    this.overlaysAllTogether = [...newOverlays];
+    this.setState({
+      overlays: [...newOverlays],
+      count: this.state.count + 1
+    });
   }
 
   /**
@@ -507,7 +516,7 @@ export default class MapComponent extends React.Component {
             checkedBaseLayer={this.state.checkedBaseLayer}
             overlays={overlays}
             onBaseLayerChange={this.baseLayerChange.bind(this)}
-            onOverlayChange={this.overlayChange.bind(this)}
+            onOverlayChange={this.onOverlayChange.bind(this)}
             exclusiveGroups={this.props.exclusiveGroups}
           />
           <LegendComponent layer={this.getOverlayForLegend(overlays)} />

@@ -18,7 +18,6 @@ log.enableAll();
 export default class BasicMap extends React.Component {
   constructor(props) {
     super(props);
-
     this.initialBounds = this.props.initialBounds ? this.props.initialBounds : [[72, 55], [30, -30]];
 
     /**
@@ -209,78 +208,124 @@ export default class BasicMap extends React.Component {
   }
 
   /**
-   * Extracts the layers from the given RESOURCES array and add it to the map 
+   * Creates a Leaflet Layer definition from CSIS Resource Meta Data
+   * 
+   * @param {*} filteredResources 
+   * @param {*} includedArray 
+   * @param {*} referenceType 
+   * @param {*} defaultGroupName 
+   * @param {*} groupingCriteria 
+   */
+  createLeafletLayer(resource, includedArray, referenceType, defaultGroupName, groupingCriteria) {
+    const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
+    if (resourceReferences.length > 1) {
+      log.warn(`${resourceReferences.length} ${referenceType} references in resource ${resource.attributes.title}, using only 1st reference ${resourceReferences[0].attributes.field_reference_path}`);
+    } else if (resourceReferences.length === 0) {
+      log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
+    }
+
+    const layerUrl = this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
+    const tagType = groupingCriteria;
+
+    // FIXME: Dangerous, if multiple values for tagType
+    let tags = null;
+    let groupTitle = defaultGroupName;
+    if (tagType && tagType != null) {
+      tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
+    }
+
+    if (tags != null && tags.length > 0) {
+      groupTitle = tags[0].attributes.name;
+      if (tags.length > 1) {
+        log.warn(`${tags.length} ${tagType} tags in resource ${resource.attributes.title}, using only 1st tag ${tags[0].attributes.name} as group title for layer ${resource.attributes.title}`);
+      }
+    } else {
+      log.warn(`no ${tagType} tag found in resource ${resource.attributes.title}, using default group name`);
+    }
+
+    var leafletLayer = {};
+    leafletLayer.checked = false;
+    leafletLayer.groupTitle = groupTitle;
+    leafletLayer.name = this.titleToName(resource.attributes.title);
+    leafletLayer.title = resource.attributes.title;
+    leafletLayer.layers = this.extractLayers(layerUrl.toString());
+    leafletLayer.url = this.extractUrl(layerUrl.toString());
+    leafletLayer.style = this.extractStyle(layerUrl.toString());
+
+    // TODO: #54
+    // If no variables can be set, we currently remove the layer until #54 is implemented
+    if (leafletLayer.url.indexOf('$') === -1) {
+      return leafletLayer
+    } else {
+      log.warn(`layer ${leafletLayer.name} not added! URL contains unprocessed $EMIKAT variables: \n${leafletLayer.url}`)
+    }
+
+    return null;
+  }
+
+
+  /**
+   * Extracts the layers from the given RESOURCES array and add it to the map.
    * 
    * FIXME: externalize, eventually merge with finishMapExtraction()
    * 
    * @param {Object} resourcesApiResponse the resources API response
    * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
    * @param {String} groupingCriteria the grouping criteria of the layers. E.g. taxonomy_term--hazards
-   * @return {Object[]}
+   * @return {Object[]} leafletMapModel internal map model
    */
   processResources(resourcesApiResponse, mapType, groupingCriteria, referenceType) {
     // if we requested a single resource, with getDatapackageResourceFromCsis() add put it onto an array.
     const resourceArray = Array.isArray(resourcesApiResponse.data) ? resourcesApiResponse.data : [resourcesApiResponse.data];
     const includedArray = resourcesApiResponse.included;
 
-    log.debug(`process ${resourceArray.length} resources and 
-    ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
+    log.debug(`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`);
 
     var leafletMapModel = [];
-    let filteredResources;
+
+    /**
+     * The Background layers, e.g. Vector Layers Urban Atlas Roads from Local Effects Input Layers
+     */
+    let filteredBackgroundResources;
+
+    /**
+     * The Overlay layers, e.g. Hazard Raster Layers
+     */
+    let filteredOverlayResources;
+
+    // FIXME: Define separate tag type for background layers
+    let backgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
+    let backgroundLayersTagName = 'local-effects-parameter';
+
+    filteredBackgroundResources = CSISHelpers.filterResourcesbyReferenceType(
+      CSISHelpers.filterResourcesbyTagName(resourceArray, includedArray, backgroundLayersTagType, backgroundLayersTagName),
+      includedArray,
+      referenceType);
+    log.info(`${filteredBackgroundResources.length} valid background layer resources for ${backgroundLayersTagType} tag type and tag name ${backgroundLayersTagName} with ${referenceType} references found in ${resourceArray.length} available resources`);
 
     if (mapType) {
-      filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+      filteredOverlayResources = CSISHelpers.filterResourcesbyReferenceType(
         CSISHelpers.filterResourcesByEuglId(resourceArray, includedArray, mapType),
         includedArray,
         referenceType);
     } else {
-      filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+      filteredOverlayResources = CSISHelpers.filterResourcesbyReferenceType(
         resourceArray, includedArray, referenceType);
     }
+    log.info(`${filteredOverlayResources.length} valid overlay layer resources for ${mapType} map type with ${referenceType} references found in ${resourceArray.length} available resources`);
 
-    log.info(`${filteredResources.length} valid resources for  ${mapType} map type with ${referenceType} references found in ${resourceArray.length} available resources`);
+    // 1st process the background resources
+    for (let i = 0; i < filteredBackgroundResources.length; ++i) {
+      let leafletLayer = this.createLeafletLayer(filteredBackgroundResources[i], includedArray, referenceType, 'Backgrounds');
+      log.debug('background layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
+      leafletMapModel.push(leafletLayer);
+    }
 
-    for (var i = 0; i < filteredResources.length; ++i) {
-      const resource = filteredResources[i];
-      const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
-      if (resourceReferences.length > 1) {
-        log.warn(`${resourceReferences.length} ${referenceType} references in resource ${resource.attributes.title}, using only 1st reference ${resourceReferences[0].attributes.field_reference_path}`);
-      } else if (resourceReferences.length === 0) {
-        log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
-      }
-
-      const layerUrl = this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
-      const tagType = groupingCriteria;
-      const tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
-      let groupTitle = 'Default';
-
-      if (tags != null && tags.length > 0) {
-        groupTitle = tags[0].attributes.name;
-        if (tags.length > 1) {
-          log.warn(`${tags.length} ${tagType} tags in resource ${resource.attributes.title}, using only 1st tag ${tags[0].attributes.name} as group title for layer ${resource.attributes.title}`);
-        }
-      } else {
-        log.warn(`no ${tagType} tag found in resource ${resource.attributes.title}, using default group name`);
-      }
-
-      var leafletLayer = {};
-      leafletLayer.checked = false;
-      leafletLayer.groupTitle = groupTitle;
-      leafletLayer.name = this.titleToName(resource.attributes.title);
-      leafletLayer.title = resource.attributes.title;
-      leafletLayer.layers = this.extractLayers(layerUrl.toString());
-      leafletLayer.url = this.extractUrl(layerUrl.toString());
-      leafletLayer.style = this.extractStyle(layerUrl.toString());
-      
-      // TODO: #54
-      // If no variables can be set, we currently remove the layer until #54 is implemented
-      if (leafletLayer.url.indexOf('$') === -1) {
-        leafletMapModel.push(leafletLayer);
-        log.debug('layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
-      } else {
-        log.warn(`layer ${leafletLayer.name} not added! URL contains unprocessed $EMIKAT variables: \n${leafletLayer.url}`)
-      }
+    // 2nd process the overlay resources
+    for (let i = 0; i < filteredOverlayResources.length; ++i) {
+      let leafletLayer = this.createLeafletLayer(filteredOverlayResources[i], includedArray, referenceType, 'Default', groupingCriteria);
+      log.debug('background layer #' + i + ': ' + leafletLayer.groupTitle + '/' + leafletLayer.title + ' added: ' + leafletLayer.url);
+      leafletMapModel.push(leafletLayer);
     }
 
     leafletMapModel.sort(function (a, b) {
@@ -299,7 +344,7 @@ export default class BasicMap extends React.Component {
       }
     });
 
-    if(leafletMapModel.length > 0) {
+    if (leafletMapModel.length > 0) {
       leafletMapModel[0].checked = true;
     }
 
@@ -351,7 +396,7 @@ export default class BasicMap extends React.Component {
   extractGroups(mapData) {
     var groups = [];
     for (var i = 0; i < mapData.length; ++i) {
-      if (!groups.includes(mapData[i].groupTitle)) {
+      if (!groups.includes(mapData[i].groupTitle) && mapData[i].groupTitle !== 'Backgrounds') {
         groups.push(mapData[i].groupTitle);
       }
     }

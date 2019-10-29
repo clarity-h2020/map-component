@@ -1,11 +1,11 @@
 {
   "name": "clarity-map-component",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
   "license": "LGPL",
   "dependencies": {
     "@turf/boolean-within": "latest",
-    "csis-helpers-js": "git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.4.1",
+    "csis-helpers-js": "git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.4.2",
     "history": "^4.9.0",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
