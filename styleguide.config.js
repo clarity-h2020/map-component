@@ -1,3 +1,3 @@
 module.exports = {
-    skipComponentsWithoutExample: true
-}
+	skipComponentsWithoutExample: true
+};
