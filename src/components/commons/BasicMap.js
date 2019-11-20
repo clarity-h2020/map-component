@@ -248,6 +248,84 @@ export default class BasicMap extends React.Component {
 	}
 
 	/**
+   * Creates an array of Leaflet Layer definitions from one CSIS Resource Meta Data item
+   * 
+   * @param {*} filteredResources 
+   * @param {*} includedArray 
+   * @param {*} referenceType 
+   * @param {*} defaultGroupName 
+   * @param {*} groupingCriteria 
+   */
+	createLeafletLayers(resource, includedArray, referenceType, defaultGroupName, groupingCriteria) {
+		const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
+		if (resourceReferences.length > 1) {
+			log.warn(
+				`${resourceReferences.length} ${referenceType} references in resource ${resource.attributes
+					.title}, using only 1st reference ${resourceReferences[0].attributes.field_reference_path}`
+			);
+		} else if (resourceReferences.length === 0) {
+			log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
+		}
+
+		const layerUrl = this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
+
+		//
+		let groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
+
+		var leafletLayer = {};
+		leafletLayer.checked = false;
+		leafletLayer.groupTitle = groupTitle;
+		leafletLayer.name = this.titleToName(resource.attributes.title);
+		leafletLayer.title = resource.attributes.title;
+		leafletLayer.layers = this.extractLayers(layerUrl.toString());
+		leafletLayer.url = this.extractUrl(layerUrl.toString());
+		leafletLayer.style = this.extractStyle(layerUrl.toString());
+
+		// TODO: #54
+		// If no variables can be set, we currently remove the layer until #54 is implemented
+		if (leafletLayer.url.indexOf('$') === -1) {
+			return leafletLayer;
+		} else {
+			log.warn(
+				`layer ${leafletLayer.name} not added! URL contains unprocessed $EMIKAT variables: \n${leafletLayer.url}`
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Extract the group name for the layer selection control
+	 * 
+	 * @param {*} groupingCriteria 
+	 * @param {*} defaultGroupName 
+	 * @param {*} resource 
+	 * @param {*} includedArray 
+	 */
+	extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray) {
+		const groupTagType = groupingCriteria;
+		// FIXME: Dangerous, if multiple values for tagType
+		let groupTags = null;
+		let groupTitle = defaultGroupName;
+		if (groupTagType && groupTagType != null) {
+			groupTags = CSISHelpers.extractTagsfromResource(resource, includedArray, groupTagType);
+		}
+		if (groupTags != null && groupTags.length > 0) {
+			groupTitle = groupTags[0].attributes.name;
+			if (groupTags.length > 1) {
+				log.warn(
+					`${groupTags.length} ${groupTagType} tags in resource ${resource.attributes
+						.title}, using only 1st tag ${groupTags[0].attributes.name} as group title for layer ${resource
+						.attributes.title}`
+				);
+			}
+		} else {
+			log.warn(`no ${groupTagType} tag found in resource ${resource.attributes.title}, using default group name`);
+		}
+		return groupTitle;
+	}
+
+	/**
    * Creates a Leaflet Layer definition from CSIS Resource Meta Data
    * 
    * @param {*} filteredResources 
@@ -271,18 +349,18 @@ export default class BasicMap extends React.Component {
 		const tagType = groupingCriteria;
 
 		// FIXME: Dangerous, if multiple values for tagType
-		let tags = null;
+		let groupTags = null;
 		let groupTitle = defaultGroupName;
 		if (tagType && tagType != null) {
-			tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
+			groupTags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
 		}
 
-		if (tags != null && tags.length > 0) {
-			groupTitle = tags[0].attributes.name;
-			if (tags.length > 1) {
+		if (groupTags != null && groupTags.length > 0) {
+			groupTitle = groupTags[0].attributes.name;
+			if (groupTags.length > 1) {
 				log.warn(
-					`${tags.length} ${tagType} tags in resource ${resource.attributes
-						.title}, using only 1st tag ${tags[0].attributes.name} as group title for layer ${resource
+					`${groupTags.length} ${tagType} tags in resource ${resource.attributes
+						.title}, using only 1st tag ${groupTags[0].attributes.name} as group title for layer ${resource
 						.attributes.title}`
 				);
 			}
@@ -323,7 +401,7 @@ export default class BasicMap extends React.Component {
    * @return {Object[]} leafletMapModel internal map model
    */
 	processResources(resourcesApiResponse, mapType, groupingCriteria, referenceType) {
-		// if we requested a single resource, with getDatapackageResourceFromCsis() add put it onto an array.
+		// if we requested a single resource with getDatapackageResourceFromCsis(), put it into an array.
 		const resourceArray = Array.isArray(resourcesApiResponse.data)
 			? resourcesApiResponse.data
 			: [ resourcesApiResponse.data ];
