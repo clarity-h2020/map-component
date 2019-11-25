@@ -20,34 +20,21 @@ export default class SingleLegend extends React.Component {
 	}
 
 	/**
-     * Changes the legend url
-     * 
-     * @param {Object} nextProps 
-     */
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.layer != null) {
-			var styleParameter = nextProps.layer.style != null ? '&style=' + nextProps.layer.style : '';
-			var lUrl =
-				nextProps.layer.url +
-				'?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=' +
-				nextProps.layer.layers +
-				styleParameter;
-
-			this.setState({
-				legendUrl: lUrl,
-				title: nextProps.layer.title
-			});
-		}
-	}
-
-	/**
      * renders a single legend
      */
 	render() {
+		var styleParameter = this.props.layer.style != null ? '&style=' + this.props.layer.style : '';
+		var lUrl =
+			this.props.layer.url +
+			'?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=' +
+			this.props.layer.layers +
+			styleParameter;
+
+
 		return (
 			<div>
 				{/* <div>{this.state.title}</div> */}
-				<img alt="Legend" src={this.state.legendUrl} />
+				<img alt="Legend" src={lUrl} />
 			</div>
 		);
 	}
