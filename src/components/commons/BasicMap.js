@@ -278,7 +278,8 @@ export default class BasicMap extends React.Component {
 			const resourceTitle = !title ? resource.attributes.title : title;
 
 			var leafletLayer = this.createLeafletLayer(groupTitle, resourceTitle, layerUrl);
-		};
+			return leafletLayer;
+		}.bind(this); // yes, need to bind to this
 
 		// FIXME: Create separate Layers for each Reference?
 		if (resourceReferences.length > 1) {
@@ -307,7 +308,10 @@ export default class BasicMap extends React.Component {
 							title += value + ', ';
 						});
 						title = title.slice(0, -2) + ']';
-						leafletLayers.push(prepareLayer(expandedUrl, title));
+						const leafletLayer = prepareLayer(expandedUrl, title);
+						if (leafletLayer && leafletLayer !== null) {
+							leafletLayers.push(leafletLayer);
+						}
 						log.debug(`resource ${resource.attributes.title} expanded to ${title} = ${expandedUrl}`);
 					} else {
 						log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters map`);
@@ -316,10 +320,16 @@ export default class BasicMap extends React.Component {
 			} else {
 				log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters maps`);
 				// does it make sense to push the unexpanded layer?
-				leafletLayers.push(prepareLayer());
+				const leafletLayer = prepareLayer();
+				if (leafletLayer && leafletLayer !== null) {
+					leafletLayers.push(leafletLayer);
+				}
 			}
 		} else {
-			leafletLayers.push(prepareLayer());
+			const leafletLayer = prepareLayer();
+			if (leafletLayer && leafletLayer !== null) {
+				leafletLayers.push(leafletLayer);
+			}
 		}
 
 		return leafletLayers;
@@ -466,7 +476,9 @@ export default class BasicMap extends React.Component {
 				'Backgrounds',
 				true
 			);
-			leafletMapModel.push(...leafletLayers);
+			if (leafletLayers.length > 0) {
+				leafletMapModel.push(...leafletLayers);
+			}
 		}
 
 		// 2nd process the overlay resources
@@ -478,7 +490,9 @@ export default class BasicMap extends React.Component {
 				'Default',
 				groupingCriteria
 			);
-			leafletMapModel.push(...leafletLayers);
+			if (leafletLayers.length > 0) {
+				leafletMapModel.push(...leafletLayers);
+			}
 		}
 
 		leafletMapModel.sort(function(a, b) {
