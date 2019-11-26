@@ -248,16 +248,40 @@ export default class BasicMap extends React.Component {
 	}
 
 	/**
-   * Creates a Leaflet Layer definition from CSIS Resource Meta Data
+   * Creates an array of Leaflet Layer definitions from one CSIS Resource Meta Data item
    * 
-   * @param {*} filteredResources 
-   * @param {*} includedArray 
-   * @param {*} referenceType 
-   * @param {*} defaultGroupName 
-   * @param {*} groupingCriteria 
+   * @param {Object} resource 
+   * @param {Object[]} includedArray 
+   * @param {String} referenceType 
+   * @param {String} defaultGroupName 
+   * @param {String} groupingCriteria 
+   * @param {Boolean} expandTemplateResources 
+   * @return {Object[]}
    */
-	createLeafletLayer(resource, includedArray, referenceType, defaultGroupName, groupingCriteria) {
+	createLeafletLayers(
+		resource,
+		includedArray,
+		referenceType,
+		defaultGroupName,
+		groupingCriteria,
+		expandTemplateResources = false
+	) {
 		const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
+		const leafletLayers = [];
+		const prepareLayer = function(url, title) {
+			// process URL will add the query parameters for EMIKAT Variables only.
+			// if we want to expand real template resources, we have to handle those parameters/variables separately!
+			const layerUrl = !url
+				? this.processUrl(resource, resourceReferences[0].attributes.field_reference_path)
+				: this.processUrl(resource, url);
+			const groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
+			const resourceTitle = !title ? resource.attributes.title : title;
+
+			var leafletLayer = this.createLeafletLayer(groupTitle, resourceTitle, layerUrl);
+			return leafletLayer;
+		}.bind(this); // yes, need to bind to this
+
+		// FIXME: Create separate Layers for each Reference?
 		if (resourceReferences.length > 1) {
 			log.warn(
 				`${resourceReferences.length} ${referenceType} references in resource ${resource.attributes
@@ -265,36 +289,73 @@ export default class BasicMap extends React.Component {
 			);
 		} else if (resourceReferences.length === 0) {
 			log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
+			return leafletLayers;
 		}
 
-		const layerUrl = this.processUrl(resource, resourceReferences[0].attributes.field_reference_path);
-		const tagType = groupingCriteria;
+		// now we have to decide whether this resource is a template resource and whether it should be expanded.
+		if (expandTemplateResources === true) {
+			const parametersMaps = CSISHelpers.parametersMapsFromTemplateResource(resource, includedArray);
+			if (parametersMaps.length > 0) {
+				parametersMaps.forEach((parametersMap) => {
+					// PITFALL ALERT: map.size vs. array.length
+					if (parametersMap.size > 0) {
+						const expandedUrl = CSISHelpers.addUrlParameters(
+							resourceReferences[0].attributes.field_reference_path,
+							parametersMap
+						);
+						let title = resource.attributes.title + ' [';
+						// FIXME: just value or value + key?
+						parametersMap.forEach((value) => {
+							title += value + ', ';
+						});
+						title = title.slice(0, -2) + ']';
+						const leafletLayer = prepareLayer(expandedUrl, title);
+						if (leafletLayer && leafletLayer !== null) {
+							leafletLayers.push(leafletLayer);
+						}
+						log.debug(`resource ${resource.attributes.title} expanded to ${title} = ${expandedUrl}`);
+					} else {
+						log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters map`);
 
-		// FIXME: Dangerous, if multiple values for tagType
-		let tags = null;
-		let groupTitle = defaultGroupName;
-		if (tagType && tagType != null) {
-			tags = CSISHelpers.extractTagsfromResource(resource, includedArray, tagType);
-		}
-
-		if (tags != null && tags.length > 0) {
-			groupTitle = tags[0].attributes.name;
-			if (tags.length > 1) {
-				log.warn(
-					`${tags.length} ${tagType} tags in resource ${resource.attributes
-						.title}, using only 1st tag ${tags[0].attributes.name} as group title for layer ${resource
-						.attributes.title}`
-				);
+						// WARNING: We add the layer anyway.
+						const leafletLayer = prepareLayer();
+						if (leafletLayer && leafletLayer !== null) {
+							leafletLayers.push(leafletLayer);
+						}
+					}
+				});
+			} else {
+				log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters maps`);
+				// does it make sense to push the unexpanded layer?
+				const leafletLayer = prepareLayer();
+				if (leafletLayer && leafletLayer !== null) {
+					leafletLayers.push(leafletLayer);
+				}
 			}
 		} else {
-			log.warn(`no ${tagType} tag found in resource ${resource.attributes.title}, using default group name`);
+			const leafletLayer = prepareLayer();
+			if (leafletLayer && leafletLayer !== null) {
+				leafletLayers.push(leafletLayer);
+			}
 		}
 
+		return leafletLayers;
+	}
+
+	/**
+	 * Creat a single leaflet layer from a resource.
+	 * 
+	 * @param {String} groupTitle 
+	 * @param {String} layerTitle 
+	 * @param {String} layerUrl 
+	 * @return {Object}
+	 */
+	createLeafletLayer(groupTitle, layerTitle, layerUrl) {
 		var leafletLayer = {};
 		leafletLayer.checked = false;
 		leafletLayer.groupTitle = groupTitle;
-		leafletLayer.name = this.titleToName(resource.attributes.title);
-		leafletLayer.title = resource.attributes.title;
+		leafletLayer.name = this.titleToName(layerTitle);
+		leafletLayer.title = layerTitle;
 		leafletLayer.layers = this.extractLayers(layerUrl.toString());
 		leafletLayer.url = this.extractUrl(layerUrl.toString());
 		leafletLayer.style = this.extractStyle(layerUrl.toString());
@@ -313,6 +374,37 @@ export default class BasicMap extends React.Component {
 	}
 
 	/**
+	 * Extract the group name for the layer selection control
+	 * 
+	 * @param {*} groupingCriteria 
+	 * @param {*} defaultGroupName 
+	 * @param {*} resource 
+	 * @param {*} includedArray 
+	 */
+	extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray) {
+		const groupTagType = groupingCriteria;
+		// FIXME: Dangerous, if multiple values for tagType
+		let groupTags = null;
+		let groupTitle = defaultGroupName;
+		if (groupTagType && groupTagType != null) {
+			groupTags = CSISHelpers.extractTagsfromResource(resource, includedArray, groupTagType);
+		}
+		if (groupTags != null && groupTags.length > 0) {
+			groupTitle = groupTags[0].attributes.name;
+			if (groupTags.length > 1) {
+				log.warn(
+					`${groupTags.length} ${groupTagType} tags in resource ${resource.attributes
+						.title}, using only 1st tag ${groupTags[0].attributes.name} as group title for layer ${resource
+						.attributes.title}`
+				);
+			}
+		} else {
+			log.warn(`no ${groupTagType} tag found in resource ${resource.attributes.title}, using default group name`);
+		}
+		return groupTitle;
+	}
+
+	/**
    * Extracts the layers from the given RESOURCES array and add it to the map.
    * 
    * FIXME: externalize, eventually merge with finishMapExtraction()
@@ -323,7 +415,7 @@ export default class BasicMap extends React.Component {
    * @return {Object[]} leafletMapModel internal map model
    */
 	processResources(resourcesApiResponse, mapType, groupingCriteria, referenceType) {
-		// if we requested a single resource, with getDatapackageResourceFromCsis() add put it onto an array.
+		// if we requested a single resource with getDatapackageResourceFromCsis(), put it into an array.
 		const resourceArray = Array.isArray(resourcesApiResponse.data)
 			? resourcesApiResponse.data
 			: [ resourcesApiResponse.data ];
@@ -347,7 +439,7 @@ export default class BasicMap extends React.Component {
 
 		// FIXME: Define separate tag type for background layers
 		let backgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
-		let backgroundLayersTagName = 'local-effects-parameter';
+		let backgroundLayersTagName = 'background-layer';
 
 		filteredBackgroundResources = CSISHelpers.filterResourcesbyReferenceType(
 			CSISHelpers.filterResourcesbyTagName(
@@ -381,58 +473,51 @@ export default class BasicMap extends React.Component {
 		);
 
 		// 1st process the background resources
+		// FIXME: expandTemplateResources currently ony supported for Backgrounds Layers
+		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
 		for (let i = 0; i < filteredBackgroundResources.length; ++i) {
-			let leafletLayer = this.createLeafletLayer(
+			let leafletLayers = this.createLeafletLayers(
 				filteredBackgroundResources[i],
 				includedArray,
 				referenceType,
-				'Backgrounds'
+				'Backgrounds',
+				undefined,
+				true
 			);
-			log.debug(
-				'background layer #' +
-					i +
-					': ' +
-					leafletLayer.groupTitle +
-					'/' +
-					leafletLayer.title +
-					' added: ' +
-					leafletLayer.url
-			);
-			leafletMapModel.push(leafletLayer);
+			if (leafletLayers.length > 0) {
+				leafletMapModel.push(...leafletLayers);
+			}
 		}
 
 		// 2nd process the overlay resources
 		for (let i = 0; i < filteredOverlayResources.length; ++i) {
-			let leafletLayer = this.createLeafletLayer(
+			let leafletLayers = this.createLeafletLayers(
 				filteredOverlayResources[i],
 				includedArray,
 				referenceType,
 				'Default',
 				groupingCriteria
 			);
-			log.debug(
-				'background layer #' +
-					i +
-					': ' +
-					leafletLayer.groupTitle +
-					'/' +
-					leafletLayer.title +
-					' added: ' +
-					leafletLayer.url
-			);
-			leafletMapModel.push(leafletLayer);
+			if (leafletLayers.length > 0) {
+				leafletMapModel.push(...leafletLayers);
+			}
 		}
 
+		// Sort by name ...
 		leafletMapModel.sort(function(a, b) {
-			if ((a == null || a.name == null) && (b == null || b.name == null)) {
-				return 0;
-			} else if (a == null || a.name == null) {
-				return -1;
-			} else if (b == null || b.name == null) {
-				return 1;
-			} else if (a.name < b.name) {
+			if (a.name < b.name) {
 				return -1;
 			} else if (a.name > b.name) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+		// ... and then by group.
+		leafletMapModel.sort(function(a, b) {
+			if (a.groupTitle < b.groupTitle) {
+				return -1;
+			} else if (a.groupTitle > b.groupTitle) {
 				return 1;
 			} else {
 				return 0;
@@ -456,7 +541,6 @@ export default class BasicMap extends React.Component {
    * @return String
    */
 	processUrl(resource, url) {
-		//return EMIKATHelpers.addEmikatId(decodeURIComponent(url), this.queryParams.emikat_id);
 		const parametersMap = new Map();
 		EMIKATHelpers.QUERY_PARAMS.forEach((value, key) => {
 			if (this.queryParams[value]) {
@@ -464,6 +548,7 @@ export default class BasicMap extends React.Component {
 			}
 		});
 
+		// FIXME: use CSISHelpers.addUrlParameters(...) instead
 		return EMIKATHelpers.addEmikatParameters(url, parametersMap);
 	}
 
@@ -501,6 +586,7 @@ export default class BasicMap extends React.Component {
 
 	/**
    * Replace spaces, because spaces are not allowed in leaflet layer names
+   * :-(
    * 
    * @param {String} title 
    */
