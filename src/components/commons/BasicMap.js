@@ -255,7 +255,7 @@ export default class BasicMap extends React.Component {
    * @param {String} referenceType 
    * @param {String} defaultGroupName 
    * @param {String} groupingCriteria 
-   * @param {Boolean} groupingCriteria 
+   * @param {Boolean} expandTemplateResources 
    * @return {Object[]}
    */
 	createLeafletLayers(
@@ -273,7 +273,7 @@ export default class BasicMap extends React.Component {
 			// if we want to expand real template resources, we have to handle those parameters/variables separately!
 			const layerUrl = !url
 				? this.processUrl(resource, resourceReferences[0].attributes.field_reference_path)
-				: this.processUrl(url);
+				: this.processUrl(resource, url);
 			const groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
 			const resourceTitle = !title ? resource.attributes.title : title;
 
@@ -295,9 +295,10 @@ export default class BasicMap extends React.Component {
 		// now we have to decide whether this resource is a template resource and whether it should be expanded.
 		if (expandTemplateResources === true) {
 			const parametersMaps = CSISHelpers.parametersMapsFromTemplateResource(resource, includedArray);
-			if (parametersMaps.length > 1) {
+			if (parametersMaps.length > 0) {
 				parametersMaps.forEach((parametersMap) => {
-					if (parametersMap.length > 1) {
+					// PITFALL ALERT: map.size vs. array.length
+					if (parametersMap.size > 0) {
 						const expandedUrl = CSISHelpers.addUrlParameters(
 							resourceReferences[0].attributes.field_reference_path,
 							parametersMap
@@ -315,6 +316,12 @@ export default class BasicMap extends React.Component {
 						log.debug(`resource ${resource.attributes.title} expanded to ${title} = ${expandedUrl}`);
 					} else {
 						log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters map`);
+
+						// WARNING: We add the layer anyway.
+						const leafletLayer = prepareLayer();
+						if (leafletLayer && leafletLayer !== null) {
+							leafletLayers.push(leafletLayer);
+						}
 					}
 				});
 			} else {
@@ -474,6 +481,7 @@ export default class BasicMap extends React.Component {
 				includedArray,
 				referenceType,
 				'Backgrounds',
+				undefined,
 				true
 			);
 			if (leafletLayers.length > 0) {
@@ -495,16 +503,21 @@ export default class BasicMap extends React.Component {
 			}
 		}
 
+		// Sort by name ...
 		leafletMapModel.sort(function(a, b) {
-			if ((a == null || a.name == null) && (b == null || b.name == null)) {
-				return 0;
-			} else if (a == null || a.name == null) {
-				return -1;
-			} else if (b == null || b.name == null) {
-				return 1;
-			} else if (a.name < b.name) {
+			if (a.name < b.name) {
 				return -1;
 			} else if (a.name > b.name) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+		// ... and then by group.
+		leafletMapModel.sort(function(a, b) {
+			if (a.groupTitle < b.groupTitle) {
+				return -1;
+			} else if (a.groupTitle > b.groupTitle) {
 				return 1;
 			} else {
 				return 0;
