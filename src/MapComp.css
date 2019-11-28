@@ -1,66 +1,69 @@
 .App {
-  text-align: center;
+	text-align: center;
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+	animation: App-logo-spin infinite 20s linear;
+	height: 80px;
 }
 
 .App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+	background-color: #222;
+	height: 150px;
+	padding: 20px;
+	color: white;
 }
 
 .App-title {
-  font-size: 1.5em;
+	font-size: 1.5em;
 }
 
 .App-intro {
-  font-size: large;
+	font-size: large;
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .leaflet-container {
-  width: 100%;    
-  height: 100%;    
+	width: 100%;
+	height: 100%;
 }
 
 .leaflet-container {
-  height: 500px;
+	height: 500px;
 }
 
 .rlglc-active {
-  height: 500px !important;
+	height: 500px !important;
 }
 
 .hiddenGroup {
-  display: none !important;
+	display: none !important;
 }
 
 .hiddenGroupHeader {
-  background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpent.png) !important;
-  background-repeat: no-repeat;
-  padding-left: 15px;
-  background-size: 8px 8px;
-  background-position: left center;
+	background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpent.png) !important;
+	background-repeat: no-repeat;
+	padding-left: 15px;
+	background-size: 8px 8px;
+	background-position: left center;
 }
 
 .rlglc-group {
-  background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpens.png);
-  background-repeat: no-repeat;
-  padding-left: 10px;
-  background-size: 8px 8px;
-  background-position: left 10px;
+	background-image: url(../../../../../../modules/custom/map-component/src/img/icon-pigpens.png);
+	background-repeat: no-repeat;
+	padding-left: 10px;
+	background-size: 8px 8px;
+	background-position: left 10px;
 }
 
 .study-area-edit {
-  margin-left: 15px;
+	margin-left: 15px;
 }
-

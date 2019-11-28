@@ -60,13 +60,13 @@
 }
 
 .leaflet-right .leaflet-draw-actions {
-	right:26px;
-	left:auto;
+	right: 26px;
+	left: auto;
 }
 
 .leaflet-touch .leaflet-right .leaflet-draw-actions {
-	right:32px;
-	left:auto;
+	right: 32px;
+	left: auto;
 }
 
 .leaflet-draw-actions li {
@@ -79,23 +79,23 @@
 
 .leaflet-draw-actions li:last-child a {
 	-webkit-border-radius: 0 4px 4px 0;
-	        border-radius: 0 4px 4px 0;
+	border-radius: 0 4px 4px 0;
 }
 
 .leaflet-right .leaflet-draw-actions li:last-child a {
 	-webkit-border-radius: 0;
-	        border-radius: 0;
+	border-radius: 0;
 }
 
 .leaflet-right .leaflet-draw-actions li:first-child a {
 	-webkit-border-radius: 4px 0 0 4px;
-	        border-radius: 4px 0 0 4px;
+	border-radius: 4px 0 0 4px;
 }
 
 .leaflet-draw-actions a {
 	background-color: #919187;
-	border-left: 1px solid #AAA;
-	color: #FFF;
+	border-left: 1px solid #aaa;
+	color: #fff;
 	font: 11px/19px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	line-height: 28px;
 	text-decoration: none;
@@ -125,7 +125,7 @@
 }
 
 .leaflet-draw-actions a:hover {
-	background-color: #A0A098;
+	background-color: #a0a098;
 }
 
 .leaflet-draw-actions-top.leaflet-draw-actions-bottom a {
@@ -227,7 +227,7 @@
 	background: rgba(0, 0, 0, 0.5);
 	border: 1px solid transparent;
 	-webkit-border-radius: 4px;
-	        border-radius: 4px;
+	border-radius: 4px;
 	color: #fff;
 	font: 12px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	margin-left: 20px;
@@ -251,17 +251,17 @@
 }
 
 .leaflet-error-draw-tooltip {
-	background-color: #F2DEDE;
-	border: 1px solid #E6B6BD;
-	color: #B94A48;
+	background-color: #f2dede;
+	border: 1px solid #e6b6bd;
+	color: #b94a48;
 }
 
 .leaflet-error-draw-tooltip:before {
-	border-right-color: #E6B6BD;
+	border-right-color: #e6b6bd;
 }
 
 .leaflet-draw-tooltip-single {
-	margin-top: -12px
+	margin-top: -12px;
 }
 
 .leaflet-draw-tooltip-subtext {
@@ -284,7 +284,7 @@
 	background-color: rgba(254, 87, 161, 0.1);
 	border: 4px dashed rgba(254, 87, 161, 0.6);
 	-webkit-border-radius: 4px;
-	        border-radius: 4px;
+	border-radius: 4px;
 	box-sizing: content-box;
 }
 
@@ -305,5 +305,5 @@
 }
 
 .sr-only {
-   display: none;
+	display: none;
 }
