@@ -248,7 +248,9 @@ export default class BasicMap extends React.Component {
 	}
 
 	/**
-   * Creates an array of Leaflet Layer definitions from one CSIS Resource Meta Data item
+   * Creates an array of Leaflet Layer definitions from one CSIS Resource Meta Data item.
+   * 
+   * **ACCIDENTAL-COMPLEXITY-ALERT:** There are now **three** ways for generating multiple layer from one (atomic!) resource.
    * 
    * @param {Object} resource 
    * @param {Object[]} includedArray 
@@ -271,73 +273,89 @@ export default class BasicMap extends React.Component {
 		const prepareLayer = function(url, title) {
 			// process URL will add the query parameters for EMIKAT Variables only.
 			// if we want to expand real template resources, we have to handle those parameters/variables separately!
-			const layerUrl = !url
-				? this.processUrl(resource, resourceReferences[0].attributes.field_reference_path)
-				: this.processUrl(resource, url);
+			const layerUrl = this.processUrl(resource, url);
 			const groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
-			const resourceTitle = !title ? resource.attributes.title : title;
-
-			var leafletLayer = this.createLeafletLayer(groupTitle, resourceTitle, layerUrl);
+			const leafletLayer = this.createLeafletLayer(groupTitle, title, layerUrl);
 			return leafletLayer;
 		}.bind(this); // yes, need to bind to this
 
 		// FIXME: Create separate Layers for each Reference?
 		if (resourceReferences.length > 1) {
-			log.warn(
-				`${resourceReferences.length} ${referenceType} references in resource ${resource.attributes
-					.title}, using only 1st reference ${resourceReferences[0].attributes.field_reference_path}`
+			log.info(
+				`processing  ${resourceReferences.length} ${referenceType} references in resource ${resource.attributes
+					.title}`
 			);
 		} else if (resourceReferences.length === 0) {
 			log.error(`expected ${referenceType} reference in resource ${resource.attributes.title}`);
 			return leafletLayers;
 		}
 
-		// now we have to decide whether this resource is a template resource and whether it should be expanded.
-		if (expandTemplateResources === true) {
-			const parametersMaps = CSISHelpers.parametersMapsFromTemplateResource(resource, includedArray);
-			if (parametersMaps.length > 0) {
-				parametersMaps.forEach((parametersMap) => {
-					// PITFALL ALERT: map.size vs. array.length
-					if (parametersMap.size > 0) {
-						const expandedUrl = CSISHelpers.addUrlParameters(
-							resourceReferences[0].attributes.field_reference_path,
-							parametersMap
-						);
-						let title = resource.attributes.title + ' [';
-						// FIXME: just value or value + key?
-						parametersMap.forEach((value) => {
-							title += value + ', ';
-						});
-						title = title.slice(0, -2) + ']';
-						const leafletLayer = prepareLayer(expandedUrl, title);
-						if (leafletLayer && leafletLayer !== null) {
-							leafletLayers.push(leafletLayer);
-						}
-						log.debug(`resource ${resource.attributes.title} expanded to ${title} = ${expandedUrl}`);
-					} else {
-						log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters map`);
+		resourceReferences.forEach((resourceReference, referenceIndex) => {
+			// INCOHERENCE-ALERT: use the reference title instead of the resource title, if there are more than one reference.
+			/**
+			 * @type {String}
+			 */
+			let title = resourceReferences.length > 1 ? resourceReference.attributes.title : resource.attributes.title;
 
-						// WARNING: We add the layer anyway.
-						const leafletLayer = prepareLayer();
-						if (leafletLayer && leafletLayer !== null) {
-							leafletLayers.push(leafletLayer);
+			// ACCIDENTAL-COMPLEXITY-ALERT: another workaround caused by incoherent usage of predefined entity properties like title, name, etc.
+			if (title.indexOf(referenceType) === 0) {
+				log.warn(
+					`title of reference #${referenceIndex} not explicitely set, using attribute title insted. Check resource ${resource
+						.attributes.title}.`
+				);
+				title = resource.attributes.title;
+			}
+
+			let uri = resourceReference.attributes.field_reference_path;
+
+			// now we have to decide whether this resource is a template resource and whether it should be expanded.
+			// WARNING: This expands also all references :o
+			if (expandTemplateResources === true) {
+				const parametersMaps = CSISHelpers.parametersMapsFromTemplateResource(resource, includedArray);
+				if (parametersMaps.length > 0) {
+					parametersMaps.forEach((parametersMap, parametersMapIndex) => {
+						// PITFALL ALERT: map.size vs. array.length
+						if (parametersMap.size > 0) {
+							const expandedUrl = CSISHelpers.addUrlParameters(uri, parametersMap);
+							title += ' [';
+							// FIXME: just value or value + key?
+							parametersMap.forEach((value) => {
+								title += value + ', ';
+							});
+							title = title.slice(0, -2) + ']';
+							const leafletLayer = prepareLayer(expandedUrl, title);
+							if (leafletLayer && leafletLayer !== null) {
+								leafletLayers.push(leafletLayer);
+							}
+							log.debug(`resource ${resource.attributes.title} expanded to ${title} = ${expandedUrl}`);
+						} else {
+							log.warn(
+								`resource ${resource.attributes
+									.title} NOT expanded due to empty parameters map at index ${parametersMapIndex}`
+							);
+
+							// WARNING: We add the layer anyway.
+							const leafletLayer = prepareLayer(uri, title);
+							if (leafletLayer && leafletLayer !== null) {
+								leafletLayers.push(leafletLayer);
+							}
 						}
+					});
+				} else {
+					log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters maps`);
+					// does it make sense to push the unexpanded layer?
+					const leafletLayer = prepareLayer(uri, title);
+					if (leafletLayer && leafletLayer !== null) {
+						leafletLayers.push(leafletLayer);
 					}
-				});
+				}
 			} else {
-				log.warn(`resource ${resource.attributes.title} NOT expanded due to empty parameters maps`);
-				// does it make sense to push the unexpanded layer?
-				const leafletLayer = prepareLayer();
+				const leafletLayer = prepareLayer(uri, title);
 				if (leafletLayer && leafletLayer !== null) {
 					leafletLayers.push(leafletLayer);
 				}
 			}
-		} else {
-			const leafletLayer = prepareLayer();
-			if (leafletLayer && leafletLayer !== null) {
-				leafletLayers.push(leafletLayer);
-			}
-		}
+		});
 
 		return leafletLayers;
 	}
@@ -475,6 +493,9 @@ export default class BasicMap extends React.Component {
 		// 1st process the background resources
 		// FIXME: expandTemplateResources currently ony supported for Backgrounds Layers
 		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
+
+		// WARNING: Even for Backgrounds Layers, expandTemplateResources should not be used! :-(
+		// See https://github.com/clarity-h2020/map-component/issues/72
 		for (let i = 0; i < filteredBackgroundResources.length; ++i) {
 			let leafletLayers = this.createLeafletLayers(
 				filteredBackgroundResources[i],
