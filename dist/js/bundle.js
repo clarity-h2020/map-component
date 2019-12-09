@@ -77905,7 +77905,7 @@ if (document.getElementById('riskAndImpact-map-container') != null) {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -77942,27 +77942,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * This class is used by drupal to show the study area
  */
 var StudyArea = function (_React$Component) {
-  _inherits(StudyArea, _React$Component);
+	_inherits(StudyArea, _React$Component);
 
-  function StudyArea(props) {
-    _classCallCheck(this, StudyArea);
+	function StudyArea(props) {
+		_classCallCheck(this, StudyArea);
 
-    var _this2 = _possibleConstructorReturn(this, (StudyArea.__proto__ || Object.getPrototypeOf(StudyArea)).call(this, props));
+		var _this2 = _possibleConstructorReturn(this, (StudyArea.__proto__ || Object.getPrototypeOf(StudyArea)).call(this, props));
 
-    _this2.state = {
-      cityPolygon: null,
-      cityPolygonRequired: true
-    };
+		_this2.state = {
+			cityPolygon: null,
+			cityPolygonRequired: true
+		};
 
-    /**
+		/**
      * The protocol that is used by the server. The protocol of the server is https://, but for local testing it can be changed to http://
      */
-    _this2.protocol = 'https://';
-    _this2.studyId = -1;
-    return _this2;
-  }
+		_this2.protocol = 'https://';
+		_this2.studyId = -1;
+		return _this2;
+	}
 
-  /**
+	/**
    * Starts the loading of the selected city and the study area and render them on the map
    * 
    * @param {Number} studyUuid 
@@ -77970,159 +77970,158 @@ var StudyArea = function (_React$Component) {
    */
 
 
-  _createClass(StudyArea, [{
-    key: 'setStudyURL',
-    value: function setStudyURL(studyUuid, hostName) {
-      this.setState({
-        studyUuid: studyUuid,
-        hname: hostName
-      });
-      var _this = this;
-      var includes = 'include=field_study_type.field_study_calculation,field_city_region';
-      fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid + '&' + includes, { credentials: 'include' }).then(function (resp) {
-        return resp.json();
-      }).then(function (data) {
+	_createClass(StudyArea, [{
+		key: 'setStudyURL',
+		value: function setStudyURL(studyUuid, hostName) {
+			this.setState({
+				studyUuid: studyUuid,
+				hname: hostName
+			});
+			var _this = this;
+			var includes = 'include=field_study_type.field_study_calculation,field_city_region';
+			fetch(hostName + '/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=' + studyUuid + '&' + includes, { credentials: 'include' }).then(function (resp) {
+				return resp.json();
+			}).then(function (data) {
+				if (data != null && data.data[0] != null && data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
+					var wkt = new _wicket2.default.Wkt();
+					wkt.read(data.data[0].attributes.field_area.value);
+					_this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
+				}
+				var calculationMethod = 'taxonomy_term--calculation_methods';
+				var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
+				var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name.includes('emikat');
+				var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
+				_this.studyId = data.data[0].attributes.drupal_internal__id;
 
-        if (data != null && data.data[0] != null && data.data[0].attributes.field_area != null && data.data[0].attributes.field_area.value != null) {
-          var wkt = new _wicket2.default.Wkt();
-          wkt.read(data.data[0].attributes.field_area.value);
-          _this.setStudyAreaGeom(JSON.stringify(wkt.toJson()));
-        }
-        var calculationMethod = 'taxonomy_term--calculation_methods';
-        var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
-        var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name === 'EMIKAT screening';
-        var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
-        _this.studyId = data.data[0].attributes.drupal_internal__id;
+				if (cityObject != null && cityObject.attributes.field_boundaries != null && cityObject.attributes.field_boundaries.value != null) {
+					var wkt = new _wicket2.default.Wkt();
+					wkt.read(cityObject.attributes.field_boundaries.value);
+					_this.setCityGeom(JSON.stringify(wkt.toJson()));
+				} else {
+					if (cityRequired) {
+						alert('There is no city selected');
+					}
+				}
+				if (!cityRequired) {
+					_this.setState({ cityPolygonRequired: cityRequired });
+				}
+			}).catch(function (error) {
+				console.log(JSON.stringify(error));
+			});
+		}
 
-        if (cityObject != null && cityObject.attributes.field_boundaries != null && cityObject.attributes.field_boundaries.value != null) {
-          var wkt = new _wicket2.default.Wkt();
-          wkt.read(cityObject.attributes.field_boundaries.value);
-          _this.setCityGeom(JSON.stringify(wkt.toJson()));
-        } else {
-          if (cityRequired) {
-            alert("There is no city selected");
-          }
-        }
-        if (!cityRequired) {
-          _this.setState({ cityPolygonRequired: cityRequired });
-        }
-      }).catch(function (error) {
-        console.log(JSON.stringify(error));
-      });
-    }
+		/**
+    * This method resolves the included references and extracts the inlcuded object.
+    */
 
-    /**
-     * This method resolves the included references and extracts the inlcuded object.
-     */
+	}, {
+		key: 'getIncludeByType',
+		value: function getIncludeByType(type, includedArray) {
+			if (type != null && includedArray != null) {
+				for (var i = 0; i < includedArray.length; ++i) {
+					if (includedArray[i].type === type) {
+						return includedArray[i];
+					}
+				}
+			}
 
-  }, {
-    key: 'getIncludeByType',
-    value: function getIncludeByType(type, includedArray) {
-      if (type != null && includedArray != null) {
-        for (var i = 0; i < includedArray.length; ++i) {
-          if (includedArray[i].type === type) {
-            return includedArray[i];
-          }
-        }
-      }
+			return null;
+		}
 
-      return null;
-    }
+		/**
+    * Set the city geometry and render it on the map
+    * 
+    * @param {Object} geome 
+    */
 
-    /**
-     * Set the city geometry and render it on the map
-     * 
-     * @param {Object} geome 
-     */
+	}, {
+		key: 'setCityGeom',
+		value: function setCityGeom(geome) {
+			var p = {
+				type: 'Feature',
+				properties: {
+					popupContent: 'country',
+					style: {
+						weight: 2,
+						color: 'black',
+						opacity: 0.3,
+						fillColor: '#0000ff',
+						fillOpacity: 0.0
+					}
+				},
+				geometry: JSON.parse(geome)
+			};
+			this.setState({
+				cityPolygon: null
+			});
+			this.setState({
+				cityPolygon: p
+			});
+		}
 
-  }, {
-    key: 'setCityGeom',
-    value: function setCityGeom(geome) {
-      var p = {
-        "type": "Feature",
-        "properties": {
-          "popupContent": "country",
-          "style": {
-            weight: 2,
-            color: "black",
-            opacity: 0.3,
-            fillColor: "#0000ff",
-            fillOpacity: 0.0
-          }
-        },
-        "geometry": JSON.parse(geome)
-      };
-      this.setState({
-        cityPolygon: null
-      });
-      this.setState({
-        cityPolygon: p
-      });
-    }
+		/**
+    * Set the study area geometry and render it on the map
+    * 
+    * @param {Object} geome 
+    */
 
-    /**
-     * Set the study area geometry and render it on the map
-     * 
-     * @param {Object} geome 
-     */
+	}, {
+		key: 'setStudyAreaGeom',
+		value: function setStudyAreaGeom(geome) {
+			if (geome != null) {
+				var study = {
+					type: 'Feature',
+					properties: {
+						popupContent: 'study',
+						style: {
+							weight: 2,
+							color: 'black',
+							opacity: 1,
+							fillColor: '#ff0000',
+							fillOpacity: 0.1
+						}
+					},
+					geometry: JSON.parse(geome)
+				};
+				this.setState({
+					studyAreaPolygon: null
+				});
+				this.setState({
+					studyAreaPolygon: study
+				});
+			}
+		}
 
-  }, {
-    key: 'setStudyAreaGeom',
-    value: function setStudyAreaGeom(geome) {
-      if (geome != null) {
-        var study = {
-          "type": "Feature",
-          "properties": {
-            "popupContent": "study",
-            "style": {
-              weight: 2,
-              color: "black",
-              opacity: 1,
-              fillColor: "#ff0000",
-              fillOpacity: 0.10
-            }
-          },
-          "geometry": JSON.parse(geome)
-        };
-        this.setState({
-          studyAreaPolygon: null
-        });
-        this.setState({
-          studyAreaPolygon: study
-        });
-      }
-    }
+		/**
+    * Renders the study area
+    */
 
-    /**
-     * Renders the study area
-     */
+	}, {
+		key: 'render',
+		value: function render() {
+			window.studyArea = this;
 
-  }, {
-    key: 'render',
-    value: function render() {
-      window.studyArea = this;
+			return _react2.default.createElement(_StudyAreaMap2.default, {
+				cityPolygon: this.state.cityPolygon,
+				cityPolygonRequired: this.state.cityPolygonRequired,
+				studyAreaPolygon: this.state.studyAreaPolygon,
+				hostname: this.state.hname,
+				uuid: this.state.studyUuid,
+				id: this.studyId
+			});
+		}
+	}]);
 
-      return _react2.default.createElement(_StudyAreaMap2.default, {
-        cityPolygon: this.state.cityPolygon,
-        cityPolygonRequired: this.state.cityPolygonRequired,
-        studyAreaPolygon: this.state.studyAreaPolygon,
-        hostname: this.state.hname,
-        uuid: this.state.studyUuid,
-        id: this.studyId
-      });
-    }
-  }]);
-
-  return StudyArea;
+	return StudyArea;
 }(_react2.default.Component);
 
 exports.default = StudyArea;
-;
+
 
 if (document.getElementById('study-area-map-container') != null) {
-  _reactDom2.default.render(_react2.default.createElement(StudyArea, null), document.getElementById('study-area-map-container'));
-  document.getElementById('study-area-map-container').style.width = "100%";
-  document.getElementById('study-area-map-container').style.height = "500px";
+	_reactDom2.default.render(_react2.default.createElement(StudyArea, null), document.getElementById('study-area-map-container'));
+	document.getElementById('study-area-map-container').style.width = '100%';
+	document.getElementById('study-area-map-container').style.height = '500px';
 }
 
 /***/ }),
