@@ -5,7 +5,7 @@
   "license": "LGPL",
   "dependencies": {
     "@turf/boolean-within": "latest",
-    "csis-helpers-js": "git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.4.4",
+    "csis-helpers-js": "git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.5.1",
     "history": "^4.9.0",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",

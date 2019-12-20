@@ -29,9 +29,9 @@ export default class CharacteriseHazardMap extends BasicMap {
    * @param {String} url 
    * @returns the given url
    */
-	processUrl(resource, url) {
+	processUrl(resource, includedArray, url) {
 		console.log('characteriseHazard-map -> process URL: ' + url);
-		return super.processUrl(resource, url);
+		return super.processUrl(resource, includedArray, url);
 	}
 
 	/**

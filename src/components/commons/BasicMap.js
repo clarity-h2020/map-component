@@ -4,7 +4,7 @@ import turf from 'turf';
 import Wkt from 'wicket';
 import queryString from 'query-string';
 import log from 'loglevel';
-import { CSISRemoteHelpers, CSISHelpers, EMIKATHelpers } from 'csis-helpers-js';
+import { CSISRemoteHelpers, CSISHelpers } from 'csis-helpers-js';
 
 import logo from './../../logo.svg';
 import './../../App.css';
@@ -273,13 +273,13 @@ export default class BasicMap extends React.Component {
 		const prepareLayer = function(url, title) {
 			// process URL will add the query parameters for EMIKAT Variables only.
 			// if we want to expand real template resources, we have to handle those parameters/variables separately!
-			const layerUrl = this.processUrl(resource, url);
+			const layerUrl = this.processUrl(resource, includedArray, url);
 			const groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
 			const leafletLayer = this.createLeafletLayer(groupTitle, title, layerUrl);
 			return leafletLayer;
 		}.bind(this); // yes, need to bind to this
 
-		// FIXME: Create separate Layers for each Reference?
+		// Create separate Layers for each Reference?
 		if (resourceReferences.length > 1) {
 			log.info(
 				`processing  ${resourceReferences.length} ${referenceType} references in resource ${resource.attributes
@@ -440,7 +440,7 @@ export default class BasicMap extends React.Component {
 		const includedArray = resourcesApiResponse.included;
 
 		log.debug(
-			`process ${resourceArray.length} resources and ${includedArray.length} included  object for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`
+			`process ${resourceArray.length} resources and ${includedArray.length} included objects for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`
 		);
 
 		var leafletMapModel = [];
@@ -491,7 +491,7 @@ export default class BasicMap extends React.Component {
 		);
 
 		// 1st process the background resources
-		// FIXME: expandTemplateResources currently ony supported for Backgrounds Layers
+		// FIXME: ~~expandTemplateResources currently ony supported for Backgrounds Layers~~ DISABLED!
 		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
 
 		// WARNING: Even for Backgrounds Layers, expandTemplateResources should not be used! :-(
@@ -503,7 +503,7 @@ export default class BasicMap extends React.Component {
 				referenceType,
 				'Backgrounds',
 				undefined,
-				true
+				false
 			);
 			if (leafletLayers.length > 0) {
 				leafletMapModel.push(...leafletLayers);
@@ -558,19 +558,19 @@ export default class BasicMap extends React.Component {
    * FIXME: externalize, use callback method instead!
    * 
    * @param {Object} resource 
+   * @param {Object} includedArray 
    * @param {String} url 
    * @return String
    */
-	processUrl(resource, url) {
-		const parametersMap = new Map();
-		EMIKATHelpers.QUERY_PARAMS.forEach((value, key) => {
-			if (this.queryParams[value]) {
-				parametersMap.set(key, this.queryParams[value]);
-			}
-		});
-
-		// FIXME: use CSISHelpers.addUrlParameters(...) instead
-		return EMIKATHelpers.addEmikatParameters(url, parametersMap);
+	processUrl(resource, includedArray, url) {
+		const parametersMap = CSISHelpers.generateParametersMap(
+			CSISHelpers.QUERY_PARAMS,
+			this.queryParams,
+			resource,
+			includedArray
+		);
+		log.error(parametersMap);
+		return CSISHelpers.addUrlParameters(url, parametersMap);
 	}
 
 	/**
