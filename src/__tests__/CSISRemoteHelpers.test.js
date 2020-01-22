@@ -8,8 +8,7 @@
  * ***************************************************
  */
 
-// OMG: Nee to duplicate tests, since we cannot export  them
-// See https://github.com/p-a-s-c-a-l
+// OMG: Need to duplicate tests, since we cannot export  them
 
 import axios from 'axios';
 import log from 'loglevel';
@@ -115,17 +114,20 @@ describe('Remote API tests with authentication', () => {
 		done();
 	});
 
-	it('[DEV] test get complete Study', async (done) => {
+	it.only('[DEV] test get complete Study', async (done) => {
 		const studyGroupNode = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(
 			undefined,
 			'c3609e3e-f80f-482b-9e9f-3a26226a6859'
 		);
-		expect.assertions(6);
+		expect.assertions(9);
 		expect(studyGroupNode).toBeDefined();
 		expect(studyGroupNode).not.toBeNull();
+		expect(studyGroupNode.data).not.toBeNull();
+		expect(studyGroupNode.data.id).toBeDefined();
 		expect(apiResponseStudy).toBeDefined();
 		expect(apiResponseStudy).not.toBeNull();
 		expect(apiResponseStudy.data).not.toBeNull();
+		expect(apiResponseStudy.data.id).toBeDefined();
 		expect(apiResponseStudy.data.id).toEqual(studyGroupNode.data.id);
 		done();
 	});
