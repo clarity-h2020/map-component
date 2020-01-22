@@ -23,8 +23,8 @@ export default class Generic extends BasicMap {
    * @param {String} url 
    * @returns the given url
    */
-	processUrl(resource, url) {
-		return super.processUrl(resource, url);
+	processUrl(resource, includedArray, url) {
+		return super.processUrl(resource, includedArray, url);
 	}
 
 	/**

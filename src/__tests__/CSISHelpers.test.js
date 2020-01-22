@@ -45,16 +45,18 @@ beforeAll(() => {
 });
 
 test('test extract study area from study json', async (done) => {
-	expect.assertions(5);
+	
 	const response = await axios.get(
 		'http://localhost:31336/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=c3609e3e-f80f-482b-9e9f-3a26226a6859'
 	);
+
+	expect.assertions(5);
 	expect(response).toBeDefined();
 	expect(response.data).toBeDefined();
 	expect(response.data.data).toBeDefined();
 	expect(response.data.data[0]).not.toBeNull();
 
-	const studyAreaJson = CSISHelpers.extractStudyAreaFromStudyGroupNode(response.data.data[0]);
+	const studyAreaJson = CSISHelpers.extractStudyAreaFromStudyGroupNode(response.data.data);
 	expect(studyAreaJson).toEqual(studyArea);
 	done();
 });
@@ -150,7 +152,7 @@ test('get 1st "reference" for first HC resource with @mapview:ogc:wms references
 });
 
 test('check for emikat id in study', () => {
-	const emikatId = CSISHelpers.extractEmikatIdFromStudyGroupNode(apiResponseStudy.data[0]);
+	const emikatId = CSISHelpers.extractEmikatIdFromStudyGroupNode(apiResponseStudy.data);
 	expect(emikatId).toEqual(2846);
 });
 
