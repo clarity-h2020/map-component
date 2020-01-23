@@ -6905,13 +6905,6 @@ leaflet-draw@^1.0.4:
   resolved "https://registry.yarnpkg.com/leaflet-draw/-/leaflet-draw-1.0.4.tgz#45be92f378ed253e7202fdeda1fcc71885198d46"
   integrity sha512-rsQ6saQO5ST5Aj6XRFylr5zvarWgzWnrg46zQ1MEOEIHsppdC/8hnN8qMoFvACsPvTioAuysya/TVtog15tyAQ==
 
-leaflet-groupedlayercontrol@latest:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/leaflet-groupedlayercontrol/-/leaflet-groupedlayercontrol-0.6.1.tgz#cb7097c798c6b4dee644e8ab84c0e70b6a3e1caa"
-  integrity sha1-y3CXx5jGtN7mROirhMDnC2o+HKo=
-  dependencies:
-    leaflet "^1.0.1"
-
 leaflet-loading@latest:
   version "0.1.24"
   resolved "https://registry.yarnpkg.com/leaflet-loading/-/leaflet-loading-0.1.24.tgz#eafdfc188718eb13d3cf7b9226c4c06b16e92919"
@@ -6928,7 +6921,7 @@ leaflet.nontiledlayer@^1.0.8:
   dependencies:
     leaflet "^1.6.0"
 
-leaflet@^1.0.1, leaflet@^1.6.0:
+leaflet@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.6.0.tgz#aecbb044b949ec29469eeb31c77a88e2f448f308"
   integrity sha512-CPkhyqWUKZKFJ6K8umN5/D2wrJ2+/8UIpXppY7QDnUZW5bZL5+SEI2J7GBpwh4LIupOKqbNSQXgqmrEJopHVNQ==
@@ -12407,13 +12400,6 @@ widest-line@^2.0.0:
   integrity sha512-Ba5m9/Fa4Xt9eb2ELXt77JxVDV8w7qQrH0zS/TWSJdLyAwQjWoOzpzj5lwVftDz6n/EOu3tNACS84v509qwnJA==
   dependencies:
     string-width "^2.1.1"
-
-wms-capabilities@latest:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/wms-capabilities/-/wms-capabilities-0.4.0.tgz#0e14e6d0d30c65f0c8280a0133d33ea4b81832a2"
-  integrity sha512-dGe1SQ4GySIfsmGF+yk07QRsed0DgJJkPpimbmehE9nGXLqIGhbpi6pNk71YENqupLPSqcABDrKZ1UqepOhCyA==
-  dependencies:
-    minimist "^1.2.0"
 
 word-wrap@~1.2.3:
   version "1.2.3"
