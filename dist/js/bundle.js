@@ -77989,7 +77989,7 @@ var StudyArea = function (_React$Component) {
 				}
 				var calculationMethod = 'taxonomy_term--calculation_methods';
 				var calculationMethodInclude = _this.getIncludeByType(calculationMethod, data.included);
-				var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.name.includes('emikat');
+				var cityRequired = calculationMethodInclude != null && calculationMethodInclude.attributes.field_calculation_method_id.includes('emikat');
 				var cityObject = _this.getIncludeByType('taxonomy_term--cities_regions', data.included);
 				_this.studyId = data.data[0].attributes.drupal_internal__id;
 
@@ -78342,7 +78342,7 @@ var StudyAreaMap = function (_React$Component) {
 		key: 'componentDidMount',
 		value: function componentDidMount() {
 			var mapElement = this.map.leafletElement;
-			mapElement.setMinZoom(9);
+			mapElement.setMinZoom(3);
 		}
 
 		/**

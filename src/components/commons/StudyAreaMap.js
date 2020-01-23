@@ -161,7 +161,7 @@ export default class StudyAreaMap extends React.Component {
 
 	componentDidMount() {
 		var mapElement = this.map.leafletElement;
-		mapElement.setMinZoom(9);
+		mapElement.setMinZoom(3);
 	}
 
 	/**
