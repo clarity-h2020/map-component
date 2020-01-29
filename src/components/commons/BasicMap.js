@@ -574,7 +574,6 @@ export default class BasicMap extends React.Component {
 			resource,
 			includedArray
 		);
-		log.error(parametersMap);
 		return CSISHelpers.addUrlParameters(url, parametersMap);
 	}
 
