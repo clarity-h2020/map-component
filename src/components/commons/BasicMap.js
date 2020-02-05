@@ -278,7 +278,7 @@ export default class BasicMap extends React.Component {
 			const groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
 			const leafletLayer = this.createLeafletLayer(groupTitle, title, layerUrl);
 			return leafletLayer;
-		}.bind(this); // yes, need to bind to this. 
+		}.bind(this); // yes, need to bind to this.
 
 		// Create separate Layers for each Reference?
 		if (resourceReferences.length > 1) {
@@ -353,7 +353,6 @@ export default class BasicMap extends React.Component {
 					}
 				}
 			} else {
-
 				const leafletLayer = prepareLayer(uri, title);
 				if (leafletLayer && leafletLayer !== null) {
 					leafletLayers.push(leafletLayer);
@@ -549,9 +548,11 @@ export default class BasicMap extends React.Component {
 			}
 		});
 
+		// Disabled by request. See #81
+		/*
 		if (leafletMapModel.length > 0) {
 			leafletMapModel[0].checked = true;
-		}
+		}*/
 
 		return leafletMapModel;
 	}
