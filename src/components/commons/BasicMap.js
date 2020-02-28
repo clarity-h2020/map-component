@@ -18,7 +18,7 @@ log.enableAll();
 export default class BasicMap extends React.Component {
 	constructor(props) {
 		super(props);
-		this.initialBounds = this.props.initialBounds ? this.props.initialBounds : [ [ 72, 55 ], [ 30, -30 ] ];
+		this.initialBounds = this.props.initialBounds ? this.props.initialBounds : [[72, 55], [30, -30]];
 
 		/**
      * Base Layers
@@ -30,29 +30,29 @@ export default class BasicMap extends React.Component {
 		this.baseLayers = this.props.baseLayers
 			? this.props.baseLayers
 			: [
-					{
-						name: 'WorldTopoMap',
-						title: 'World Topo Map',
-						url:
-							'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
-						attribution:
-							'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
-							'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
-					},
-					{
-						name: 'OpenStreetMap',
-						title: 'OpenStreetMap',
-						url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-						attribution:
-							'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
-							'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
-					},
-					{
-						name: 'OpenTopoMap',
-						title: 'Open Topo Map',
-						url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
-					}
-				];
+				{
+					name: 'WorldTopoMap',
+					title: 'World Topo Map',
+					url:
+						'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+					attribution:
+						'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+						'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+				},
+				{
+					name: 'OpenStreetMap',
+					title: 'OpenStreetMap',
+					url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+					attribution:
+						'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+						'rest/services/World_Topo_Map/MapServer">ArcGIS</a>'
+				},
+				{
+					name: 'OpenTopoMap',
+					title: 'Open Topo Map',
+					url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+				}
+			];
 
 		// FIXME: write_permissions as query param?! OMFG!
 
@@ -240,7 +240,7 @@ export default class BasicMap extends React.Component {
 			this.setState({
 				overlays: leafletMapModel,
 				loading: false,
-				exclusiveGroups: this.extractGroups(leafletMapModel)
+				exclusiveGroups: this.extractExclusiveGroups(leafletMapModel)
 			});
 		} else {
 			log.error('no leafletMapModel set, cannot shoe addtional layers');
@@ -270,7 +270,7 @@ export default class BasicMap extends React.Component {
 	) {
 		const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
 		const leafletLayers = [];
-		const prepareLayer = function(url, title) {
+		const prepareLayer = function (url, title) {
 			// process URL will add the query parameters for Variables.
 			// Unfortunately, ATM it uses this.queryParams. So resource expansion (e.g. submitting **two** time_periods via query params) it not easily possible).
 			// See also https://github.com/clarity-h2020/map-component/issues/74
@@ -416,13 +416,73 @@ export default class BasicMap extends React.Component {
 				log.warn(
 					`${groupTags.length} ${groupTagType} tags in resource ${resource.attributes
 						.title}, using only 1st tag ${groupTags[0].attributes.name} as group title for layer ${resource
-						.attributes.title}`
+							.attributes.title}`
 				);
 			}
 		} else {
 			log.warn(`no ${groupTagType} tag found in resource ${resource.attributes.title}, using default group name`);
 		}
 		return groupTitle;
+	}
+
+	/**
+	 * See https://github.com/clarity-h2020/map-component/issues/84
+	 * 
+	 * @param {*} resourceArray 
+	 * @param {*} includedArray 
+	 * @param {*} referenceType 
+	 * @param {*} backgroundLayersTagName 
+	 * @param {*} backgroundLayersGroupName 
+	 */
+	createBackgroundLeafetLayers(
+		resourceArray,
+		includedArray,
+		referenceType,
+		backgroundLayersTagName = 'background-layer',
+		backgroundLayersGroupName = 'Backgrounds'
+	) {
+		// FIXME: Define separate tag type for background layers
+		let leafletMapModel = [];
+		let backgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
+
+		/**
+     * The Background layers, e.g. Vector Layers Urban Atlas Roads from Local Effects Input Layers
+     */
+		let filteredBackgroundResources = CSISHelpers.filterResourcesbyReferenceType(
+			CSISHelpers.filterResourcesbyTagName(
+				resourceArray,
+				includedArray,
+				backgroundLayersTagType,
+				backgroundLayersTagName
+			),
+			includedArray,
+			referenceType
+		);
+		log.info(
+			`${filteredBackgroundResources.length} valid background layer resources for ${backgroundLayersTagType} tag type and tag name ${backgroundLayersTagName} with ${referenceType} references found in ${resourceArray.length} available resources`
+		);
+
+		// 1st process the background resources
+		// FIXME: ~~expandTemplateResources currently ony supported for Backgrounds Layers~~ DISABLED!
+		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
+
+		// WARNING: Even for Backgrounds Layers, expandTemplateResources should not be used! :-(
+		// See https://github.com/clarity-h2020/map-component/issues/72
+		for (let i = 0; i < filteredBackgroundResources.length; ++i) {
+			let leafletLayers = this.createLeafletLayers(
+				filteredBackgroundResources[i],
+				includedArray,
+				referenceType,
+				backgroundLayersGroupName,
+				undefined,
+				false
+			);
+			if (leafletLayers.length > 0) {
+				leafletMapModel.push(...leafletLayers);
+			}
+		}
+
+		return leafletMapModel;
 	}
 
 	/**
@@ -439,7 +499,7 @@ export default class BasicMap extends React.Component {
 		// if we requested a single resource with getDatapackageResourceFromCsis(), put it into an array.
 		const resourceArray = Array.isArray(resourcesApiResponse.data)
 			? resourcesApiResponse.data
-			: [ resourcesApiResponse.data ];
+			: [resourcesApiResponse.data];
 		const includedArray = resourcesApiResponse.included;
 
 		log.debug(
@@ -449,32 +509,9 @@ export default class BasicMap extends React.Component {
 		var leafletMapModel = [];
 
 		/**
-     * The Background layers, e.g. Vector Layers Urban Atlas Roads from Local Effects Input Layers
-     */
-		let filteredBackgroundResources;
-
-		/**
      * The Overlay layers, e.g. Hazard Raster Layers
      */
 		let filteredOverlayResources;
-
-		// FIXME: Define separate tag type for background layers
-		let backgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
-		let backgroundLayersTagName = 'background-layer';
-
-		filteredBackgroundResources = CSISHelpers.filterResourcesbyReferenceType(
-			CSISHelpers.filterResourcesbyTagName(
-				resourceArray,
-				includedArray,
-				backgroundLayersTagType,
-				backgroundLayersTagName
-			),
-			includedArray,
-			referenceType
-		);
-		log.info(
-			`${filteredBackgroundResources.length} valid background layer resources for ${backgroundLayersTagType} tag type and tag name ${backgroundLayersTagName} with ${referenceType} references found in ${resourceArray.length} available resources`
-		);
 
 		if (mapType) {
 			filteredOverlayResources = CSISHelpers.filterResourcesbyReferenceType(
@@ -497,20 +534,20 @@ export default class BasicMap extends React.Component {
 		// FIXME: ~~expandTemplateResources currently ony supported for Backgrounds Layers~~ DISABLED!
 		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
 
-		// WARNING: Even for Backgrounds Layers, expandTemplateResources should not be used! :-(
-		// See https://github.com/clarity-h2020/map-component/issues/72
-		for (let i = 0; i < filteredBackgroundResources.length; ++i) {
-			let leafletLayers = this.createLeafletLayers(
-				filteredBackgroundResources[i],
-				includedArray,
-				referenceType,
-				'Backgrounds',
-				undefined,
-				false
-			);
-			if (leafletLayers.length > 0) {
-				leafletMapModel.push(...leafletLayers);
-			}
+		let backgroundLayers = this.createBackgroundLeafetLayers(resourceArray, includedArray, referenceType);
+		if (backgroundLayers && backgroundLayers.length > 0) {
+			leafletMapModel.push(...backgroundLayers);
+		}
+
+		let clarityBackgroundLayers = this.createBackgroundLeafetLayers(
+			resourceArray,
+			includedArray,
+			referenceType,
+			'clarity-background-layer',
+			'CLARITY Backgrounds'
+		);
+		if (clarityBackgroundLayers && clarityBackgroundLayers.length > 0) {
+			leafletMapModel.push(...clarityBackgroundLayers);
 		}
 
 		// 2nd process the overlay resources
@@ -528,7 +565,7 @@ export default class BasicMap extends React.Component {
 		}
 
 		// Sort by name ...
-		leafletMapModel.sort(function(a, b) {
+		leafletMapModel.sort(function (a, b) {
 			if (a.name < b.name) {
 				return -1;
 			} else if (a.name > b.name) {
@@ -538,7 +575,7 @@ export default class BasicMap extends React.Component {
 			}
 		});
 		// ... and then by group.
-		leafletMapModel.sort(function(a, b) {
+		leafletMapModel.sort(function (a, b) {
 			if (a.groupTitle < b.groupTitle) {
 				return -1;
 			} else if (a.groupTitle > b.groupTitle) {
@@ -594,16 +631,22 @@ export default class BasicMap extends React.Component {
    * Extract the groups from the given overlay layers
    * 
    * FIXME: externalize method! Use a Set!
+   * ExclusiveGroups?! -> https://github.com/ismyrnow/leaflet-groupedlayercontrol#leaflet-groupedlayercontrol
    * 
    * @param {Array} mapData 
    * @returns an array with all group names
    * @deprecated
    */
-	extractGroups(mapData) {
+	extractExclusiveGroups(mapData) {
 		var groups = [];
 		for (var i = 0; i < mapData.length; ++i) {
-			if (!groups.includes(mapData[i].groupTitle) && mapData[i].groupTitle !== 'Backgrounds') {
-				groups.push(mapData[i].groupTitle);
+			let groupTitle = mapData[i].groupTitle;
+			// FIXME: use constant for group names
+			if (
+				!groups.includes(groupTitle) && groupTitle !== 'Backgrounds' && groupTitle !== 'CLARITY Backgrounds'
+			) {
+				log.error(groupTitle);
+				groups.push(groupTitle);
 			}
 		}
 
@@ -712,9 +755,9 @@ export default class BasicMap extends React.Component {
    */
 	getBoundsFromArea(area) {
 		const bboxArray = turf.bbox(area);
-		const corner1 = [ bboxArray[1], bboxArray[0] ];
-		const corner2 = [ bboxArray[3], bboxArray[2] ];
-		var bounds = [ corner1, corner2 ];
+		const corner1 = [bboxArray[1], bboxArray[0]];
+		const corner2 = [bboxArray[3], bboxArray[2]];
+		var bounds = [corner1, corner2];
 
 		return bounds;
 	}
