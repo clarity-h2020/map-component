@@ -25,4 +25,23 @@ pipeline {
             }
         }
     }
+    post {
+        success {
+			sh '$JENKINS_HOME/scripts/updateGithubIssue.sh'
+        }
+        failure {
+            emailext attachLog: true, 
+				to: "pascal@cismet.de", 
+				subject: "Build failed in Jenkins: ${currentBuild.fullDisplayName}",
+                body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""
+        }
+        unstable {
+            emailext attachLog: true, 
+				to: "pascal@cismet.de", 
+				subject: "Jenkins build became unstable: ${currentBuild.fullDisplayName}",
+                body: """<p>UNSTABLE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""
+        }
+    }
 }
