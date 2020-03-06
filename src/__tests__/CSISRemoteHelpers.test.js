@@ -122,7 +122,7 @@ describe('Remote API tests with authentication', () => {
 		done();
 	});
 
-	it.only('[DEV] test get complete Study', async (done) => {
+	it('[DEV] test get complete Study', async (done) => {
 		const studyGroupNode = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(
 			undefined,
 			'c3609e3e-f80f-482b-9e9f-3a26226a6859'
