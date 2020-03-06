@@ -24,11 +24,19 @@ pipeline {
                 sh 'yarn build'
             }
         }
+        stage('publish') {
+            script {
+                properties([[$class: 'GithubProjectProperty',
+                projectUrlStr: 'https://github.com/clarity-h2020/map-component']])
+            }
+
+            step([$class: 'GitHubIssueNotifier',
+                issueAppend: true,
+                issueLabel: '',
+                issueTitle: '$JOB_NAME $BUILD_DISPLAY_NAME failed'])
+        }
     }
     post {
-        success {
-			sh '$JENKINS_HOME/scripts/updateGithubIssue.sh'
-        }
         failure {
             emailext attachLog: true, 
 				to: "pascal@cismet.de", 
