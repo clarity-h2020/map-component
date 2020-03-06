@@ -33,7 +33,8 @@ pipeline {
                 }
                 step([$class: 'GitHubIssueNotifier',
                     issueAppend: true,
-                    issueLabel: '',
+                    issueReopen: false,
+                    issueLabel: 'CI',
                     issueTitle: '$JOB_NAME $BUILD_DISPLAY_NAME failed'])
         }
         failure {

@@ -17,7 +17,7 @@ export const history = createBrowserHistory({
 /**
  * @class
  */
-exp ort default class App extends React.Component {
+export default class App extends React.Component {
 	render() {
 		return (
 			<main>
