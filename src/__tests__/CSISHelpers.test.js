@@ -58,7 +58,7 @@ test('test extract study area from study json', async (done) => {
 	
 	// does not work if bound d to ipv6 adaress. :-()
 	// const url = `http://${server.address().address}:${server.address().port}/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=c3609e3e-f80f-482b-9e9f-3a26226a6859`;
-	const url = `http://localhost:${server.address().port}/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=c3609e3e-f80f-482b-9e9f-3a26226a6859`;
+	const url = `http://loocalhost:${server.address().port}/jsonapi/group/study?filter[id][condition][path]=id&filter[id][condition][operator]=%3D&filter[id][condition][value]=c3609e3e-f80f-482b-9e9f-3a26226a6859`;
 	// unbelievable: does not print to console. See https://github.com/facebook/jest/issues/2441
 	log.info(url);
 	const response = await axios.get(url);
