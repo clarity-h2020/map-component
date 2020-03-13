@@ -1,6 +1,6 @@
 {
   "name": "clarity-map-component",
-  "version": "2.4.6",
+  "version": "2.5.0",
   "private": true,
   "license": "LGPL",
   "dependencies": {
@@ -14,6 +14,7 @@
     "leaflet-loading": "latest",
     "leaflet-providers": "git://github.com/leaflet-extras/leaflet-providers#semver:^1.8.0",
     "leaflet.nontiledlayer": "^1.0.8",
+    "leaflet.sync": "^0.2.4",
     "loglevel": "^1.6.6",
     "prop-types": "latest",
     "query-string": "^6.10.1",

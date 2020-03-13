@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Map, TileLayer, GeoJSON, WMSTileLayer, withLeaflet, LeafletConsumer } from 'react-leaflet';
+import { Map, TileLayer, GeoJSON, WMSTileLayer, withLeaflet, LeafletConsumer, ZoomControl } from 'react-leaflet';
 import { ReactLeafletGroupedLayerControl as ReactLeafletGroupedLayerControlForLeafletv1 } from 'react-leaflet-grouped-layer-control';
 import turf from 'turf';
 import 'leaflet-loading';
@@ -11,7 +11,8 @@ import 'leaflet/dist/leaflet.css';
 const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerControlForLeafletv1);
 
 /**
- * Render a leaflet map with the given layers
+ * Render a leaflet map with the given layers.
+ * This is still not the actual leaflet component but another wrapper.
  */
 export default class MapComponent extends React.Component {
 	constructor(props) {
@@ -23,8 +24,10 @@ export default class MapComponent extends React.Component {
 			checkedBaseLayer: props.baseLayers[0].name,
 			overlays: props.overlays,
 			exclusiveGroups: props.exclusiveGroups,
-			oldOverlay: []
+			oldOverlay: [],
+			mapId: props.mapId ? props.mapId : 'simpleMap'
 		};
+
 		this.baseLayers = props.baseLayers;
 		this.tileLayerUrl = props.baseLayers[0].url;
 		this.fly = true;
@@ -140,7 +143,7 @@ export default class MapComponent extends React.Component {
 			this.hideListener = [];
 			for (var i = 0; i < groupTitles.length; ++i) {
 				const el = groupTitles[i];
-				var listener = function() {
+				var listener = function () {
 					self.showHide(el);
 				};
 				this.hideListener.push(listener);
@@ -173,7 +176,7 @@ export default class MapComponent extends React.Component {
 		if (nextProps.overlays !== this.props.overlays) {
 			this.setState({ overlays: nextProps.overlays });
 			const thisObj = this;
-			setTimeout(function() {
+			setTimeout(function () {
 				thisObj.setState({ overlays: nextProps.overlays });
 			}, 100);
 		}
@@ -186,9 +189,9 @@ export default class MapComponent extends React.Component {
    */
 	getBoundsFromArea(area) {
 		const bboxArray = turf.bbox(area);
-		const corner1 = [ bboxArray[1], bboxArray[0] ];
-		const corner2 = [ bboxArray[3], bboxArray[2] ];
-		var bounds = [ corner1, corner2 ];
+		const corner1 = [bboxArray[1], bboxArray[0]];
+		const corner2 = [bboxArray[3], bboxArray[2]];
+		var bounds = [corner1, corner2];
 
 		return bounds;
 	}
@@ -288,16 +291,16 @@ export default class MapComponent extends React.Component {
 		}
 
 		this.setState({
-			overlays: [ ...newOverlays ],
+			overlays: [...newOverlays],
 			count: this.state.count + 1,
 			oldOverlay: newOverlays
 		});
 	}
 
 	onOverlayChange(newOverlays) {
-		this.overlaysAllTogether = [ ...newOverlays ];
+		this.overlaysAllTogether = [...newOverlays];
 		this.setState({
-			overlays: [ ...newOverlays ],
+			overlays: [...newOverlays],
 			count: this.state.count + 1
 		});
 	}
@@ -507,13 +510,19 @@ export default class MapComponent extends React.Component {
           ref={(comp) => this.leafletMapInstance = comp.leafletElement}
         */}
 				<Map
-					id="#map"
-					className="simpleMap"
+					id={'#' + this.state.mapId}
+					className={this.state.mapId}
 					scrollWheelZoom={true}
 					bounds={this.state.bounds}
 					loadingControl={false}
 					onViewportChanged={this.onViewportChanged.bind(this)}
+					zoomControl={false}
+
 				>
+					<ZoomControl
+						position="topleft">
+
+					</ZoomControl>
 					<LeafletConsumer>
 						{(context) => {
 							this.leafletMapInstance = context.map;
