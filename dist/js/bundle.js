@@ -68790,6 +68790,8 @@ var StudyAreaMap = function (_React$Component) {
 			readOnly: true,
 			studyAreaPolygon: props.studyAreaPolygon
 		};
+		_this2.newGeometry = props.studyAreaPolygon;
+		_this2.savedGeometry = props.studyAreaPolygon;
 		_this2._onCreated.bind(_this2);
 		return _this2;
 	}
@@ -68806,6 +68808,7 @@ var StudyAreaMap = function (_React$Component) {
 		value: function componentWillReceiveProps(nextProps) {
 			if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
 				this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon });
+				this.savedGeometry = nextProps.studyAreaPolygon;
 			}
 		}
 
@@ -68834,7 +68837,6 @@ var StudyAreaMap = function (_React$Component) {
 			var qkmToQm = 1000000;
 			var allowedSize = 500;
 			var area = _turf2.default.area(e.layer.toGeoJSON());
-			var _this = this;
 
 			if (this.props.cityPolygonRequired && !(0, _booleanIntersects2.default)(e.layer.toGeoJSON(), this.props.cityPolygon)) {
 				alert('The selected area is not within the selected city.');
@@ -68844,22 +68846,57 @@ var StudyAreaMap = function (_React$Component) {
 				alert('The selected area is too large. The allowed size is ' + allowedSize + ' km²');
 				this.map.leafletElement.removeLayer(e.layer);
 			} else {
+				//set the new study area
+				var wkt = new _wicket2.default.Wkt();
+				wkt.fromJson(e.layer.toGeoJSON());
+				this.newGeometry = wkt.write();
+				if (this.state.newLayer != null) {
+					this.map.leafletElement.removeLayer(this.state.newLayer);
+				}
+				this.setState({
+					studyAreaPolygon: null,
+					newLayer: e.layer
+				});
+			}
+		}
+	}, {
+		key: 'cancelEdit',
+		value: function cancelEdit() {
+			if (this.state.newLayer != null) {
+				this.map.leafletElement.removeLayer(this.state.newLayer);
+			}
+			var wkt = new _wicket2.default.Wkt();
+			wkt.read(this.savedGeometry);
+			var study = {
+				type: 'Feature',
+				properties: {
+					popupContent: 'study',
+					style: {
+						weight: 2,
+						color: 'black',
+						opacity: 1,
+						fillColor: '#ff0000',
+						fillOpacity: 0.1
+					}
+				},
+				geometry: wkt.toJson()
+			};
+			this.setState({
+				studyAreaPolygon: study,
+				newLayer: null
+			});
+			this.newGeometry = this.savedGeometry;
+		}
+	}, {
+		key: 'saveChanges',
+		value: function saveChanges() {
+			if (this.newGeometry != null) {
+				var _this = this;
+
 				fetch(_this.getTokenUrl(), { credentials: 'include' }).then(function (resp) {
 					return resp.text();
 				}).then(function (key) {
-					//set the new study area
-					var wkt = new _wicket2.default.Wkt();
-					wkt.fromJson(e.layer.toGeoJSON());
-					// var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
-					// var mimeType = "application/vnd.api+json";      //hal+json
-					// var xmlHttp = new XMLHttpRequest();
-					// xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true);  // true : asynchrone false: synchrone
-					// xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');
-					// xmlHttp.setRequestHeader('Content-Type', mimeType);
-					// xmlHttp.setRequestHeader('X-CSRF-Token', key);
-					// xmlHttp.send(data);
-
-					var data = '{"type": [{"target_id": "study", "target_type":"group_type"}], "field_area": [{"value": "' + wkt.write() + '"}]}';
+					var data = '{"type": [{"target_id": "study", "target_type":"group_type"}], "field_area": [{"value": "' + _this.newGeometry + '"}]}';
 					var mimeType = 'application/json'; //hal+json
 					var xmlHttp = new XMLHttpRequest();
 					xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/group/' + _this.props.id + '?_format=json', true); // true : asynchrone false: synchrone
@@ -68871,9 +68908,28 @@ var StudyAreaMap = function (_React$Component) {
 					if (_this.state.newLayer != null) {
 						_this.map.leafletElement.removeLayer(_this.state.newLayer);
 					}
+					_this.savedGeometry = _this.newGeometry;
+					_this.newGeometry = null;
+					var wkt = new _wicket2.default.Wkt();
+					wkt.read(_this.savedGeometry);
+					var study = {
+						type: 'Feature',
+						properties: {
+							popupContent: 'study',
+							style: {
+								weight: 2,
+								color: 'black',
+								opacity: 1,
+								fillColor: '#ff0000',
+								fillOpacity: 0.1
+							}
+						},
+						geometry: wkt.toJson()
+					};
+
 					_this.setState({
-						studyAreaPolygon: null,
-						newLayer: e.layer
+						studyAreaPolygon: study,
+						newLayer: null
 					});
 				}).catch(function (error) {
 					console.log(JSON.stringify(error));
@@ -68925,6 +68981,18 @@ var StudyAreaMap = function (_React$Component) {
 					readOnly: ro
 				});
 			}
+		}
+
+		/**
+    * Set the read only status of the component
+    * 
+    * @param {Boolean} ro 
+    */
+
+	}, {
+		key: 'isReadOnly',
+		value: function isReadOnly() {
+			return this.state.readOnly;
 		}
 
 		/**

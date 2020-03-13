@@ -17,6 +17,8 @@ export default class StudyAreaMap extends React.Component {
 			readOnly: true,
 			studyAreaPolygon: props.studyAreaPolygon
 		};
+		this.newGeometry = props.studyAreaPolygon;
+		this.savedGeometry = props.studyAreaPolygon;
 		this._onCreated.bind(this);
 	}
 
@@ -28,6 +30,7 @@ export default class StudyAreaMap extends React.Component {
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.studyAreaPolygon !== this.props.studyAreaPolygon) {
 			this.setState({ studyAreaPolygon: nextProps.studyAreaPolygon });
+			this.savedGeometry = nextProps.studyAreaPolygon;
 		}
 	}
 
@@ -50,7 +53,6 @@ export default class StudyAreaMap extends React.Component {
 		const qkmToQm = 1000000;
 		const allowedSize = 500;
 		var area = turf.area(e.layer.toGeoJSON());
-		const _this = this;
 
 		if (this.props.cityPolygonRequired && !booleanIntersects(e.layer.toGeoJSON(), this.props.cityPolygon)) {
 			alert('The selected area is not within the selected city.');
@@ -60,24 +62,57 @@ export default class StudyAreaMap extends React.Component {
 			alert('The selected area is too large. The allowed size is ' + allowedSize + ' km²');
 			this.map.leafletElement.removeLayer(e.layer);
 		} else {
+			//set the new study area
+			var wkt = new Wkt.Wkt();
+			wkt.fromJson(e.layer.toGeoJSON());
+			this.newGeometry = wkt.write();
+			if (this.state.newLayer != null) {
+				this.map.leafletElement.removeLayer(this.state.newLayer);
+			}
+			this.setState({
+				studyAreaPolygon: null,
+				newLayer: e.layer
+			});
+		}
+	}
+
+	cancelEdit() {
+		if (this.state.newLayer != null) {
+			this.map.leafletElement.removeLayer(this.state.newLayer);
+		}
+		var wkt = new Wkt.Wkt();
+		wkt.read(this.savedGeometry);
+		var study = {
+			type: 'Feature',
+			properties: {
+				popupContent: 'study',
+				style: {
+					weight: 2,
+					color: 'black',
+					opacity: 1,
+					fillColor: '#ff0000',
+					fillOpacity: 0.1
+				}
+			},
+			geometry: wkt.toJson()
+		};
+		this.setState({
+			studyAreaPolygon: study,
+			newLayer: null
+		});
+		this.newGeometry = this.savedGeometry;
+	}
+
+	saveChanges() {
+		if (this.newGeometry != null) {
+			const _this = this;
+
 			fetch(_this.getTokenUrl(), { credentials: 'include' })
 				.then((resp) => resp.text())
 				.then(function(key) {
-					//set the new study area
-					var wkt = new Wkt.Wkt();
-					wkt.fromJson(e.layer.toGeoJSON());
-					// var data = '{"data": {"type": "group--study","id": "' + _this.props.uuid + '","attributes": {"field_area": {"value": "' + wkt.write() + '"}}}}';
-					// var mimeType = "application/vnd.api+json";      //hal+json
-					// var xmlHttp = new XMLHttpRequest();
-					// xmlHttp.open('PATCH', _this.props.hostname.substring(0, _this.props.hostname.length) + '/jsonapi/group/study/' + _this.props.uuid, true);  // true : asynchrone false: synchrone
-					// xmlHttp.setRequestHeader('Accept', 'application/vnd.api+json');
-					// xmlHttp.setRequestHeader('Content-Type', mimeType);
-					// xmlHttp.setRequestHeader('X-CSRF-Token', key);
-					// xmlHttp.send(data);
-
 					var data =
 						'{"type": [{"target_id": "study", "target_type":"group_type"}], "field_area": [{"value": "' +
-						wkt.write() +
+						_this.newGeometry +
 						'"}]}';
 					var mimeType = 'application/json'; //hal+json
 					var xmlHttp = new XMLHttpRequest();
@@ -97,9 +132,28 @@ export default class StudyAreaMap extends React.Component {
 					if (_this.state.newLayer != null) {
 						_this.map.leafletElement.removeLayer(_this.state.newLayer);
 					}
+					_this.savedGeometry = _this.newGeometry;
+					_this.newGeometry = null;
+					var wkt = new Wkt.Wkt();
+					wkt.read(_this.savedGeometry);
+					var study = {
+						type: 'Feature',
+						properties: {
+							popupContent: 'study',
+							style: {
+								weight: 2,
+								color: 'black',
+								opacity: 1,
+								fillColor: '#ff0000',
+								fillOpacity: 0.1
+							}
+						},
+						geometry: wkt.toJson()
+					};
+
 					_this.setState({
-						studyAreaPolygon: null,
-						newLayer: e.layer
+						studyAreaPolygon: study,
+						newLayer: null
 					});
 				})
 				.catch(function(error) {
@@ -143,6 +197,15 @@ export default class StudyAreaMap extends React.Component {
 				readOnly: ro
 			});
 		}
+	}
+
+	/**
+   * Set the read only status of the component
+   * 
+   * @param {Boolean} ro 
+   */
+	isReadOnly() {
+		return this.state.readOnly;
 	}
 
 	/**
