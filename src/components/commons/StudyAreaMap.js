@@ -17,8 +17,10 @@ export default class StudyAreaMap extends React.Component {
 			readOnly: true,
 			studyAreaPolygon: props.studyAreaPolygon
 		};
+		if (props.studyAreaPolygon != null) {
+			this.savedGeometry = props.studyAreaPolygon;
+		}
 		this.newGeometry = props.studyAreaPolygon;
-		this.savedGeometry = props.studyAreaPolygon;
 		this._onCreated.bind(this);
 	}
 
@@ -83,24 +85,8 @@ export default class StudyAreaMap extends React.Component {
 		if (this.state.newLayer != null) {
 			this.map.leafletElement.removeLayer(this.state.newLayer);
 		}
-		var wkt = new Wkt.Wkt();
-		wkt.read(this.savedGeometry);
-		var study = {
-			type: 'Feature',
-			properties: {
-				popupContent: 'study',
-				style: {
-					weight: 2,
-					color: 'black',
-					opacity: 1,
-					fillColor: '#ff0000',
-					fillOpacity: 0.1
-				}
-			},
-			geometry: wkt.toJson()
-		};
 		this.setState({
-			studyAreaPolygon: study,
+			studyAreaPolygon: this.savedGeometry,
 			newLayer: null
 		});
 		this.newGeometry = this.savedGeometry;
@@ -138,10 +124,9 @@ export default class StudyAreaMap extends React.Component {
 					if (_this.state.newLayer != null) {
 						_this.map.leafletElement.removeLayer(_this.state.newLayer);
 					}
-					_this.savedGeometry = _this.newGeometry;
-					_this.newGeometry = null;
+
 					var wkt = new Wkt.Wkt();
-					wkt.read(_this.savedGeometry);
+					wkt.read(_this.newGeometry);
 					var study = {
 						type: 'Feature',
 						properties: {
@@ -156,6 +141,9 @@ export default class StudyAreaMap extends React.Component {
 						},
 						geometry: wkt.toJson()
 					};
+
+					_this.savedGeometry = study;
+					_this.newGeometry = null;
 
 					_this.setState({
 						studyAreaPolygon: study,

@@ -68790,8 +68790,10 @@ var StudyAreaMap = function (_React$Component) {
 			readOnly: true,
 			studyAreaPolygon: props.studyAreaPolygon
 		};
+		if (props.studyAreaPolygon != null) {
+			_this2.savedGeometry = props.studyAreaPolygon;
+		}
 		_this2.newGeometry = props.studyAreaPolygon;
-		_this2.savedGeometry = props.studyAreaPolygon;
 		_this2._onCreated.bind(_this2);
 		return _this2;
 	}
@@ -68870,24 +68872,8 @@ var StudyAreaMap = function (_React$Component) {
 			if (this.state.newLayer != null) {
 				this.map.leafletElement.removeLayer(this.state.newLayer);
 			}
-			var wkt = new _wicket2.default.Wkt();
-			wkt.read(this.savedGeometry);
-			var study = {
-				type: 'Feature',
-				properties: {
-					popupContent: 'study',
-					style: {
-						weight: 2,
-						color: 'black',
-						opacity: 1,
-						fillColor: '#ff0000',
-						fillOpacity: 0.1
-					}
-				},
-				geometry: wkt.toJson()
-			};
 			this.setState({
-				studyAreaPolygon: study,
+				studyAreaPolygon: this.savedGeometry,
 				newLayer: null
 			});
 			this.newGeometry = this.savedGeometry;
@@ -68918,10 +68904,9 @@ var StudyAreaMap = function (_React$Component) {
 					if (_this.state.newLayer != null) {
 						_this.map.leafletElement.removeLayer(_this.state.newLayer);
 					}
-					_this.savedGeometry = _this.newGeometry;
-					_this.newGeometry = null;
+
 					var wkt = new _wicket2.default.Wkt();
-					wkt.read(_this.savedGeometry);
+					wkt.read(_this.newGeometry);
 					var study = {
 						type: 'Feature',
 						properties: {
@@ -68936,6 +68921,9 @@ var StudyAreaMap = function (_React$Component) {
 						},
 						geometry: wkt.toJson()
 					};
+
+					_this.savedGeometry = study;
+					_this.newGeometry = null;
 
 					_this.setState({
 						studyAreaPolygon: study,
