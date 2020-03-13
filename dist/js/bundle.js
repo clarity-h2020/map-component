@@ -68859,6 +68859,11 @@ var StudyAreaMap = function (_React$Component) {
 				});
 			}
 		}
+
+		/**
+   * Revert changes
+   */
+
 	}, {
 		key: 'cancelEdit',
 		value: function cancelEdit() {
@@ -68887,6 +68892,11 @@ var StudyAreaMap = function (_React$Component) {
 			});
 			this.newGeometry = this.savedGeometry;
 		}
+
+		/**
+   * Save the current study area and reset the view
+   */
+
 	}, {
 		key: 'saveChanges',
 		value: function saveChanges() {

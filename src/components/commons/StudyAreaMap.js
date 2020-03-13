@@ -76,6 +76,9 @@ export default class StudyAreaMap extends React.Component {
 		}
 	}
 
+	/**
+	 * Revert changes
+	 */
 	cancelEdit() {
 		if (this.state.newLayer != null) {
 			this.map.leafletElement.removeLayer(this.state.newLayer);
@@ -103,6 +106,9 @@ export default class StudyAreaMap extends React.Component {
 		this.newGeometry = this.savedGeometry;
 	}
 
+	/**
+	 * Save the current study area and reset the view
+	 */
 	saveChanges() {
 		if (this.newGeometry != null) {
 			const _this = this;
