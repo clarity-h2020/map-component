@@ -25,7 +25,11 @@ export default class GenericMap extends BasicMap {
 	componentDidUpdate() {
 		if (this.mapComponentA && this.mapComponentA.leafletMapInstance && this.mapComponentB && this.mapComponentB.leafletMapInstance) {
 			this.mapComponentA.leafletMapInstance.sync(this.mapComponentB.leafletMapInstance);
-			this.mapComponentB.leafletMapInstance.sync(this.mapComponentA.leafletMapInstance);
+			// WARNING: flyTo will not work if we apply it to both maps!
+			this.mapComponentB.leafletMapInstance.sync(this.mapComponentA.leafletMapInstance,
+				{
+					noInitialSync: true
+				});
 			log.debug('Map Components synchronised');
 		}
 	}
@@ -65,6 +69,7 @@ export default class GenericMap extends BasicMap {
 					exclusiveGroups={this.state.exclusiveGroups}
 					mapId={'synchronisedMapA'}
 					ref={(mapComponent) => (this.mapComponentA = mapComponent)}
+					fly='true'
 				/>
 				<MapComponent
 					loading={this.state.loading}
@@ -75,6 +80,7 @@ export default class GenericMap extends BasicMap {
 					exclusiveGroups={this.state.exclusiveGroups}
 					mapId={'synchronisedMapB'}
 					ref={(mapComponent) => (this.mapComponentB = mapComponent)}
+					fly='false'
 				/>
 			</>);
 		} else {

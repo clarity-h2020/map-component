@@ -6,6 +6,7 @@ import turf from 'turf';
 import 'leaflet-loading';
 import LegendComponent from './LegendComponent.js';
 import 'leaflet/dist/leaflet.css';
+import log from 'loglevel';
 
 // See https://github.com/mhasbie/react-leaflet-vectorgrid#usage-with-react-leaflet-v2
 const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerControlForLeafletv1);
@@ -30,7 +31,7 @@ export default class MapComponent extends React.Component {
 
 		this.baseLayers = props.baseLayers;
 		this.tileLayerUrl = props.baseLayers[0].url;
-		this.fly = true;
+		this.fly = props.fly ? true : false;
 		// the leaflet instance, retrieved from the leaflet context
 		// see https://stackoverflow.com/questions/51308835/how-to-use-react-leaflet-context
 
@@ -106,6 +107,7 @@ export default class MapComponent extends React.Component {
 			this.leafletMapInstance.invalidateSize();
 
 			if (this.fly && this.props.studyAreaPolygon != null) {
+				log.info('centering on study area');
 				this.leafletMapInstance.flyToBounds(this.getBoundsFromArea(this.props.studyAreaPolygon), null);
 				this.fly = false;
 			}
