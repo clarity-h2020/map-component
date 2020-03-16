@@ -3461,7 +3461,6 @@ crypto-browserify@^3.11.0:
 
 "csis-helpers-js@git://github.com/clarity-h2020/csis-helpers-js.git#semver:^0.5.4":
   version "0.5.4"
-  uid "441edd838ea0425f91e358a5ed01e097853e9e3b"
   resolved "git://github.com/clarity-h2020/csis-helpers-js.git#441edd838ea0425f91e358a5ed01e097853e9e3b"
   dependencies:
     "@babel/runtime" "~7.7.7"
@@ -6922,6 +6921,11 @@ leaflet.nontiledlayer@^1.0.8:
   dependencies:
     leaflet "^1.6.0"
 
+leaflet.sync@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/leaflet.sync/-/leaflet.sync-0.2.4.tgz#76d4095a61470882d72e092190090d0a1fa55ca2"
+  integrity sha1-dtQJWmFHCILXLgkhkAkNCh+lXKI=
+
 leaflet@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.6.0.tgz#aecbb044b949ec29469eeb31c77a88e2f448f308"
@@ -9439,7 +9443,6 @@ react-leaflet-draw@^0.19.0:
 
 "react-leaflet-grouped-layer-control@git://github.com/clarity-h2020/react-leaflet-grouped-layer-control.git#semver:^0.1.1":
   version "0.1.0"
-  uid f1fb2ce7798aed9886da7d8b9f8b084bfe743d1b
   resolved "git://github.com/clarity-h2020/react-leaflet-grouped-layer-control.git#f1fb2ce7798aed9886da7d8b9f8b084bfe743d1b"
 
 react-leaflet@^2.6.1:
