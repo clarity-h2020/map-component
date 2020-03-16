@@ -8,7 +8,11 @@
  * ***************************************************
  */
 
-import { EMIKATHelpers } from 'csis-helpers-js';
+ // required because of https://github.com/clarity-h2020/simple-table-component/issues/4#issuecomment-595114163
+import 'react-app-polyfill/ie9';
+import 'react-app-polyfill/stable';
+
+ import { EMIKATHelpers } from 'csis-helpers-js';
 
 test('[RELEASE] URL without EmikatId', () => {
 	const url =

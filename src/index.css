@@ -9,8 +9,47 @@ body,
 	width: 100%;
 }
 
-.leaflet-container,
-#map {
+.simpleMap, #simpleMap {
 	width: 100vw;
 	height: 100vh;
+}
+
+.synchronisedMapA, #synchronisedMapA {
+	width: 50vw;
+	height: 100vh;
+	float:left
+}
+
+.synchronisedMapB, #synchronisedMapB {
+	width: 50vw;
+	height: 100vh;
+	float:right
+}
+
+.rlglc-active {
+	height: 500px !important;
+}
+
+.hiddenGroup {
+	display: none !important;
+}
+
+.hiddenGroupHeader {
+	background-image: url(img/icon-pigpent.png) !important;
+	background-repeat: no-repeat;
+	padding-left: 15px;
+	background-size: 8px 8px;
+	background-position: left center;
+}
+
+.rlglc-group {
+	background-image: url(img/icon-pigpens.png);
+	background-repeat: no-repeat;
+	padding-left: 10px;
+	background-size: 8px 8px;
+	background-position: left 10px;
+}
+
+.study-area-edit {
+	margin-left: 15px;
 }

@@ -12,6 +12,11 @@
 
 import axios from 'axios';
 import log from 'loglevel';
+
+// required because of https://github.com/clarity-h2020/simple-table-component/issues/4#issuecomment-595114163
+import 'react-app-polyfill/ie9';
+import 'react-app-polyfill/stable';
+
 import { CSISRemoteHelpers, CSISHelpers } from 'csis-helpers-js';
 
 import apiResponseStudy from './../__fixtures__/study.json';
@@ -22,6 +27,9 @@ log.enableAll();
  * Set auth headers for live API test
  */
 beforeAll(async (done) => {
+	// required because of https://github.com/clarity-h2020/map-component/issues/43#issuecomment-595621339
+	axios.defaults.adapter = require('axios/lib/adapters/http');
+	
 	jest.setTimeout(60000);
 	let cookie = process.env.COOKIE;
 
@@ -114,7 +122,7 @@ describe('Remote API tests with authentication', () => {
 		done();
 	});
 
-	it.only('[DEV] test get complete Study', async (done) => {
+	it('[DEV] test get complete Study', async (done) => {
 		const studyGroupNode = await CSISRemoteHelpers.getStudyGroupNodeFromCsis(
 			undefined,
 			'c3609e3e-f80f-482b-9e9f-3a26226a6859'
