@@ -27,28 +27,21 @@ export default class App extends React.Component {
 						<Route exact path={`${process.env.PUBLIC_URL}/ResourcePreviewMap/`} component={GenericMap} />
 						<Route exact path={`${process.env.PUBLIC_URL}/DataPackagePreviewMap/`} component={GenericMap} />
 						<Route exact path={`${process.env.PUBLIC_URL}/StudyPreviewMap/`} component={GenericMap} />
-						<Route
-							exact
-							path={`${process.env.PUBLIC_URL}/CharacteriseHazardMap/`}
-							component={CharacteriseHazardMap}
-						/>
+						<Route exact path={`${process.env.PUBLIC_URL}/CharacteriseHazardMap/`} component={CharacteriseHazardMap} />
 						<Route exact path={`${process.env.PUBLIC_URL}/ExposureMap/`} component={ExposureMap} />
-						<Route
-							exact
-							path={`${process.env.PUBLIC_URL}/HazardLocalEffectsMap/`}
-							component={HazardLocalEffectsMap}
-						/>
-						<Route
-							exact
-							path={`${process.env.PUBLIC_URL}/RiskAndImpactMap/`}
-							component={RiskAndImpactMap}
-						/>
-						<Route
-							exact
-							path={`${process.env.PUBLIC_URL}/VulnerabilityMap/`}
-							component={VulnerabilityMap}
-						/>
+						<Route exact path={`${process.env.PUBLIC_URL}/HazardLocalEffectsMap/`} component={HazardLocalEffectsMap} />
+						<Route exact path={`${process.env.PUBLIC_URL}/RiskAndImpactMap/`} component={RiskAndImpactMap} />
+						<Route exact path={`${process.env.PUBLIC_URL}/VulnerabilityMap/`} component={VulnerabilityMap} />
 						<Route exact path={`${process.env.PUBLIC_URL}/StudyArea/`} component={StudyArea} />
+
+
+						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedGenericMap/`} render={(props) => <GenericMap {...props} isSynchronised={true} />} />
+						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedCharacteriseHazardMap/`} render={(props) => <CharacteriseHazardMap {...props} isSynchronised={true} />} />
+						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedExposureMap/`} render={(props) => <ExposureMap {...props} isSynchronised={true} />} />
+						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedHazardLocalEffectsMap/`} render={(props) => <HazardLocalEffectsMap {...props} isSynchronised={true} />} />
+						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedRiskAndImpactMap/`} render={(props) => <RiskAndImpactMap {...props} isSynchronised={true} />} />
+						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedVulnerabilityMap/`} render={(props) => <VulnerabilityMap {...props} isSynchronised={true} />} />
+
 						<Route exact path={process.env.PUBLIC_URL} component={GenericMap} />
 					</Switch>
 				</BrowserRouter>

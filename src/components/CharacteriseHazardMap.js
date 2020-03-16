@@ -1,8 +1,6 @@
-import React from 'react';
-import MapComponent from './commons/MapComponent';
-import BasicMap from './commons/BasicMap';
+import GenericMap from './GenericMap';
 
-export default class CharacteriseHazardMap extends BasicMap {
+export default class CharacteriseHazardMap extends GenericMap {
 	constructor(props) {
 		// FIXME: Warning: CharacteriseHazardMap(...): When calling super() in `CharacteriseHazardMap`,
 		// make sure to pass up the same props that your component's constructor was passed.
@@ -32,21 +30,5 @@ export default class CharacteriseHazardMap extends BasicMap {
 	processUrl(resource, includedArray, url) {
 		console.log('characteriseHazard-map -> process URL: ' + url);
 		return super.processUrl(resource, includedArray, url);
-	}
-
-	/**
-   * Render the map
-   */
-	render() {
-		return (
-			<MapComponent
-				loading={this.state.loading}
-				bounds={this.state.bounds}
-				baseLayers={this.state.baseLayers}
-				overlays={this.state.overlays}
-				studyAreaPolygon={this.state.studyAreaPolygon}
-				exclusiveGroups={this.state.exclusiveGroups}
-			/>
-		);
 	}
 }
