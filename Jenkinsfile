@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:latest'
-            args '-p 3000:3000 -v $HOME/.cache/yarn:/.cache/yarn -v $HOME/.yarn:/.yarn'
+            args '-p 3000:3000 -v $HOME/.cache/yarn:/home/node/.cache/yarn'
         }
     }
     environment {
