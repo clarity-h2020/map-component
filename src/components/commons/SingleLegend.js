@@ -21,7 +21,7 @@ export default class SingleLegend extends React.Component {
 			this.props.layer.url +
 			'?service=WMS&request=GetLegendGraphic&version=1.1.0&format=image%2Fpng&width=20&height=20&layer=' +
 			this.props.layer.layers +
-			styleParameter;
+			styleParameter + '&legend_options=forceLabels:on';
 
 
 		return (
