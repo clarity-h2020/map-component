@@ -35,7 +35,7 @@ export default class LegendComponent extends React.Component {
      */
 	render() {
 		return (
-			<div style={{ display: 'inline', bottom: '50px', position: 'absolute', zIndex: '1000', left: '25px' }}>
+			<div style={{ display: 'inline', bottom: '50px', position: 'absolute', zIndex: '500', left: '25px' }}>
 				{this.createLegend(this.props.layer)}
 			</div>
 		);

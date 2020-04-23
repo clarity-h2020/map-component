@@ -27,7 +27,7 @@ export default class SingleLegend extends React.Component {
 		return (
 			<div>
 				{/* <div>{this.state.title}</div> */}
-				<img alt="Legend" src={lUrl} />
+				<img style={{maxWidth: '300px'}} alt="Legend" src={lUrl} />
 			</div>
 		);
 	}
