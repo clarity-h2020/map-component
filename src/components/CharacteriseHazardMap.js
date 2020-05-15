@@ -1,5 +1,8 @@
 import GenericMap from './GenericMap';
 
+/**
+ * @deprecated
+ */
 export default class CharacteriseHazardMap extends GenericMap {
 	constructor(props) {
 		// FIXME: Warning: CharacteriseHazardMap(...): When calling super() in `CharacteriseHazardMap`,

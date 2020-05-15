@@ -14,11 +14,40 @@ log.enableAll();
 /**
  * This is the basic class of all map classes. 
  * It implements the common way to extract the overlay layers from the study. 
+ * 
+ * 
+ * TODO: transform to functional component. See https://github.com/clarity-h2020/simple-table-component
+ * Complete redesign is necessary.
  */
 export default class BasicMap extends React.Component {
 	constructor(props) {
 		super(props);
 		this.initialBounds = this.props.initialBounds ? this.props.initialBounds : [[72, 55], [30, -30]];
+
+		// We still use 'class' properties instead of *immutable* React 'props' -> pure functional component
+		this.backgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
+		this.backgroundLayersTagName = 'background-layer';
+		this.backgroundLayersGroupName = 'Backgrounds';
+
+		this.clarityBackgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
+		this.clarityBackgroundLayersTagName = 'clarity-background-layer';
+		this.clarityBackgroundLayersGroupName = 'CLARITY Backgrounds';
+
+		// default **filter** criteria for overlay layers
+		this.overlayLayersTagType = 'taxonomy_term--eu_gl';
+		/**
+		 * This correponds to props.mapSelectionId
+		 * Example: 'eu-gl:hazard-characterization'
+		 */
+		this.overlayLayersTagName = undefined; // this means all resources
+
+		// default **grouping** criteria for overlay layers
+		/**
+		 *  this corresponds to queryParams.grouping_tag and props.groupingCriteria
+		 *  e.g. 'taxonomy_term--hazards'
+		 */
+		this.overlayLayersGroupingTagType = undefined;
+		this.overlayLayersGroupName = 'Default'; //default group name
 
 		/**
      * Base Layers
@@ -61,11 +90,14 @@ export default class BasicMap extends React.Component {
      */
 		this.queryParams = { ...CSISHelpers.defaultQueryParams };
 
+		// we need also the setters and getters introduced for backwards capability.
+		// this.queryParams = Object.create(Object.getPrototypeOf(CSISHelpers.defaultQueryParams), Object.getOwnPropertyDescriptors(CSISHelpers.defaultQueryParams)) ; <- does not work
+
 		if (this.props.location && this.props.location.search) {
 			// copy and extend queryParams using spread operator :o
 			this.queryParams = { ...this.queryParams, ...queryString.parse(this.props.location.search) };
 		} else {
-			log.warn('no query parameters found, showing empty map!');
+			log.warn('no query parameters found, showing empty map!'); 
 		}
 
 		/**
@@ -76,10 +108,18 @@ export default class BasicMap extends React.Component {
 
 		// TODO: Support for different reference types?!
 		this.referenceType = '@mapview:ogc:wms';
+
+		this.clarityBackgroundLayersTagType = this.queryParams.clarityBackgroundLayersTagType ? this.queryParams.clarityBackgroundLayersTagType : this.clarityBackgroundLayersTagType;
+		this.clarityBackgroundLayersTagName = this.queryParams.clarityBackgroundLayersTagName ? this.queryParams.clarityBackgroundLayersTagName : this.clarityBackgroundLayersTagName;
+		this.clarityBackgroundLayersGroupName = this.queryParams.clarityBackgroundLayersGroupName ? this.queryParams.clarityBackgroundLayersGroupName : this.clarityBackgroundLayersGroupName;
+		this.overlayLayersGroupName = this.queryParams.overlayLayersGroupName ? this.queryParams.overlayLayersGroupName : this.overlayLayersGroupName;
+
+		this.overlayLayersTagType = this.queryParams.overlayLayersTagType ? this.queryParams.overlayLayersTagType : this.overlayLayersTagType;
+		// its defined by the sub-type, child classes override mapSelectionId props, e.g. 'eu-gl:hazard-characterization' for HC Map
+		this.overlayLayersTagName = this.queryParams.overlayLayersTagName ? this.queryParams.overlayLayersTagName : props.mapSelectionId;
 		// grouping_tag query params overwrites the grouping criteria set by the child class in this.props!
-		// if we use child.groupingCriteria =M x ist will override queryParams, therefore we put them in props
-		this.groupingCriteria = this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
-		this.mapType = props.mapSelectionId;
+		// if we use child.groupingCriteria = x it will override queryParams, therefore we put them in class variable this.overlayLayersGroupingTagType
+		this.overlayLayersGroupingTagType = this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
 
 		// Actually, this parameters are not used anymore! For data package and resource we use study_area as initial bbox
 		// Yeah, that's inconsistent and not correct, but we reuse this query param since we don't want to re-implement
@@ -92,7 +132,7 @@ export default class BasicMap extends React.Component {
 
 		log.info(
 			`creating new ${props.mapSelectionId} map with layer group from ${this
-				.groupingCriteria} and initial bbox ${this.queryParams.study_area}`
+				.overlayLayersGroupingTagType} and initial bbox ${this.queryParams.study_area}`
 		);
 	}
 
@@ -183,8 +223,8 @@ export default class BasicMap extends React.Component {
 		if (resourcesApiResponse && resourcesApiResponse.data && resourcesApiResponse.included) {
 			const leafletMapModel = this.processResources(
 				resourcesApiResponse,
-				this.mapType,
-				this.groupingCriteria,
+				this.overlayLayersTagName,
+				this.overlayLayersGroupingTagType,
 				this.referenceType
 			);
 			if (leafletMapModel.length > 0) {
@@ -227,14 +267,14 @@ export default class BasicMap extends React.Component {
 	}
 
 	/**
- * Add the given overlay layers to the state
- *  
- * FIXME: split method, externalize layer generation part
- * 
- * @param {Array} mapData the overlay layers
- * @param {Number} resourceLength the resource count of the current study
- * @deprecated
- */
+	 * Set 'exclusive' groups and add the given overlay layers to the state
+	 *  
+	 * FIXME: split method, externalize layer generation part
+	 * 
+	 * @param {Array} mapData the overlay layers
+	 * @param {Number} resourceLength the resource count of the current study
+	 * @deprecated
+	 */
 	applyLeafletMapModel(leafletMapModel) {
 		if (leafletMapModel && leafletMapModel.length > 0) {
 			this.setState({
@@ -243,7 +283,7 @@ export default class BasicMap extends React.Component {
 				exclusiveGroups: this.extractExclusiveGroups(leafletMapModel)
 			});
 		} else {
-			log.error('no leafletMapModel set, cannot shoe addtional layers');
+			log.error('no leafletMapModel set, cannot show addtional layers');
 		}
 	}
 
@@ -256,7 +296,7 @@ export default class BasicMap extends React.Component {
    * @param {Object[]} includedArray 
    * @param {String} referenceType 
    * @param {String} defaultGroupName 
-   * @param {String} groupingCriteria 
+   * @param {String} groupingTagType 
    * @param {Boolean} expandTemplateResources 
    * @return {Object[]}
    */
@@ -265,17 +305,17 @@ export default class BasicMap extends React.Component {
 		includedArray,
 		referenceType,
 		defaultGroupName,
-		groupingCriteria,
+		groupingTagType,
 		expandTemplateResources = false
 	) {
-		const resourceReferences = CSISHelpers.extractReferencesfromResource(resource, includedArray, referenceType);
+		const resourceReferences = CSISHelpers.extractReferencesFromResource(resource, includedArray, referenceType);
 		const leafletLayers = [];
 		const prepareLayer = function (url, title) {
 			// process URL will add the query parameters for Variables.
-			// Unfortunately, ATM it uses this.queryParams. So resource expansion (e.g. submitting **two** time_periods via query params) it not easily possible).
+			// Unfortunately, ATM it uses this.queryParams. So resource expansion (e.g. submitting **two** time_periods via query params) is not easily possible).
 			// See also https://github.com/clarity-h2020/map-component/issues/74
 			const layerUrl = this.processUrl(resource, includedArray, url);
-			const groupTitle = this.extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray);
+			const groupTitle = this.extractGroupName(groupingTagType, defaultGroupName, resource, includedArray);
 			const leafletLayer = this.createLeafletLayer(groupTitle, title, layerUrl);
 			return leafletLayer;
 		}.bind(this); // yes, need to bind to this.
@@ -397,35 +437,37 @@ export default class BasicMap extends React.Component {
 	/**
 	 * Extract the group name for the layer selection control
 	 * 
-	 * @param {*} groupingCriteria 
+	 * @param {*} groupingTagType 
 	 * @param {*} defaultGroupName 
 	 * @param {*} resource 
 	 * @param {*} includedArray 
 	 */
-	extractGroupName(groupingCriteria, defaultGroupName, resource, includedArray) {
-		const groupTagType = groupingCriteria;
+	extractGroupName(groupingTagType, defaultGroupName, resource, includedArray) {
 		// FIXME: Dangerous, if multiple values for tagType
 		let groupTags = null;
 		let groupTitle = defaultGroupName;
-		if (groupTagType && groupTagType != null) {
-			groupTags = CSISHelpers.extractTagsfromResource(resource, includedArray, groupTagType);
+		if (groupingTagType && groupingTagType != null) {
+			groupTags = CSISHelpers.extractTagsfromResource(resource, includedArray, groupingTagType);
 		}
 		if (groupTags != null && groupTags.length > 0) {
 			groupTitle = groupTags[0].attributes.name;
 			if (groupTags.length > 1) {
 				log.warn(
-					`${groupTags.length} ${groupTagType} tags in resource ${resource.attributes
+					`${groupTags.length} ${groupingTagType} tags in resource ${resource.attributes
 						.title}, using only 1st tag ${groupTags[0].attributes.name} as group title for layer ${resource
 							.attributes.title}`
 				);
 			}
 		} else {
-			log.warn(`no ${groupTagType} tag found in resource ${resource.attributes.title}, using default group name`);
+			log.warn(`no ${groupingTagType} tag found in resource ${resource.attributes.title}, using default group name`);
 		}
 		return groupTitle;
 	}
 
 	/**
+	 * Main difference between background layers and overlay layers is the possbility 
+	 * for single / multiple selection.
+	 * 
 	 * See https://github.com/clarity-h2020/map-component/issues/84
 	 * 
 	 * @param {*} resourceArray 
@@ -433,69 +475,76 @@ export default class BasicMap extends React.Component {
 	 * @param {*} referenceType 
 	 * @param {*} backgroundLayersTagName 
 	 * @param {*} backgroundLayersGroupName 
+	 * @deprecated
 	 */
-	createBackgroundLeafetLayers(
+	createLeafletMapModel(
 		resourceArray,
 		includedArray,
 		referenceType,
-		backgroundLayersTagName = 'background-layer',
-		backgroundLayersGroupName = 'Backgrounds'
+		layersTagType,
+		layersTagName,
+		layersGroupName,
+		groupingTagType,
+		expandTemplateResources
 	) {
 		// FIXME: Define separate tag type for background layers
 		let leafletMapModel = [];
-		let backgroundLayersTagType = 'taxonomy_term--dp_resourcetype';
 
-		/**
-     * The Background layers, e.g. Vector Layers Urban Atlas Roads from Local Effects Input Layers
-     */
-		let filteredBackgroundResources = CSISHelpers.filterResourcesbyReferenceType(
-			CSISHelpers.filterResourcesbyTagName(
+		let filteredResources;
+		if (layersTagName) {
+			filteredResources = CSISHelpers.filterResourcesByReferenceType(
+				CSISHelpers.filterResourcesbyTagName(resourceArray, includedArray, layersTagType, layersTagName),
+				includedArray,
+				referenceType
+			);
+		} else {
+			// layersTagName is undefined, so we process all resources.
+			filteredResources = CSISHelpers.filterResourcesByReferenceType(
 				resourceArray,
 				includedArray,
-				backgroundLayersTagType,
-				backgroundLayersTagName
-			),
-			includedArray,
-			referenceType
-		);
+				referenceType
+			);
+		}
 		log.info(
-			`${filteredBackgroundResources.length} valid background layer resources for ${backgroundLayersTagType} tag type and tag name ${backgroundLayersTagName} with ${referenceType} references found in ${resourceArray.length} available resources`
+			`${filteredResources.length} valid layers for ${layersTagType} = ${layersTagName} with ${referenceType} references found in ${resourceArray.length} available resources.`
 		);
 
-		// 1st process the background resources
+		// 1st process the resources
 		// FIXME: ~~expandTemplateResources currently ony supported for Backgrounds Layers~~ DISABLED!
 		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
 
 		// WARNING: Even for Backgrounds Layers, expandTemplateResources should not be used! :-(
 		// See https://github.com/clarity-h2020/map-component/issues/72
-		for (let i = 0; i < filteredBackgroundResources.length; ++i) {
+		for (let i = 0; i < filteredResources.length; ++i) {
 			let leafletLayers = this.createLeafletLayers(
-				filteredBackgroundResources[i],
+				filteredResources[i],
 				includedArray,
 				referenceType,
-				backgroundLayersGroupName,
-				undefined,
-				false
+				layersGroupName,
+				groupingTagType,
+				expandTemplateResources
 			);
 			if (leafletLayers.length > 0) {
 				leafletMapModel.push(...leafletLayers);
 			}
 		}
-
 		return leafletMapModel;
 	}
 
 	/**
    * Extracts the layers from the given RESOURCES array and add it to the map.
+   * Sorts it into categories according to flexible categorisation tags
+   * See 
    * 
    * FIXME: externalize, eventually merge with finishMapExtraction()
    * 
    * @param {Object} resourcesApiResponse the resources API response
-   * @param {String} mapType the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
-   * @param {String} groupingCriteria the grouping criteria of the layers. E.g. taxonomy_term--hazards
+   * @param {String} overlayLayersTagType usually the eu-gl taxonomy
+   * @param {String} overlayLayersTagName the eu-gl step of the layers, which should be added. E.g. eu-gl:risk-and-impact-assessment 
+   * @param {String} groupingTagType the grouping criteria of the layers. E.g. taxonomy_term--hazards
    * @return {Object[]} leafletMapModel internal map model
    */
-	processResources(resourcesApiResponse, mapType, groupingCriteria, referenceType) {
+	processResources(resourcesApiResponse) {
 		// if we requested a single resource with getDatapackageResourceFromCsis(), put it into an array.
 		const resourceArray = Array.isArray(resourcesApiResponse.data)
 			? resourcesApiResponse.data
@@ -503,65 +552,72 @@ export default class BasicMap extends React.Component {
 		const includedArray = resourcesApiResponse.included;
 
 		log.debug(
-			`process ${resourceArray.length} resources and ${includedArray.length} included objects for ${mapType} map, ${groupingCriteria} group type and ${referenceType} reference type`
+			`process ${resourceArray.length} resources and ${includedArray.length} included objects for ${this.referenceType} reference type`
 		);
 
-		var leafletMapModel = [];
+		const leafletMapModel = [];
 
 		/**
-     * The Overlay layers, e.g. Hazard Raster Layers
-     */
-		let filteredOverlayResources;
-
-		if (mapType) {
-			filteredOverlayResources = CSISHelpers.filterResourcesbyReferenceType(
-				CSISHelpers.filterResourcesByEuglId(resourceArray, includedArray, mapType),
-				includedArray,
-				referenceType
-			);
-		} else {
-			filteredOverlayResources = CSISHelpers.filterResourcesbyReferenceType(
-				resourceArray,
-				includedArray,
-				referenceType
-			);
-		}
-		log.info(
-			`${filteredOverlayResources.length} valid overlay layer resources for ${mapType} map type with ${referenceType} references found in ${resourceArray.length} available resources`
-		);
-
-		// 1st process the background resources
-		// FIXME: ~~expandTemplateResources currently ony supported for Backgrounds Layers~~ DISABLED!
-		// See https://github.com/clarity-h2020/map-component/issues/69#issuecomment-558206120
-
-		let backgroundLayers = this.createBackgroundLeafetLayers(resourceArray, includedArray, referenceType);
-		if (backgroundLayers && backgroundLayers.length > 0) {
-			leafletMapModel.push(...backgroundLayers);
-		}
-
-		let clarityBackgroundLayers = this.createBackgroundLeafetLayers(
+		 * The Background layers, e.g. Vector Layers Urban Atlas Roads from Local Effects Input Layers
+		 */
+		let backgroundLayers = this.createLeafletMapModel(
 			resourceArray,
 			includedArray,
-			referenceType,
-			'clarity-background-layer',
-			'CLARITY Backgrounds'
-		);
-		if (clarityBackgroundLayers && clarityBackgroundLayers.length > 0) {
-			leafletMapModel.push(...clarityBackgroundLayers);
+			this.referenceType,
+			this.backgroundLayersTagType,
+			this.backgroundLayersTagName,
+			this.backgroundLayersGroupName,
+			undefined,
+			false);
+		if (backgroundLayers && backgroundLayers.length > 0) {
+			log.info(
+				`${backgroundLayers.length} valid background Layers for ${this.backgroundLayersTagType} = ${this.backgroundLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`
+			);
+			leafletMapModel.push(...backgroundLayers);
+		} else {
+			log.warn(`NO valid background Layers for ${this.backgroundLayersTagType} = ${this.backgroundLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`);
 		}
 
-		// 2nd process the overlay resources
-		for (let i = 0; i < filteredOverlayResources.length; ++i) {
-			let leafletLayers = this.createLeafletLayers(
-				filteredOverlayResources[i],
-				includedArray,
-				referenceType,
-				'Default',
-				groupingCriteria
+		/**
+		 * The CLARITY Background layers, e.g. Vector Layers Urban Atlas Roads from Local Effects Input Layers
+		 */
+		let clarityBackgroundLayers = this.createLeafletMapModel(
+			resourceArray,
+			includedArray,
+			this.referenceType,
+			this.clarityBackgroundLayersTagType,
+			this.clarityBackgroundLayersTagName,
+			this.clarityBackgroundLayersGroupName,
+			undefined,
+			false);
+		if (clarityBackgroundLayers && clarityBackgroundLayers.length > 0) {
+			log.info(
+				`${clarityBackgroundLayers.length} valid CLARITY background Layers for ${this.clarityBackgroundLayersTagType} = ${this.clarityBackgroundLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`
 			);
-			if (leafletLayers.length > 0) {
-				leafletMapModel.push(...leafletLayers);
-			}
+			leafletMapModel.push(...clarityBackgroundLayers);
+		} else {
+			log.warn(`NO valid CLARITY background Layers for ${this.clarityBackgroundLayersTagType} = ${this.clarityBackgroundLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`);
+		}
+
+		/**
+		 * The Overlay layers, e.g. Hazard Raster Layers
+		 */
+		let overlayLayers = this.createLeafletMapModel(
+			resourceArray,
+			includedArray,
+			this.referenceType,
+			this.overlayLayersTagType,
+			this.overlayLayersTagName,
+			this.overlayLayersGroupName,
+			this.overlayLayersGroupingTagType,
+			false);
+		if (overlayLayers && overlayLayers.length > 0) {
+			log.info(
+				`${overlayLayers.length} valid overlay Layers for ${this.overlayLayersTagType} = ${this.overlayLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`
+			);
+			leafletMapModel.push(...overlayLayers);
+		} else {
+			log.warn(`NO valid CLARITY overlay Layers for ${this.overlayLayersTagType} = ${this.overlayLayersLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`);
 		}
 
 		// Sort by name ...
@@ -643,9 +699,8 @@ export default class BasicMap extends React.Component {
 			let groupTitle = mapData[i].groupTitle;
 			// FIXME: use constant for group names
 			if (
-				!groups.includes(groupTitle) && groupTitle !== 'Backgrounds' && groupTitle !== 'CLARITY Backgrounds'
+				!groups.includes(groupTitle) && groupTitle !== this.backgroundLayersGroupName && groupTitle !== this.clarityBackgroundLayersGroupName
 			) {
-				log.error(groupTitle);
 				groups.push(groupTitle);
 			}
 		}
@@ -777,7 +832,14 @@ export default class BasicMap extends React.Component {
 	}
 }
 
+/**
+ * Prop Types. 
+ * FIXME: replace by query params
+ */
 BasicMap.propTypes = {
+	/**
+	 * deprecated
+	 */
 	match: PropTypes.object,
 	location: PropTypes.any,
 	/**
@@ -791,6 +853,10 @@ BasicMap.propTypes = {
 	groupingCriteria: PropTypes.string
 };
 
+/**
+ * Default props. ATM pretty useless. 
+ * Redesign to functional component pending.
+ */
 BasicMap.defaultProps = {
 	mapSelectionId: undefined,
 	groupingCriteria: undefined

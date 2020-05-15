@@ -98,7 +98,7 @@ test('find resources with @mapview:ogc:wms references in resource array', () => 
 	const referenceType = '@mapview:ogc:wms';
 	const resourcesArray = apiResponseResources.data;
 	const includedArray = apiResponseResources.included;
-	const filteredResources = CSISHelpers.filterResourcesbyReferenceType(resourcesArray, includedArray, referenceType);
+	const filteredResources = CSISHelpers.filterResourcesByReferenceType(resourcesArray, includedArray, referenceType);
 	expect(filteredResources.length).toBeLessThan(resourcesArray.length);
 	expect(filteredResources).toHaveLength(30);
 });
@@ -110,7 +110,7 @@ test('find HC resources with @mapview:ogc:wms references in resource array', () 
 	const resourcesArray = apiResponseResources.data;
 	const includedArray = apiResponseResources.included;
 
-	const filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+	const filteredResources = CSISHelpers.filterResourcesByReferenceType(
 		CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, tagType, tagName),
 		includedArray,
 		referenceType
@@ -152,14 +152,14 @@ test('get 1st "reference" for first HC resource with @mapview:ogc:wms references
 	const resourcesArray = apiResponseResources.data;
 	const includedArray = apiResponseResources.included;
 
-	const filteredResources = CSISHelpers.filterResourcesbyReferenceType(
+	const filteredResources = CSISHelpers.filterResourcesByReferenceType(
 		CSISHelpers.filterResourcesbyTagName(resourcesArray, includedArray, tagType, tagName),
 		includedArray,
 		referenceType
 	);
 	expect(filteredResources).not.toBeNull();
 	expect(filteredResources.length).toBeGreaterThan(0);
-	const reference = CSISHelpers.extractReferencesfromResource(filteredResources[0], includedArray, referenceType);
+	const reference = CSISHelpers.extractReferencesFromResource(filteredResources[0], includedArray, referenceType);
 	expect(reference).not.toBeNull();
 	expect(reference.length).toBeGreaterThan(0);
 

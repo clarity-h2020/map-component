@@ -15,6 +15,8 @@ export const history = createBrowserHistory({
 });
 
 /**
+ * This class is mainly responsible for routing to the correct map component.
+ * 
  * @class
  */
 export default class App extends React.Component {
