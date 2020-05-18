@@ -2,7 +2,7 @@ import GenericMap from './GenericMap';
 
 export default class ExposureMap extends GenericMap {
 	constructor(props) {
-		super({ ...props, mapSelectionId: 'eu-gl:exposure-evaluation' });
+		super({ ...props, mapSelectionId: 'Exposure Evaluation' }); //deprecated
 
 		var overlays = [];
 		this.state = {

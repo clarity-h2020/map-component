@@ -617,7 +617,7 @@ export default class BasicMap extends React.Component {
 			);
 			leafletMapModel.push(...overlayLayers);
 		} else {
-			log.warn(`NO valid CLARITY overlay Layers for ${this.overlayLayersTagType} = ${this.overlayLayersLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`);
+			log.warn(`NO valid CLARITY overlay Layers for ${this.overlayLayersTagType} = ${this.overlayLayersTagName} with ${this.referenceType} references found in ${resourceArray.length} available resources`);
 		}
 
 		// Sort by name ...

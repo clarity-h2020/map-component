@@ -9,7 +9,7 @@ export default class CharacteriseHazardMap extends GenericMap {
 		// make sure to pass up the same props that your component's constructor was passed.
 		super({
 			...props,
-			mapSelectionId: 'eu-gl:hazard-characterization',
+			mapSelectionId: 'Hazard Characterization', // deprecated
 			groupingCriteria: 'taxonomy_term--hazards'
 		});
 

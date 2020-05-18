@@ -2,7 +2,7 @@ import GenericMap from './GenericMap';
 
 export default class HazardLocalEffectsMap extends GenericMap {
 	constructor(props) {
-		super({ ...props, mapSelectionId: 'eu-gl:hazard-characterization:local-effects' });
+		super({ ...props, mapSelectionId: 'Hazard Characterization - Local Effects' }); // deprecated
 
 		var overlays = [];
 		this.state = {
