@@ -1,12 +1,15 @@
 import GenericMap from './GenericMap';
 
+/**
+ * @deprecated
+ */
 export default class CharacteriseHazardMap extends GenericMap {
 	constructor(props) {
 		// FIXME: Warning: CharacteriseHazardMap(...): When calling super() in `CharacteriseHazardMap`,
 		// make sure to pass up the same props that your component's constructor was passed.
 		super({
 			...props,
-			mapSelectionId: 'eu-gl:hazard-characterization',
+			mapSelectionId: 'Hazard Characterization', // deprecated
 			groupingCriteria: 'taxonomy_term--hazards'
 		});
 

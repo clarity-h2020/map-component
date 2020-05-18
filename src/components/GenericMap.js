@@ -1,10 +1,15 @@
 import React from 'react';
 import log from 'loglevel';
+
 import MapComponent from './commons/MapComponent';
 import BasicMap from './commons/BasicMap';
+
 // yes, order of imports do matter
 import 'leaflet.sync';
 
+/**
+ * Generic Map Base class.
+ */
 export default class GenericMap extends BasicMap {
 	constructor(props) {
 		super(props);
@@ -20,7 +25,7 @@ export default class GenericMap extends BasicMap {
 	}
 
 	/**
-	 * Synchronise Maps. See https://github.com/jieter/Leaflet.Sync
+	 * Synchronised Maps. See https://github.com/jieter/Leaflet.Sync
 	 */
 	componentDidUpdate() {
 		if (this.mapComponentA && this.mapComponentA.leafletMapInstance && this.mapComponentB && this.mapComponentB.leafletMapInstance) {
@@ -58,7 +63,7 @@ export default class GenericMap extends BasicMap {
 		}
 
 		if (this.props.isSynchronised === true) {
-			log.info('rendering two sychronised maps');
+			log.info('rendering two sychronised maps: ' + this.props.isSynchronised);
 			return (<>
 				<MapComponent
 					loading={this.state.loading}

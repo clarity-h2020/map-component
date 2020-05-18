@@ -4,7 +4,7 @@ export default class RiskAndImpactMap extends GenericMap {
 	constructor(props) {
 		super({
 			...props,
-			mapSelectionId: 'eu-gl:risk-and-impact-assessment',
+			mapSelectionId: 'Risk and Impact Assessment', //deprecated
 			groupingCriteria: 'taxonomy_term--hazards'
 		});
 
