@@ -1,0 +1,46 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <script>
+        (function ($, Drupal) {
+            window.Drupal.behaviors.mapComponentIFrameConnector = {
+                attach: function (context, drupalSettings) {
+                    // Using once() to apply the mapComponentIFrameConnector effect when you want to run just one function.
+                    $(window, context).once('mapComponentIFrameConnector').each(function () {
+
+                        const additionalQueryParameters = {
+                            clarityBackgroundLayersTagType:'taxonomy_term--dp_resourcetype',
+                            clarityBackgroundLayersTagName:'clarity-background-layer',
+                            clarityBackgroundLayersGroupName:'Elements at Risk',
+                            overlayLayersTagType:'taxonomy_term--eu_gl',
+                            overlayLayersTagName:'Exposure Evaluation',
+                            overlayLayersGroupName:'Additional Elements at Risk',
+                            overlayLayersGroupingTagType:'taxonomy_term--elements_at_risk'                    
+                        };
+
+                        const mapType = 'SynchronisedGenericMap';
+                        const grouping_tag = 'taxonomy_term--hazards'; //deprecated
+                        const iFrameMapComponent = document.getElementById('map-component');
+
+                        if (undefined !== drupalSettings && undefined !== drupalSettings.csisHelpers && undefined !== drupalSettings.csisHelpers.initMapComponent) {
+                            drupalSettings.csisHelpers.initMapComponent(mapType, grouping_tag, iFrameMapComponent, additionalQueryParameters);
+                            return;
+                        } else {
+                            console.error('no global drupalSettings object found, probably not connected to Drupal!');
+                        }
+                    });
+                }
+            };
+
+        })(jQuery, Drupal);
+    </script>
+
+    <iframe name="map-component" id="map-component"
+        src="https://csis.myclimateservice.eu/apps/map-component/build/loader.html" style="width:100%;height:500px;">
+    </iframe>
+</body>
+</html>
