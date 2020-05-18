@@ -97,7 +97,7 @@ export default class BasicMap extends React.Component {
 			// copy and extend queryParams using spread operator :o
 			this.queryParams = { ...this.queryParams, ...queryString.parse(this.props.location.search) };
 		} else {
-			log.warn('no query parameters found, showing empty map!'); 
+			log.warn('no query parameters found, showing empty map!');
 		}
 
 		/**
@@ -119,7 +119,9 @@ export default class BasicMap extends React.Component {
 		this.overlayLayersTagName = this.queryParams.overlayLayersTagName ? this.queryParams.overlayLayersTagName : props.mapSelectionId;
 		// grouping_tag query params overwrites the grouping criteria set by the child class in this.props!
 		// if we use child.groupingCriteria = x it will override queryParams, therefore we put them in class variable this.overlayLayersGroupingTagType
-		this.overlayLayersGroupingTagType = this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria; //e.g. taxonomy_term--eu_gl
+
+		this.overlayLayersGroupingTagType = this.queryParams.overlayLayersGroupingTagType ? this.queryParams.overlayLayersGroupingTagType
+			: (this.queryParams.grouping_tag ? this.queryParams.grouping_tag : props.groupingCriteria); //e.g. taxonomy_term--eu_gl
 
 		// Actually, this parameters are not used anymore! For data package and resource we use study_area as initial bbox
 		// Yeah, that's inconsistent and not correct, but we reuse this query param since we don't want to re-implement
