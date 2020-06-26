@@ -5,8 +5,11 @@ import { ReactLeafletGroupedLayerControl as ReactLeafletGroupedLayerControlForLe
 import turf from 'turf';
 import 'leaflet-loading';
 import LegendComponent from './LegendComponent.js';
+import WMSLayer from './WMSLayer.js';
 import 'leaflet/dist/leaflet.css';
 import log from 'loglevel';
+
+log.enableAll();
 
 // See https://github.com/mhasbie/react-leaflet-vectorgrid#usage-with-react-leaflet-v2
 const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerControlForLeafletv1);
@@ -25,7 +28,7 @@ export default class MapComponent extends React.Component {
 			checkedBaseLayer: props.baseLayers[0].name,
 			overlays: props.overlays,
 			exclusiveGroups: props.exclusiveGroups,
-			oldOverlay: [],
+			oldOverlays: [],
 			mapId: props.mapId ? props.mapId : 'simpleMap'
 		};
 
@@ -274,33 +277,35 @@ export default class MapComponent extends React.Component {
 	/**
    * Changes the overlay layer of the map.
    * This method will be invoked, when the user selects an other overlay layer. 
-   * It is only one checked overlay layer allowed
    * 
    * @param {Array} newOverlays 
    * @deprecated
    */
 	overlayChange(newOverlays) {
-		if (this.state.oldOverlay != null) {
-			for (var i = 0; i < newOverlays.length && i < this.state.oldOverlay.length; ++i) {
+		if (this.state.oldOverlays != null) {
+			log.debug('overlayChange: oldOverlays= ' + this.state.oldOverlays.length);
+			for (var i = 0; i < newOverlays.length && i < this.state.oldOverlays.length; ++i) {
 				if (
-					this.state.oldOverlay[i].name === newOverlays[i].name &&
+					this.state.oldOverlays[i].name === newOverlays[i].name &&
 					newOverlays[i].checked &&
-					this.state.oldOverlay[i].checked === newOverlays[i].checked
+					this.state.oldOverlays[i].checked === newOverlays[i].checked
 				) {
 					newOverlays[i].checked = false;
 				}
 			}
 		}
-
 		this.setState({
 			overlays: [...newOverlays],
 			count: this.state.count + 1,
-			oldOverlay: newOverlays
+			oldOverlays: newOverlays
 		});
+		log.debug('overlayChange: newOverlays= ' + newOverlays.length);
 	}
 
 	onOverlayChange(newOverlays) {
+		log.debug('onOverlayChange: newOverlays=' + newOverlays.length);
 		this.overlaysAllTogether = [...newOverlays];
+		log.debug('onOverlayChange: overlaysAllTogether=' + newOverlays.length);
 		this.setState({
 			overlays: [...newOverlays],
 			count: this.state.count + 1
@@ -396,33 +401,47 @@ export default class MapComponent extends React.Component {
 	}
 
 	/**
-   * Creates the jsx code for the overlay layers, that can be used in the render method
+   * Creates the jsx code for the **overlay** layers, that can be used in the render method
    * 
    * @param {Object[]} layers the array with all overlay layers
    * @returns the array with all overlay layers
    */
 	createLayers(layers) {
 		var layerArray = [];
-		var opac = 0.5;
 
 		for (var i = 0; i < layers.length; ++i) {
 			var layer = layers[i];
 			if (layer.checked) {
-				layerArray.push(
+				/*layerArray.push(
 					<WMSTileLayer
 						layers={this.getLayers(layer.name)}
 						url={this.getUrl(layer.name)}
 						transparent="true"
 						format="image/png"
-						opacity={opac}
+						opacity="0.5"
 						styles={this.getStyle(layer.name)}
 						tileSize={1536}
 						attribution={this.getAttribution()}
 					/>
+				);*/
+				log.debug('layer ' + layer.name + ' checked (selected)');
+				layerArray.push(
+					<WMSLayer
+						key={this.getLayers(layer.name)}
+						layers={this.getLayers(layer.name)}
+						url={this.getUrl(layer.name)}
+						transparent="true"
+						format="image/png"
+						opacity="0.5"
+						styles={this.getStyle(layer.name)}
+						tileSize={1536}
+						attribution={this.getAttribution(layer.name)}
+						info_format="text/html"
+					/>
 				);
 			}
 		}
-
+		//log.info(layerArray.length + ' layers created');
 		return layerArray;
 	}
 
@@ -443,6 +462,7 @@ export default class MapComponent extends React.Component {
 					url = url.substring(0, url.indexOf('?'));
 				}
 				var checkedObj = {
+					key:obj.name,
 					checked: obj.checked,
 					style: this.getStyle(obj.name),
 					layers: this.getLayers(obj.name),
@@ -495,16 +515,18 @@ export default class MapComponent extends React.Component {
    * Renders the map
    */
 	render() {
-		var studyAreaStyle = {
+		const studyAreaStyle = {
 			color: '#ff0000',
 			weight: 2,
 			opacity: 0.2,
 			fillOpacity: 0.0,
 			dashArray: '4 1'
 		};
-		var overlays = this.state.overlays;
+		const overlays = this.state.overlays;
+		const activeLayers = this.createLayers(overlays);
+		log.info(activeLayers.length + ' of ' + overlays.length + ' layers activated');
 
-		var mapElement = (
+		const mapElement = (
 			<div>
 				{/* 
           Refs provide a way to access DOM nodes or React elements created in the render method.
@@ -523,7 +545,6 @@ export default class MapComponent extends React.Component {
 				>
 					<ZoomControl
 						position="topleft">
-
 					</ZoomControl>
 					<LeafletConsumer>
 						{(context) => {
@@ -535,7 +556,7 @@ export default class MapComponent extends React.Component {
 						<GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
 					)}
 					<TileLayer noWrap={true} url={this.tileLayerUrl} />
-					{this.createLayers(this.state.overlays)}
+					{activeLayers}
 					<ReactLeafletGroupedLayerControl
 						ref={(layerControl) => (this.layerControl = layerControl)}
 						position="topright"

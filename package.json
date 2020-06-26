@@ -15,6 +15,7 @@
     "leaflet-providers": "git://github.com/leaflet-extras/leaflet-providers#semver:^1.8.0",
     "leaflet.nontiledlayer": "^1.0.8",
     "leaflet.sync": "^0.2.4",
+    "leaflet.wms": "^0.2.0",
     "loglevel": "^1.6.7",
     "prop-types": "latest",
     "query-string": "^6.11.1",
