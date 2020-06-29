@@ -436,7 +436,7 @@ export default class MapComponent extends React.Component {
 						styles={this.getStyle(layer.name)}
 						tileSize={1536}
 						attribution={this.getAttribution(layer.name)}
-						info_format="text/html"
+						info_format="text/xml"
 					/>
 				);
 			}
