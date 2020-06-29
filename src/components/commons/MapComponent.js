@@ -16,7 +16,7 @@ const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerCont
 
 /**
  * Render a leaflet map with the given layers.
- * This is still not the actual leaflet component but another wrapper.
+ * This is still not the actual leaflet component but yet another wrapper. :o
  */
 export default class MapComponent extends React.Component {
 	constructor(props) {
@@ -403,14 +403,15 @@ export default class MapComponent extends React.Component {
 	/**
    * Creates the jsx code for the **overlay** layers, that can be used in the render method
    * 
-   * @param {Object[]} layers the array with all overlay layers
+   * @param {Object[]} overlays the array with all overlay layers
    * @returns the array with all overlay layers
    */
-	createLayers(layers) {
+	createLayers(overlays) {
 		var layerArray = [];
 
-		for (var i = 0; i < layers.length; ++i) {
-			var layer = layers[i];
+		for (var i = 0; i < overlays.length; ++i) {
+			var layer = overlays[i];
+			// TODO: filter checked layers
 			if (layer.checked) {
 				/*layerArray.push(
 					<WMSTileLayer
@@ -436,7 +437,8 @@ export default class MapComponent extends React.Component {
 						styles={this.getStyle(layer.name)}
 						tileSize={1536}
 						attribution={this.getAttribution(layer.name)}
-						info_format="text/xml"
+						info_format="application/json"
+						identify={layer.groupTitle !== 'Backgrounds' && layer.groupTitle !== 'CLARITY Backgrounds'}
 					/>
 				);
 			}

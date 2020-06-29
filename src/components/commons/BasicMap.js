@@ -14,6 +14,7 @@ log.enableAll();
 /**
  * This is the basic class of all map classes. 
  * It implements the common way to extract the overlay layers from the study. 
+ * Why is is called map? I fact it's a wrapper component for a wrapper component that wraps a leaflet map. :o
  * 
  * 
  * TODO: transform to functional component. See https://github.com/clarity-h2020/simple-table-component
