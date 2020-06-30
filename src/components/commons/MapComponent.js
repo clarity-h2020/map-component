@@ -400,6 +400,7 @@ export default class MapComponent extends React.Component {
 		return '';
 	}
 
+
 	/**
    * Creates the jsx code for the **overlay** layers, that can be used in the render method
    * 
@@ -409,41 +410,52 @@ export default class MapComponent extends React.Component {
 	createLayers(overlays) {
 		var layerArray = [];
 
-		for (var i = 0; i < overlays.length; ++i) {
-			var layer = overlays[i];
-			// TODO: filter checked layers
-			if (layer.checked) {
-				/*layerArray.push(
+		const selectedOverlays = overlays.filter(overlay => overlay.checked);
+		log.info(`${selectedOverlays.length} overlays of total ${overlays.length}  selected`);
+
+		for (var i = selectedOverlays.length - 1; i >= 0; i--) {
+			var overlay = selectedOverlays[i];
+			var j = 0;
+			if (overlay.groupTitle === 'Backgrounds' || overlay.groupTitle === 'CLARITY Backgrounds') {
+				// load background layers as tile layer and load them first 
+				layerArray.unshift(
 					<WMSTileLayer
-						layers={this.getLayers(layer.name)}
-						url={this.getUrl(layer.name)}
+						key={`Backgrounds_${overlay.name}`}
+						layers={this.getLayers(overlay.name)}
+						url={this.getUrl(overlay.name)}
 						transparent="true"
 						format="image/png"
 						opacity="0.5"
-						styles={this.getStyle(layer.name)}
+						styles={this.getStyle(overlay.name)}
 						tileSize={1536}
-						attribution={this.getAttribution()}
-					/>
-				);*/
-				log.debug('layer ' + layer.name + ' checked (selected)');
-				layerArray.push(
-					<WMSLayer
-						key={this.getLayers(layer.name)}
-						layers={this.getLayers(layer.name)}
-						url={this.getUrl(layer.name)}
-						transparent="true"
-						format="image/png"
-						opacity="0.5"
-						styles={this.getStyle(layer.name)}
-						tileSize={1536}
-						attribution={this.getAttribution(layer.name)}
-						info_format="application/json"
-						identify={layer.groupTitle !== 'Backgrounds' && layer.groupTitle !== 'CLARITY Backgrounds'}
+						attribution={this.getAttribution(overlay.name)}
 					/>
 				);
+				j++;
+				log.debug('Background layer ' + overlay.name + ' created');
+			}
+			else {
+				// enable getFeatureInfo on the **last** selected layer
+				const indetify = (i - j) === (selectedOverlays.length - j - 1);
+				layerArray.push(
+					<WMSLayer
+						key={overlay.name}
+						layers={this.getLayers(overlay.name)}
+						url={this.getUrl(overlay.name)}
+						transparent="true"
+						format="image/png"
+						opacity="0.5"
+						styles={this.getStyle(overlay.name)}
+						tileSize={1536}
+						attribution={this.getAttribution(overlay.name)}
+						info_format="application/json"
+						identify={indetify}
+					/>
+				);
+				log.debug(`Layer #${i} "${overlay.name}" created, getFeatureInfo: ${indetify}`);
 			}
 		}
-		//log.info(layerArray.length + ' layers created');
+
 		return layerArray;
 	}
 
@@ -464,7 +476,7 @@ export default class MapComponent extends React.Component {
 					url = url.substring(0, url.indexOf('?'));
 				}
 				var checkedObj = {
-					key:obj.name,
+					key: obj.name,
 					checked: obj.checked,
 					style: this.getStyle(obj.name),
 					layers: this.getLayers(obj.name),

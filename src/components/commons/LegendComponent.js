@@ -23,7 +23,7 @@ export default class LegendComponent extends React.Component {
 
 		for (var i = 0; i < layers.length; ++i) {
 			if (layers[i].checked) {
-				legends.push(<SingleLegend key={layers[i].title} layer={layers[i]} caps={this.caps} />);
+				legends.push(<SingleLegend key={i} layer={layers[i]} caps={this.caps} />);
 			}
 		}
 

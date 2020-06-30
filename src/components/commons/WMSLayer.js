@@ -2,7 +2,6 @@ import { MapLayer, withLeaflet } from 'react-leaflet';
 import * as WMS from 'leaflet.wms';
 import isEqual from 'fast-deep-equal'
 import log from 'loglevel';
-import L from 'leaflet'
 
 log.enableAll();
 
@@ -26,7 +25,9 @@ const LegacyWMSLayer = WMS.Source.extend({
             result = "<iframe src='" + url + "' style='border:none'>";
         }
 
+        
         const layerName = getQueryVariable(url, 'layers');
+        log.debug(`getFeatureInfo called for layer ${layerName} from ${url}`);
         var html = `<b>${layerName}</b><br>`;
 
         if (result) {
@@ -106,8 +107,6 @@ class WMSLayer extends MapLayer {
         const { leaflet: _pl, ...prevParams } = this.getOptions(prevProps)
         const { url, opacity: _o, zIndex: _z, ...props } = toProps
         const { leaflet: _l, ...params } = this.getOptions(props)
-
-        log.debug('updateLeafletElement');
 
         if (url !== prevUrl) {
             if (this.legacyWMSLayer) {
