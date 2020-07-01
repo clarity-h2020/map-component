@@ -1,7 +1,7 @@
 import React from 'react';
 import log from 'loglevel';
 
-import MapComponent from './commons/MapComponent';
+import LeafletMap from './commons/LeafletMap';
 import BasicMap from './commons/BasicMap';
 
 // yes, order of imports do matter
@@ -65,7 +65,7 @@ export default class GenericMap extends BasicMap {
 		if (this.props.isSynchronised === true) {
 			log.info('rendering two sychronised maps: ' + this.props.isSynchronised);
 			return (<>
-				<MapComponent
+				<LeafletMap
 					loading={this.state.loading}
 					bounds={this.state.bounds}
 					baseLayers={this.state.baseLayers}
@@ -76,7 +76,7 @@ export default class GenericMap extends BasicMap {
 					ref={(mapComponent) => (this.mapComponentA = mapComponent)}
 					fly='true'
 				/>
-				<MapComponent
+				<LeafletMap
 					loading={this.state.loading}
 					bounds={this.state.bounds}
 					baseLayers={this.state.baseLayers}
@@ -91,7 +91,7 @@ export default class GenericMap extends BasicMap {
 		} else {
 			log.info('rendering one simple map: ' + this.props.isSynchronised);
 			return (
-				<MapComponent
+				<LeafletMap
 					loading={this.state.loading}
 					bounds={this.state.bounds}
 					baseLayers={this.state.baseLayers}

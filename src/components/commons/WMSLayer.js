@@ -25,10 +25,20 @@ const LegacyWMSLayer = WMS.Source.extend({
             result = "<iframe src='" + url + "' style='border:none'>";
         }
 
-        
+
         const layerName = getQueryVariable(url, 'layers');
         log.debug(`getFeatureInfo called for layer ${layerName} from ${url}`);
         var html = `<b>${layerName}</b><br>`;
+
+        /*const study_variant = getQueryVariable(url, 'study_variant');
+        html += study_variant ? `Study Variant: ${study_variant}<br>` : '';
+        const time_period = getQueryVariable(url, 'time_period');
+        html += time_period ? `Timeperiod: ${time_period}<br>` : '';
+        const emissions_scenario =  getQueryVariable(url, 'emissions_scenario');
+        html += emissions_scenario ? `Emissions Scenario: ${emissions_scenario}<br>` : '';
+        const event_frequency =  getQueryVariable(url, 'event_frequency');
+        html += event_frequency ? `Event Frequency: ${event_frequency}<br>` : '';
+        html += '<br>'*/
 
         if (result) {
             try {
@@ -50,7 +60,7 @@ const LegacyWMSLayer = WMS.Source.extend({
                             }
                         }
                     }
-                    if(i === 0) {
+                    if (i === 0) {
                         html += '<i>no values at selected location</i>';
                     }
                     html += '</ul>'
@@ -83,7 +93,8 @@ function getQueryVariable(url, variable) {
             return decodeURIComponent(pair[1]);
         }
     }
-    log.warn('query variable %s not found', variable);
+    log.warn(`query ${variable} not found`);
+    return null;
 }
 
 const EVENTS_RE = /^on(.+)$/i;
@@ -94,34 +105,33 @@ class WMSLayer extends MapLayer {
     createLeafletElement(props) {
         const { url, ...params } = props
         const { leaflet: _l, ...options } = this.getOptions(params)
-        this.legacyWMSLayer = new LegacyWMSLayer(url, options);
+        const legacyWMSLayer = new LegacyWMSLayer(url, options).getLayer(props.layers);
         log.info(props.layers + ' created');
-        return this.legacyWMSLayer.getLayer(props.layers);
+        return legacyWMSLayer;
     }
 
     updateLeafletElement(fromProps, toProps) {
         super.updateLeafletElement(fromProps, toProps)
-
 
         const { url: prevUrl, opacity: _po, zIndex: _pz, ...prevProps } = fromProps
         const { leaflet: _pl, ...prevParams } = this.getOptions(prevProps)
         const { url, opacity: _o, zIndex: _z, ...props } = toProps
         const { leaflet: _l, ...params } = this.getOptions(props)
 
-        if (url !== prevUrl) {
-            if (this.legacyWMSLayer) {
-                this.legacyWMSLayer.setUrl(url)
-            }
+        //log.debug('updating params ' + props.layers);
 
+        if (url !== prevUrl) {
+            this.leafletElement._source._overlay._overlay.setUrl(url);
         }
 
         if (!isEqual(params, prevParams)) {
-            if (this.legacyWMSLayer) {
-                this.legacyWMSLayer.setParams(params)
-            }
+            // don't ask  why...  the design of this component is somewhat awkward
+            this.leafletElement._source._overlay.setParams(params);
+            log.debug(props.layers + ' identify: ' + params.identify);
         }
-    }
 
+        log.info(props.layers + ' updated');
+    }
 
     getOptions(params) {
         const superOptions = super.getOptions(params)

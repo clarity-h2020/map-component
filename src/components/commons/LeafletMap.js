@@ -18,7 +18,7 @@ const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerCont
  * Render a leaflet map with the given layers.
  * This is still not the actual leaflet component but yet another wrapper. :o
  */
-export default class MapComponent extends React.Component {
+export default class LeafletMap extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -28,7 +28,6 @@ export default class MapComponent extends React.Component {
 			checkedBaseLayer: props.baseLayers[0].name,
 			overlays: props.overlays,
 			exclusiveGroups: props.exclusiveGroups,
-			oldOverlays: [],
 			mapId: props.mapId ? props.mapId : 'simpleMap'
 		};
 
@@ -274,34 +273,6 @@ export default class MapComponent extends React.Component {
 		this.setState({ count: this.state.count + 1 });
 	}
 
-	/**
-   * Changes the overlay layer of the map.
-   * This method will be invoked, when the user selects an other overlay layer. 
-   * 
-   * @param {Array} newOverlays 
-   * @deprecated
-   */
-	overlayChange(newOverlays) {
-		if (this.state.oldOverlays != null) {
-			log.debug('overlayChange: oldOverlays= ' + this.state.oldOverlays.length);
-			for (var i = 0; i < newOverlays.length && i < this.state.oldOverlays.length; ++i) {
-				if (
-					this.state.oldOverlays[i].name === newOverlays[i].name &&
-					newOverlays[i].checked &&
-					this.state.oldOverlays[i].checked === newOverlays[i].checked
-				) {
-					newOverlays[i].checked = false;
-				}
-			}
-		}
-		this.setState({
-			overlays: [...newOverlays],
-			count: this.state.count + 1,
-			oldOverlays: newOverlays
-		});
-		log.debug('overlayChange: newOverlays= ' + newOverlays.length);
-	}
-
 	onOverlayChange(newOverlays) {
 		log.debug('onOverlayChange: newOverlays=' + newOverlays.length);
 		this.overlaysAllTogether = [...newOverlays];
@@ -418,7 +389,7 @@ export default class MapComponent extends React.Component {
 			var j = 0;
 			if (overlay.groupTitle === 'Backgrounds' || overlay.groupTitle === 'CLARITY Backgrounds') {
 				// load background layers as tile layer and load them first 
-				layerArray.unshift(
+				layerArray.push(
 					<WMSTileLayer
 						key={`Backgrounds_${overlay.name}`}
 						layers={this.getLayers(overlay.name)}
@@ -436,8 +407,8 @@ export default class MapComponent extends React.Component {
 			}
 			else {
 				// enable getFeatureInfo on the **last** selected layer
-				const indetify = (i - j) === (selectedOverlays.length - j - 1);
-				layerArray.push(
+				const identify = (i - j) === (selectedOverlays.length - j - 1);
+				layerArray.unshift(
 					<WMSLayer
 						key={overlay.name}
 						layers={this.getLayers(overlay.name)}
@@ -449,10 +420,10 @@ export default class MapComponent extends React.Component {
 						tileSize={1536}
 						attribution={this.getAttribution(overlay.name)}
 						info_format="application/json"
-						identify={indetify}
+						identify={identify}
 					/>
 				);
-				log.debug(`Layer #${i} "${overlay.name}" created, getFeatureInfo: ${indetify}`);
+				log.debug(`Layer #${i} "${overlay.name}" created, getFeatureInfo: ${identify}`);
 			}
 		}
 
@@ -591,7 +562,7 @@ export default class MapComponent extends React.Component {
 	}
 }
 
-MapComponent.propTypes = {
+LeafletMap.propTypes = {
 	loading: PropTypes.bool,
 	bounds: PropTypes.array,
 	baseLayers: PropTypes.array,
