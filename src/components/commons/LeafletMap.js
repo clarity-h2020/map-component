@@ -386,7 +386,6 @@ export default class LeafletMap extends React.Component {
 
 		for (var i = selectedOverlays.length - 1; i >= 0; i--) {
 			var overlay = selectedOverlays[i];
-			var j = 0;
 			if (overlay.groupTitle === 'Backgrounds' || overlay.groupTitle === 'CLARITY Backgrounds') {
 				// load background layers as tile layer and load them first 
 				layerArray.push(
@@ -402,7 +401,6 @@ export default class LeafletMap extends React.Component {
 						attribution={this.getAttribution(overlay.name)}
 					/>
 				);
-				j++;
 				log.debug('Background layer ' + overlay.name + ' created');
 			}
 			else {
