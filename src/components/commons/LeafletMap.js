@@ -5,17 +5,20 @@ import { ReactLeafletGroupedLayerControl as ReactLeafletGroupedLayerControlForLe
 import turf from 'turf';
 import 'leaflet-loading';
 import LegendComponent from './LegendComponent.js';
+import WMSLayer from './WMSLayer.js';
 import 'leaflet/dist/leaflet.css';
 import log from 'loglevel';
+
+log.enableAll();
 
 // See https://github.com/mhasbie/react-leaflet-vectorgrid#usage-with-react-leaflet-v2
 const ReactLeafletGroupedLayerControl = withLeaflet(ReactLeafletGroupedLayerControlForLeafletv1);
 
 /**
  * Render a leaflet map with the given layers.
- * This is still not the actual leaflet component but another wrapper.
+ * This is still not the actual leaflet component but yet another wrapper. :o
  */
-export default class MapComponent extends React.Component {
+export default class LeafletMap extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -25,7 +28,6 @@ export default class MapComponent extends React.Component {
 			checkedBaseLayer: props.baseLayers[0].name,
 			overlays: props.overlays,
 			exclusiveGroups: props.exclusiveGroups,
-			oldOverlay: [],
 			mapId: props.mapId ? props.mapId : 'simpleMap'
 		};
 
@@ -271,36 +273,10 @@ export default class MapComponent extends React.Component {
 		this.setState({ count: this.state.count + 1 });
 	}
 
-	/**
-   * Changes the overlay layer of the map.
-   * This method will be invoked, when the user selects an other overlay layer. 
-   * It is only one checked overlay layer allowed
-   * 
-   * @param {Array} newOverlays 
-   * @deprecated
-   */
-	overlayChange(newOverlays) {
-		if (this.state.oldOverlay != null) {
-			for (var i = 0; i < newOverlays.length && i < this.state.oldOverlay.length; ++i) {
-				if (
-					this.state.oldOverlay[i].name === newOverlays[i].name &&
-					newOverlays[i].checked &&
-					this.state.oldOverlay[i].checked === newOverlays[i].checked
-				) {
-					newOverlays[i].checked = false;
-				}
-			}
-		}
-
-		this.setState({
-			overlays: [...newOverlays],
-			count: this.state.count + 1,
-			oldOverlay: newOverlays
-		});
-	}
-
 	onOverlayChange(newOverlays) {
+		log.debug('onOverlayChange: newOverlays=' + newOverlays.length);
 		this.overlaysAllTogether = [...newOverlays];
+		log.debug('onOverlayChange: overlaysAllTogether=' + newOverlays.length);
 		this.setState({
 			overlays: [...newOverlays],
 			count: this.state.count + 1
@@ -395,31 +371,61 @@ export default class MapComponent extends React.Component {
 		return '';
 	}
 
+
 	/**
-   * Creates the jsx code for the overlay layers, that can be used in the render method
+   * Creates the jsx code for the **overlay** layers, that can be used in the render method
    * 
-   * @param {Object[]} layers the array with all overlay layers
+   * @param {Object[]} overlays the array with all overlay layers
    * @returns the array with all overlay layers
    */
-	createLayers(layers) {
+	createLayers(overlays) {
 		var layerArray = [];
-		var opac = 0.5;
 
-		for (var i = 0; i < layers.length; ++i) {
-			var layer = layers[i];
-			if (layer.checked) {
+		const selectedOverlays = overlays.filter(overlay => overlay.checked);
+		log.info(`${selectedOverlays.length} overlays of total ${overlays.length}  selected`);
+
+		for (var i = selectedOverlays.length - 1; i >= 0; i--) {
+			var overlay = selectedOverlays[i];
+			var j = 0;
+			if (overlay.groupTitle === 'Backgrounds' || overlay.groupTitle === 'CLARITY Backgrounds') {
+				// load background layers as tile layer and load them first 
 				layerArray.push(
 					<WMSTileLayer
-						layers={this.getLayers(layer.name)}
-						url={this.getUrl(layer.name)}
+						key={`Backgrounds_${overlay.name}`}
+						layers={this.getLayers(overlay.name)}
+						url={this.getUrl(overlay.name)}
 						transparent="true"
 						format="image/png"
-						opacity={opac}
-						styles={this.getStyle(layer.name)}
+						opacity="0.5"
+						styles={this.getStyle(overlay.name)}
 						tileSize={1536}
-						attribution={this.getAttribution()}
+						attribution={this.getAttribution(overlay.name)}
 					/>
 				);
+				j++;
+				log.debug('Background layer ' + overlay.name + ' created');
+			}
+			else {
+				// enable getFeatureInfo on the **last** selected layer
+				// this does not work! previously created layers are not updated thanks to react Virtual DOM :(
+				// const identify = (i - j) === (selectedOverlays.length - j - 1);
+				const identify = true;
+				layerArray.unshift(
+					<WMSLayer
+						key={overlay.name}
+						layers={this.getLayers(overlay.name)}
+						url={this.getUrl(overlay.name)}
+						transparent="true"
+						format="image/png"
+						opacity="0.5"
+						styles={this.getStyle(overlay.name)}
+						tileSize={1536}
+						attribution={this.getAttribution(overlay.name)}
+						info_format="application/json"
+						identify={identify}
+					/>
+				);
+				log.debug(`Layer #${i} "${overlay.name}" created, getFeatureInfo: ${identify}`);
 			}
 		}
 
@@ -443,6 +449,7 @@ export default class MapComponent extends React.Component {
 					url = url.substring(0, url.indexOf('?'));
 				}
 				var checkedObj = {
+					key: obj.name,
 					checked: obj.checked,
 					style: this.getStyle(obj.name),
 					layers: this.getLayers(obj.name),
@@ -495,16 +502,18 @@ export default class MapComponent extends React.Component {
    * Renders the map
    */
 	render() {
-		var studyAreaStyle = {
+		const studyAreaStyle = {
 			color: '#ff0000',
 			weight: 2,
 			opacity: 0.2,
 			fillOpacity: 0.0,
 			dashArray: '4 1'
 		};
-		var overlays = this.state.overlays;
+		const overlays = this.state.overlays;
+		const activeLayers = this.createLayers(overlays);
+		log.info(activeLayers.length + ' of ' + overlays.length + ' layers activated');
 
-		var mapElement = (
+		const mapElement = (
 			<div>
 				{/* 
           Refs provide a way to access DOM nodes or React elements created in the render method.
@@ -523,7 +532,6 @@ export default class MapComponent extends React.Component {
 				>
 					<ZoomControl
 						position="topleft">
-
 					</ZoomControl>
 					<LeafletConsumer>
 						{(context) => {
@@ -535,7 +543,7 @@ export default class MapComponent extends React.Component {
 						<GeoJSON style={studyAreaStyle} data={this.props.studyAreaPolygon} />
 					)}
 					<TileLayer noWrap={true} url={this.tileLayerUrl} />
-					{this.createLayers(this.state.overlays)}
+					{activeLayers}
 					<ReactLeafletGroupedLayerControl
 						ref={(layerControl) => (this.layerControl = layerControl)}
 						position="topright"
@@ -556,7 +564,7 @@ export default class MapComponent extends React.Component {
 	}
 }
 
-MapComponent.propTypes = {
+LeafletMap.propTypes = {
 	loading: PropTypes.bool,
 	bounds: PropTypes.array,
 	baseLayers: PropTypes.array,

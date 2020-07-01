@@ -16,18 +16,18 @@ export default class LegendComponent extends React.Component {
 	/**
      * Creates jsx code to render the legends
      * 
-     * @param {Array} legends an array with the layer that should be used for the legend 
+     * @param {Array} layers an array with the layer that should be used for the legend 
      */
-	createLegend(legends) {
-		var layerArray = [];
+	createLegend(layers) {
+		var legends = [];
 
-		for (var i = 0; i < legends.length; ++i) {
-			if (legends[i].checked) {
-				layerArray.push(<SingleLegend layer={legends[i]} caps={this.caps} />);
+		for (var i = 0; i < layers.length; ++i) {
+			if (layers[i].checked) {
+				legends.push(<SingleLegend key={i} layer={layers[i]} caps={this.caps} />);
 			}
 		}
 
-		return layerArray;
+		return legends;
 	}
 
 	/**
