@@ -407,7 +407,9 @@ export default class LeafletMap extends React.Component {
 			}
 			else {
 				// enable getFeatureInfo on the **last** selected layer
-				const identify = (i - j) === (selectedOverlays.length - j - 1);
+				// this does not work! previously created layers are not updated thanks to react Virtual DOM :(
+				// const identify = (i - j) === (selectedOverlays.length - j - 1);
+				const identify = true;
 				layerArray.unshift(
 					<WMSLayer
 						key={overlay.name}
