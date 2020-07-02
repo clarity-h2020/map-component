@@ -54,7 +54,11 @@ const LegacyWMSLayer = WMS.Source.extend({
                                 if (property !== 'GRAY_INDEX') {
                                     html += `<li>${property}: ${properties[property]}</li>`;
                                 } else {
-                                    html += `<li>value: ${properties[property]}</li>`;
+                                    // See https://github.com/clarity-h2020/map-component/issues/98#issuecomment-652468459
+                                    const value = properties[property] !== null && !isNaN(parseFloat(properties[property])) ?
+				                    Math.round(properties[property] * 100 + Number.EPSILON) / 100 : properties[property];
+
+                                    html += `<li>value: ${value}</li>`;
                                 }
                                 i++;
                             }
