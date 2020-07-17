@@ -7,6 +7,7 @@ import 'leaflet-loading';
 import LegendComponent from './LegendComponent.js';
 import WMSLayer from './WMSLayer.js';
 import 'leaflet/dist/leaflet.css';
+import './../../Loader.css';
 import log from 'loglevel';
 
 log.enableAll();
@@ -116,24 +117,19 @@ export default class LeafletMap extends React.Component {
 		}
 
 		if (this.layerControl != null) {
-			var loader = document.getElementsByName('mapLoading');
+			const _this = this;
+			var load = _this.props.loading
 
-			if (loader.length > 0 && loader[0].parentElement != null) {
-				loader[0].parentElement.removeChild(loader[0]);
-			}
-			if (this.props.loading != null && this.props.loading) {
-				let groupTitles = this.layerControl.leafletElement._container.getElementsByClassName(
-					'rlglc-grouptitle'
-				);
-				if (groupTitles.length > 0 && groupTitles[0].parentElement != null) {
-					var element = groupTitles[0].parentElement;
-					var loadingEl = this.htmlToElement(
-						'<div style="text-align: center"><div name="mapLoading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>'
-					);
-					element.parentNode.appendChild(loadingEl, element);
+			if (load != null && load) {
+				setTimeout(function() {_this.showLoadingAnimation(_this)}, 500);
+			} else {
+				let loader = _this.layerControl.leafletElement._container.getElementsByClassName('lds-spinner');
+				if (loader.length > 0 && loader[0].parentElement != null) {
+					for (var i = 0; i < loader.length; ++i) {
+						loader[i].parentElement.removeChild(loader[i]);
+					}
 				}
 			}
-
 			var groupTitles = this.layerControl.leafletElement._container.getElementsByClassName('rlglc-grouptitle');
 			const self = this;
 
@@ -155,6 +151,30 @@ export default class LeafletMap extends React.Component {
 			}
 		}
 		this.updateInfoElement();
+	}
+
+	showLoadingAnimation(_this) {
+		var load = _this.props.loading
+
+		if (load != null && load) {
+			let groupTitles = _this.layerControl.leafletElement._container.getElementsByClassName(
+				'rlglc-grouptitle'
+			);
+			if (groupTitles.length > 0 && groupTitles[0].parentElement != null) {
+				var loader = _this.layerControl.leafletElement._container.getElementsByClassName('lds-spinner');
+
+				if (loader.length > 0 && loader[0].parentElement != null) {
+					for (var i = 0; i < loader.length; ++i) {
+						loader[i].parentElement.removeChild(loader[i]);
+					}
+				}
+				var element = groupTitles[0].parentElement;
+				var loadingEl = _this.htmlToElement(
+					'<div style="text-align: center"><div name="mapLoading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>'
+				);
+				element.parentNode.appendChild(loadingEl, element);
+			}
+		}
 	}
 
 	/**
@@ -517,7 +537,6 @@ export default class LeafletMap extends React.Component {
 		const overlays = this.state.overlays;
 		const activeLayers = this.createLayers(overlays);
 		log.info(activeLayers.length + ' of ' + overlays.length + ' layers activated');
-
 		const mapElement = (
 			<div>
 				{/* 
