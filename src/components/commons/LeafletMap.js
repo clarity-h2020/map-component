@@ -292,7 +292,14 @@ export default class LeafletMap extends React.Component {
 	getUrl(name) {
 		for (var i = 0; i < this.props.overlays.length; i++) {
 			if (this.props.overlays[i].name === name) {
-				return this.props.overlays[i].url;
+				
+				// hacketyhack
+				if(this.props.showAdaptationScenario) {
+					log.debug(`changing URL parameter of layer ${name} to STUDY_VARIANT='ADAPTATION-01'`);
+					return this.props.overlays[i].url.replace("STUDY_VARIANT='BASELINE'","STUDY_VARIANT='ADAPTATION-01'");
+				} else {
+					return this.props.overlays[i].url;
+				}
 			}
 		}
 
@@ -410,7 +417,7 @@ export default class LeafletMap extends React.Component {
 				const identify = true;
 				layerArray.unshift(
 					<WMSLayer
-						key={overlay.name}
+						key={`${overlay.name}_${this.props.showAdaptationScenario}`}
 						layers={this.getLayers(overlay.name)}
 						url={this.getUrl(overlay.name)}
 						transparent="true"

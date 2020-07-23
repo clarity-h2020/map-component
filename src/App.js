@@ -43,6 +43,7 @@ export default class App extends React.Component {
 						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedHazardLocalEffectsMap/`} render={(props) => <HazardLocalEffectsMap {...props} isSynchronised={true} />} />
 						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedRiskAndImpactMap/`} render={(props) => <RiskAndImpactMap {...props} isSynchronised={true} />} />
 						<Route exact path={`${process.env.PUBLIC_URL}/SynchronisedVulnerabilityMap/`} render={(props) => <VulnerabilityMap {...props} isSynchronised={true} />} />
+						<Route exact path={`${process.env.PUBLIC_URL}/AdaptationOptionsAppraisalMap/`} render={(props) => <RiskAndImpactMap {...props} isSynchronised={true} showAdaptationScenario={true}/>} />
 
 						<Route exact path={process.env.PUBLIC_URL} component={GenericMap} />
 					</Switch>
