@@ -64,6 +64,7 @@ export default class GenericMap extends BasicMap {
 
 		if (this.props.isSynchronised === true) {
 			log.info('rendering two sychronised maps: ' + this.props.isSynchronised);
+			
 			return (<>
 				<LeafletMap
 					loading={this.state.loading}
@@ -74,7 +75,8 @@ export default class GenericMap extends BasicMap {
 					exclusiveGroups={this.state.exclusiveGroups}
 					mapId={'synchronisedMapA'}
 					ref={(mapComponent) => (this.mapComponentA = mapComponent)}
-					fly='true'
+					fly={true}
+					showAdaptationScenario={false}
 				/>
 				<LeafletMap
 					loading={this.state.loading}
@@ -85,7 +87,8 @@ export default class GenericMap extends BasicMap {
 					exclusiveGroups={this.state.exclusiveGroups}
 					mapId={'synchronisedMapB'}
 					ref={(mapComponent) => (this.mapComponentB = mapComponent)}
-					fly='false'
+					fly={false}
+					showAdaptationScenario={true}
 				/>
 			</>);
 		} else {
