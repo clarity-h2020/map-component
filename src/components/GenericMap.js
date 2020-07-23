@@ -2,7 +2,7 @@ import React from 'react';
 import log from 'loglevel';
 
 import LeafletMap from './commons/LeafletMap';
-import BasicMap from './commons/BasicMap';
+import BasicMap from "./commons/BasicMap";
 
 // yes, order of imports do matter
 import 'leaflet.sync';
