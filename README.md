@@ -1,153 +1,201 @@
-Map Component
+Map Component [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3958827.svg)](https://doi.org/10.5281/zenodo.3958827)
 -------------
 
-The Map Component is understood as a reusable, flexible and highly
-configurable Building Block meant to be used throughout CSIS. It is
-envisioned as an embeddable component that can be easily adapted to
-different parts of the common CSIS UI. The core functionalities of this
-component must be a clear and easy visualization of different maps and
-layers. It is also a key feature of the map component to allow for a
-degree of interactivity meant to enable users to better define
-locations, elements at risk, hazards, scenario results, etc.
+The Map Component is a reusable, flexible and highly configurable Building Block meant to be used throughout CSIS. It is an embeddable component that can be easily adapted to different parts of the common CSIS UI. The core functionality of this component is visualization of different maps and layers following to the [EU-GL](https://myclimateservices.eu/en/about) process model. 
 
-### Requested functionality
+![image](https://user-images.githubusercontent.com/1788226/88938909-2ff11200-d286-11ea-84f8-84316ded0d87.png)
 
-Baseline requirements elicitation and the assessment of presently
-available Test Cases have yielded the following functional requirements
-for this Building Block:
+## Implementation 
 
-**Baseline functionality**
+Specialised maps for EU-GL Steps EE, HC, HC-LE, RA/IA and AAOP are implemented as separate components. The main components are:
 
--   Basic map functionality such as zoon in, zoom out, pan, click on a
-    point (and get info related to it if available), draw polygon/bbox,
-    etc.
+### GenericEmikatClient
 
--   Visualize different types of hazard maps in relation to climate
-    change projections for an area of interest
+A Generic EMIKAT Client that communicates with the [EMIKAT API](https://service.emikat.at/EmiKat/swagger/index.html) and accepts as *render prop* an arbitrary JSX Component that is able to understand the EMIKAT Data Format and visualises the data retrieved by the client component, e.g. the `<GenericEmikatTable>`. It accepts furthermore `emikatParameters` props which control how the EMIKAT *template URL* is parameterised. 
 
--   Advanced layer management: the user must be able to add individual
-    (hazards) maps as layers (e.g. from existing (local) WMS), and to
-    provide a set predefined climate change projection layers (e.g. from
-    C3S.)
+Example *template URL* and the *parameterised URL* for Hazard with Local Effects for study with id `3189`: 
 
--   Support for Map Layer Timeline, e.g. visualize temperature change
-    between 2020-2050 in an area of interest. This can be achieved using
-    the TIME attribute in WMS GetMap requests.)
+- `https://service.emikat.at/EmiKatTst/api/scenarios/${EMIKATHelpers.EMIKAT_STUDY_ID}/feature/${emikatView}/table/data?rownum=${EMIKATHelpers.ROWNUM}&filter=SZ_ID=${EMIKATHelpers.EMIKAT_STUDY_ID}`
+- https://service.emikat.at/EmiKatTst/api/scenarios/3189/feature/view.2974/table/data?rownum=1000&filter=SZ_ID=3189
 
--   Generate geo-referenced information to exchange with planning
-    services (data might be obtained as of SHP, NetCDF, geoTIF, etc.
-    export) with help of external services (GeoServer).
+The related *response* (excerpt):
 
--   Show map layers from both internal and external WMS Services
-    (CLARITY cloud file storage / GeoServer / or public Open Data
-    inventories.)
+```JSON
+{
+  "name": "MAP Local Effects- Mean, UTCI and Apperent Temperature, Discomfort level",
+  "description": "Display of Mean, UTCI and Apperent Temperature and Discomfort level for different Scenarios",
+  "columnnames": [
+    "GRID_ID",
+    "MULTIPOLYGON",
+    "STUDY_VARIANT",
+    "TIME_PERIOD",
+    "EMISSIONS_SCENARIO",
+    "EVENT_FREQUENCY",
+    "T_MRT",
+    "T_UTCI",
+    "T_A",
+    "DISCOMFORT_LEVEL",
+    "SZM_SZENARIO_REF"
+  ],
+  "rows": [
+    {
+      "rownum": 0,
+      "values": [
+        "500mE55225N17605",
+        "POLYGON ((5522500 1760500, 5523000 1760500, 5523000 1761000, 5522500 1761000, 5522500 1760500))",
+        "BASELINE",
+        "20110101-20401231",
+        "rcp26",
+        "Rare",
+        69.03435672650336,
+        54.30440831904718,
+        37.40195635643778,
+        5,
+        3189
+      ]
+    },
+```
 
--   Spatial data import: the user must be able to upload (hazards) maps
-    in a standardised format, add them to a private data repository and
-    the workspace, and show them as a layer.
+All EMIKAT Service Endpoints including some examples are listed [here](https://github.com/clarity-h2020/csis/wiki/Services-endpoints-(used-by-CSIS)).
 
--   Predefined layers: provide a set predefined climate change
-    projection layers (e.g. from C3S.)
+### DownloadButton
+The DownloadButton is a component similar to the `GenericEmikatClient`, except that it provides an UI for selecting the format of the data retrieved from EMIKAT API and forces the browser to download the data instead of forwarding it to a separate render component.
 
--   Tabular visualisation of GML Feature\'s attributes obtained from an
-    OGC WFS.
+![image](https://user-images.githubusercontent.com/1788226/88928208-d33b2a80-d278-11ea-8009-e2aea56ce2af.png)
 
--   Editing of GML Feature\'s attributes via OGC WFS-T.
+While specialised tables may modify the response, e.g. by reformatting data or hiding columns, the DownloadButton just downloads the unprocessed data received from EMIKAT API. Furthermore, the query parameter / prop `rownum` that controls the maximum number of rows shown in a table is not recognized by the DownloadButton, it requests by default 25.000 rows.
 
-**Functionality requested by CSIS Test Cases**
+### GenericEmikatTable
+A Generic Table Component based on [ReactTable](https://www.npmjs.com/package/react-table) v6.0 that understand the JSON format of the [EMIKAT API](https://service.emikat.at/EmiKat/swagger/index.html). It uses [csis-helpers-js](https://github.com/clarity-h2020/csis-helpers-js/) to translate the proprietary EMIKAT JSON format into a tabular format understood by ReactTable. It is the 'base class' of more specific tables like the `ExposureTable`. Specific tables can provide their own `generateColumns` and `resolveData` functions as props that control which columns are shown and how the data is formatted. 
 
--   from US-CSIS-100: For the pre-feasibility study, where the user
-    selects some random location, the system should be able to extract
-    the information from the map at the selected location. So, the map
-    component must be able to account for these interactions too. This
-    information must also be available within the system (not offline,
-    by some expert), so it can be used for the automatic evaluation: pre
-    feasibility risk analysis and reporting. For the expert study, the
-    expert must be able to upload/download the maps to analyse them
-    offline, this will depend on the US/TC.
+### ParameterSelectionComponent
 
--   from TC-CSIS-0053: The map component is used to specify, view and
-    change the geospatial project location. It will also display some
-    standard background layers (topographic, aerial, etc.)
+The Parameter Selection Component can wrap an `EmikatClientComponent` and a `DownloadButton` Component as *render props* and add a user interface for selection parameters related to a *scenario*, in particular `time_period`, `emissions_scenario` and `event_frequency`. The Parameter Selection Component thereby changes the respective `emikatParameters` props of the wrapped components. These props are used to parameterise the API template URL. More information on EMIKAT API parameters can be found in [EMIKATHelpers.js](https://github.com/clarity-h2020/csis-helpers-js/blob/dev/src/lib/EMIKATHelpers.js).
 
-**Functionality requested by DC Test Cases**
+![image](https://user-images.githubusercontent.com/1788226/88928088-aa1a9a00-d278-11ea-99f3-9ce9a2c1796d.png)
 
--   from US-DC1-150: The results of CLARITY simulations and climate
-    services could be visualized as Georeferenced maps.
+### Specialised Tables
 
--   from US-DC1-110: Visualize heat wave, landslide and pluvial flood
-    hazard maps in relation to climate change projections for the area
-    of the Metropolitan City of Naples.
+Specialised Tables that implement some custom formatting of row values and custom selection of columns (not all of them are interesting for end users) are: 
 
--   from TC DC1: Display results of impact scenario (no adaptation) on a
-    map (note that map visualization must always include a legend based
-    on the layers included).
+#### [CharacteriseHazardTable](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/CharacteriseHazardTable.js)
 
--   from TC DC1: Map widget should allow the comparison among \"non
-    adaptation\" and \"adaptation\" scenarios (e.g. two maps juxtaposed
-    on the same screen), see also Scenario Transferability Component.
+[CharacteriseHazardTable](https://csis-dev.myclimateservice.eu/apps/simple-table-component/build/CharacteriseHazardTable/?host=https://csis-dev.myclimateservice.eu&study_uuid=3d8327f4-c47f-4c9e-bbc3-fb9018ea9607&study_area=POLYGON((23.555632%2046.059224,23.555632%2046.085305,23.60095%2046.085305,23.60095%2046.059224,23.555632%2046.059224))&emikat_id=3209&datapackage_uuid=2434ce93-93d4-4ca2-8618-a2de768d3f16&time_period=Baseline&emissions_scenario=Baseline&event_frequency=Frequent) for reference Study "[Advanced Screening Alba Iulia](https://csis-dev.myclimateservice.eu/study/33)" (CSIS ID: 33, EMIKAT ID: 3209):
 
--   from TC DC1: The Map View must provide an user interface that will
-    allow the user to visualize the location of the current project
-    under assessment (e.g. city) and to specific the spatial extent
-    (area under assessment) that should be considered by a local model
-    (e.g. urban climate model) when producing a specific hazard map
-    (e.g. heat waves) for that particular area.
+![image](https://user-images.githubusercontent.com/1788226/88927322-89057980-d277-11ea-82ac-e9578ffbf200.png)
 
--   from TC DC1: Displays hazards maps resulting from local models (e.g.
-    urban climate models) run \"offline\" by experts.
+#### [HazardLocalEffectsTable](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/HazardLocalEffectsTable.js)
 
--   from TC DC4: Displays the hazards using a map. It must allow the
-    user to configure how to represent them.
+[CharacteriseHazardTable](https://csis-dev.myclimateservice.eu/apps/simple-table-component/build/HazardLocalEffectsTable/?host=https://csis-dev.myclimateservice.eu&study_uuid=3d8327f4-c47f-4c9e-bbc3-fb9018ea9607&study_area=POLYGON((23.555632%2046.059224,23.555632%2046.085305,23.60095%2046.085305,23.60095%2046.059224,23.555632%2046.059224))&emikat_id=3209&datapackage_uuid=2434ce93-93d4-4ca2-8618-a2de768d3f16&time_period=Baseline&emissions_scenario=Baseline&event_frequency=Frequent) for reference Study "[Advanced Screening Alba Iulia](https://csis-dev.myclimateservice.eu/study/33)" (CSIS ID: 33, EMIKAT ID: 3209):
 
--   from TC DC4: The user selects a specific geographical area. The user
-    needs to modify the geographical location of a selected element at
-    risk.
+![image](https://user-images.githubusercontent.com/1788226/88927879-61fb7780-d278-11ea-8c99-d6452cfffbee.png)
 
--   from TC DC4: Needed to upload / store / compute / maps at a regional
-    or local scale to allow to evaluate the climate risks.
+#### [ExposureTable](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/ExposureTable.js)
 
--   from TC DC4: The user defines the geographical area covered by the
-    study and loads the elements of the area
+[ExposureTable](https://csis-dev.myclimateservice.eu/apps/simple-table-component/build/ExposureTable/?host=https://csis-dev.myclimateservice.eu&study_uuid=3d8327f4-c47f-4c9e-bbc3-fb9018ea9607&study_area=POLYGON((23.555632%2046.059224,23.555632%2046.085305,23.60095%2046.085305,23.60095%2046.059224,23.555632%2046.059224))&emikat_id=3209&datapackage_uuid=2434ce93-93d4-4ca2-8618-a2de768d3f16&time_period=Baseline&emissions_scenario=Baseline&event_frequency=Frequent) for reference Study "[Advanced Screening Alba Iulia](https://csis-dev.myclimateservice.eu/study/33)" (CSIS ID: 33, EMIKAT ID: 3209):
 
--   from TC RA: Position the elements at risk on a map, to show the
-    hazard map layers and to show a colour-coded map with the results of
-    the HxExV calculation (alternative to showing it in a table.).
+![image](https://user-images.githubusercontent.com/1788226/88927778-3aa4aa80-d278-11ea-8238-f035eb02397d.png)
 
--   from TC RA: Select and show an entire inventory of elements at risk
-    (e.g. buildings layer) on the map.
+#### [RiskAndImpactTable](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/RiskAndImpactTable.js)
 
-### Technology support
+[RiskAndImpactTable](https://csis-dev.myclimateservice.eu/apps/simple-table-component/build/RiskAndImpactTable/?host=https://csis-dev.myclimateservice.eu&study_uuid=3d8327f4-c47f-4c9e-bbc3-fb9018ea9607&study_area=POLYGON((23.555632%2046.059224,23.555632%2046.085305,23.60095%2046.085305,23.60095%2046.059224,23.555632%2046.059224))&emikat_id=3209&datapackage_uuid=2434ce93-93d4-4ca2-8618-a2de768d3f16&time_period=Baseline&emissions_scenario=Baseline&event_frequency=Frequent) for reference Study "[Advanced Screening Alba Iulia](https://csis-dev.myclimateservice.eu/study/33)" (CSIS ID: 33, EMIKAT ID: 3209):
 
-The high interactivity and flexibility expected from this component
-requires an approach based on responsive and highly adaptable
-technologies. This approach can be achieved using client-side rendering
-along with libraries and tools that have already proved their usability
-and popularity, meaning that a big and active community is supporting
-their development and use. To ensure this high interactivity approach of
-this web application a good approach would be to use **React**, React
-allows rich site interactions, fast website rendering after the initial
-load, and a good selection of JavaScript libraries. It is also designed
-to build encapsulated components that can be composed to make complex
-UIs. In consequence, the Map Component is developed as independent
-**HTML5/AJAX RIA** that is loosely embedded as **HTML5 iframe** in the
-UI Integration Platform (**Drupal 8**, see 7.5) and relies as backend on
-Data Repository (7.4) and various OGC Services, respectively.
+![image](https://user-images.githubusercontent.com/1788226/88921697-3fb12c00-d26f-11ea-9fc4-e6d796074151.png)
 
-In terms of an open-source solution for the map itself, a proposed
-solution will be the use of **Mapbox GL** and **Leaflet** depending on
-the necessities of each map or layer. Mapbox provides a number of tools
-to build maps into a website or application. It is an open source
-JavaScript library that can be used to display maps, add interactivity,
-and customize the map experience. There are also a number of plugins for
-extending the map's functionality with drawing tools and interfaces to
-Mapbox web services APIs like the Mapbox Geocoding API or Mapbox
-Directions API.
+#### [AdaptationOptionsAppraisalTable](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/AdaptationOptionsAppraisalTable.js)
 
-<https://www.mapbox.com/help/define-mapbox-gl/>
+[AdaptationOptionsAppraisalTable](https://csis-dev.myclimateservice.eu/apps/simple-table-component/build/AdaptationOptionsAppraisalTable/?host=https://csis-dev.myclimateservice.eu&study_uuid=3d8327f4-c47f-4c9e-bbc3-fb9018ea9607&study_area=POLYGON((23.555632%2046.059224,23.555632%2046.085305,23.60095%2046.085305,23.60095%2046.059224,23.555632%2046.059224))&emikat_id=3209&datapackage_uuid=2434ce93-93d4-4ca2-8618-a2de768d3f16&time_period=Baseline&emissions_scenario=Baseline&event_frequency=Frequent) for reference Study "[Advanced Screening Alba Iulia](https://csis-dev.myclimateservice.eu/study/33)" (CSIS ID: 33, EMIKAT ID: 3209):
 
-While Leaflet is meant to be as lightweight as possible, and focuses on
-a core set of features, an easy way to extend its functionality is to
-use third-party plugins developed by an active community.
+![image](https://user-images.githubusercontent.com/1788226/88926864-ddf4c000-d276-11ea-903f-374bee50de0e.png)
 
-<http://leafletjs.com/>
+Same as RiskAndImpactTable. In addition shows also Adaptation Scenarios.
+
+## Tests
+
+The same Unit Tests as for [csis-helpers-js](https://github.com/clarity-h2020/csis-helpers-js/#tests) are performed. UI Integration Tests are implemented with help of [cypress.io](https://www.cypress.io/) in repository [csis-technical-validation](https://github.com/clarity-h2020/csis-technical-validation).
+
+Apart from that, the different table components can be manually tested locally with `yarn start`. Although they are served from localhost, the user must be logged-in in either [csis](https://csis.myclimateservice.eu/) or [csis-dev](https://csis-dev.myclimateservice.eu/).  
+
+Example URL for testing HazardLocalEffectsTable locally against study `3183` and Baseline Scenario:
+
+`http://localhost:3000/HazardLocalEffectsTable/?host=https://csis-dev.myclimateservice.eu&study_uuid=9359e741-df40-4bcd-9faf-2093b499c65c&study_area=POLYGON%20((16.346111%2048.223997,%2016.346111%2048.238634,%2016.376667%2048.238634,%2016.376667%2048.223997,%2016.346111%2048.223997))&emikat_id=3183&datapackage_uuid=2434ce93-93d4-4ca2-8618-a2de768d3f16&time_period=Baseline&emissions_scenario=Baseline&event_frequency=Rare`
+
+## Installation
+
+### Development Environment
+
+The application has been bootstrapped with [create-react-app](https://github.com/facebook/create-react-app) and uses the built-in build process . Node **v12.x** and yarn **v1.x** has to be installed locally.
+
+### Building
+
+Building and installing the app is straightforward:
+
+```sh
+yarn install
+yarn build
+yarn test
+```
+
+The **dev** branch is automatically built on [cismet CI](https://ci.cismet.de/view/CLARITY/job/simple-table-component/) based on [this](https://github.com/clarity-h2020/simple-table-component/blob/dev/Jenkinsfile) pipeline definition. 
+
+### Dependencies 
+
+Dependencies can be easily upgraded with [npm-upgrade](https://www.npmjs.com/package/npm-upgrade):
+
+``npx npm-upgrade``
+
+The advantage over `yarn upgrade` is that that `package.json` is updated with the new dependency version.
+
+### Deployment on CSIS
+
+Although Simple Table Component is integrated in [CI](https://ci.cismet.de/view/CLARITY/job/simple-table-component/), deployment on CSIS is not automated. The following manual steps are required on `cisis-dev.ait.ac.at` and `cisis.ait.ac.at`:
+
+```sh
+sudo su docker
+cd /docker/100-csis/drupal-data/web/apps/simple-table-component/
+
+# reset yarn.lock
+git reset --hard
+
+# pull dev or master branch
+git pull
+
+# install latest dependencies (may update yarn.lock)
+yarn install --network-concurrency 1
+
+# build the app
+yarn build
+
+# clear drupal cache
+docker exec --user 999 csis-drupal drush cr
+```
+Note: Commonly on DEV the `dev` branch and on master the `master`  branch is used. 
+
+## Usage
+
+### Query Parameters
+
+Unless the [Scenario Analysis Component](https://github.com/clarity-h2020/scenario-analysis), this component does not use [seamless.js](https://github.com/travist/seamless.js/) to communicate with the [CSIS Drupal System](https://csis.myclimateservice.eu/) when embedded as iFrame. Instead, it can be configured by query parameters. Main reasons are that bidirectional communication between iFrame and main site is not required and that query parameters allow the app to be tested independently of CSIS.
+
+The different tables are selected by the corresponding route, e.g. `/AdaptationOptionsAppraisalTable` for the AdaptationOptionsAppraisalTable. The query parameters supported by the table are:
+
+- `host` CSIS API host (e.g. https://csis.myclimateservice.eu/)
+- `emikat_id` internal EMIKAT Study id (e.g. 3209)
+- `rownum` number of rows requested from EMIKAT API (default: 3000)
+- `time_period` (e.g. Baseline)
+- `emissions_scenario` (e.g. Baseline)
+- `event_frequency` (e.g. Frequent)
+
+Query parameters are mapped to respective props in [App.js](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/App.js). For more information on query parameters refer to [CSISHelpers.defaultQueryParams](https://github.com/clarity-h2020/csis-helpers-js/blob/dev/src/lib/CSISHelpers.js#L43) and for props to [GenericEmikatClient.propTypes](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/commons/GenericEmikatClient.js#L97) and [ParameterSelectionComponent.propTypes](https://github.com/clarity-h2020/simple-table-component/blob/dev/src/components/commons/ParameterSelectionComponent.js#L158).
+
+### Integration in CSIS
+
+The application is integrated as *"Extended iFrame"* in [CSIS Drupal System](https://csis-dev.myclimateservice.eu/). The respective Drupal *Nodes* that contains the [iFrame](https://csis-dev.myclimateservice.eu/apps/simple-table-component/build/) are listed [here](https://csis-dev.myclimateservice.eu/admin/content?title=Table+Component&type=extended_iframe&status=1&langcode=All).
+
+The application is configured via the aforementioned query parameters. The query parameters are extracted by [csis_iframe_connector.js](https://github.com/clarity-h2020/csis-helpers-module/blob/dev/js/csis_iframe_connector.js) from the `studyInfo` object which is injected into the main Drupal CSIS Website via the [CSIS Helpers Drupal Module](https://github.com/clarity-h2020/csis-helpers-module/), in particular by [StudyInfoGenerator.php](https://github.com/clarity-h2020/csis-helpers-module/blob/dev/src/Utils/StudyInfoGenerator.php).
+
+The *"Extended iFrame"* nodes  are used in several [EU-GL Step Templates](https://csis-dev.myclimateservice.eu/admin/content?title=Template&type=gl_step&status=1&langcode=All) as **[Extended iFrame] Table Application**, e.g. in EU-GL Steps Impact/Risk Assessment and Adaptation Options Appraisal.
+
+## License
+ 
+MIT © [cismet GmbH](https://github.com/cismet)

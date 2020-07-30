@@ -1,5 +1,13 @@
 {
   "npm.packageManager": "yarn",
   "npm.enableScriptExplorer": true,
-  "editor.formatOnSave": false
+  "editor.formatOnSave": false,
+  "spellright.language": [
+    "en"
+  ],
+  "spellright.documentTypes": [
+    "markdown",
+    "latex",
+    "plaintext"
+  ]
 }
