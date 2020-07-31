@@ -5,6 +5,10 @@ import log from 'loglevel';
 
 log.enableAll();
 
+/**
+ * WMSLayer is a react wrapper for [leaflet.wms](https://github.com/heigeo/leaflet.wms), an all-in-one WMS plugin for Leaflet. 
+ * In constrast to leaflet's built-in <WMSTileLayer>, it support the WMS `getFeatureInfo` operation which is used to show a popup of layer properties on the map. 
+ */
 const LegacyWMSLayer = WMS.Source.extend({
     'onRemove': function () {
         log.debug('onRemove');
