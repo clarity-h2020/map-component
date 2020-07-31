@@ -15,12 +15,12 @@ This is the basic class of all specialised map classes. It implements the common
 
 ```JSON
 [ {
-    "checked": false
-    "groupTitle": "Backgrounds"
-    "layers": "Boundary,Footprint,Image"
-    "name": "Digital_Elevation Model"
-    "style": ",,"
-    "title": "Digital Elevation Model"
+    "checked": false,
+    "groupTitle": "Backgrounds",
+    "layers": "Boundary,Footprint,Image",
+    "name": "Digital_Elevation Model",
+    "style": ",",
+    "title": "Digital Elevation Model",
     "url": "https://copernicus.discomap.eea.europa.eu/arcgis/services/GioLandPublic/DEM/MapServer/WmsServer?"
   }, 
 ...
