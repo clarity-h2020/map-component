@@ -15,13 +15,13 @@ This is the basic class of all specialised map classes. It implements the common
 
 ```JSON
 [ {
-    checked: false
-    groupTitle: "Backgrounds"
-    layers: "Boundary,Footprint,Image"
-    name: "Digital_Elevation Model"
-    style: ",,"
-    title: "Digital Elevation Model"
-    url: "https://copernicus.discomap.eea.europa.eu/arcgis/services/GioLandPublic/DEM/MapServer/WmsServer?"
+    "checked": false
+    "groupTitle": "Backgrounds"
+    "layers": "Boundary,Footprint,Image"
+    "name": "Digital_Elevation Model"
+    "style": ",,"
+    "title": "Digital Elevation Model"
+    "url": "https://copernicus.discomap.eea.europa.eu/arcgis/services/GioLandPublic/DEM/MapServer/WmsServer?"
   }, 
 ...
 ]
@@ -165,7 +165,7 @@ Query parameters are processed in [BasicMap.js](https://raw.githubusercontent.co
 
 #### Map Component
 
-The application is integrated as *"Extended iFrame"* in [CSIS Drupal System](https://csis-dev.myclimateservice.eu/). The respective Drupal *Nodes* that contains the [iFrame](https://csis-dev.myclimateservice.eu/apps/map-component/build/) are listed [here](https://csis-dev.myclimateservice.eu/admin/content?title=Map+Component&type=extended_iframe&status=1&langcode=All).
+The application is integrated as *"Extended iFrame"* in [CSIS Drupal System](https://csis-dev.myclimateservice.eu/). The respective Drupal *Nodes* that contain the [iFrame](https://csis-dev.myclimateservice.eu/apps/map-component/build/) are listed [here](https://csis-dev.myclimateservice.eu/admin/content?title=Map+Component&type=extended_iframe&status=1&langcode=All).
 
 The application is configured via the aforementioned query parameters. The query parameters are extracted by [csis_iframe_connector.js](https://github.com/clarity-h2020/csis-helpers-module/blob/dev/js/csis_iframe_connector.js) from the `studyInfo` object which is injected into the main Drupal CSIS Website via the [CSIS Helpers Drupal Module](https://github.com/clarity-h2020/csis-helpers-module/), in particular by [StudyInfoGenerator.php](https://github.com/clarity-h2020/csis-helpers-module/blob/dev/src/Utils/StudyInfoGenerator.php).
 
@@ -173,7 +173,7 @@ The *"Extended iFrame"* nodes  are used in several [EU-GL Step Templates](https:
 
 #### Study Area Map
 
-The application is integrated as *"React Mount Node"* in [CSIS Drupal System](https://csis-dev.myclimateservice.eu/). The respective Drupal *Nodes* is the "[Map Component: Study Area](https://csis-dev.myclimateservice.eu/node/119/edit) are listed [here](https://csis-dev.myclimateservice.eu/admin/content?title=Map+Component&type=extended_iframe&status=1&langcode=All)". It is only used as default of `field_study_area_map` in the [Study Group Type](https://csis-dev.myclimateservice.eu/admin/group/types/manage/study/fields/group.study.field_study_area_map)
+The application is integrated as *"React Mount Node"* in [CSIS Drupal System](https://csis-dev.myclimateservice.eu/). The respective Drupal *Node* is the "[Map Component: Study Area](https://csis-dev.myclimateservice.eu/node/119/edit). It is only used as default value of `field_study_area_map` in the [Study Group Type](https://csis-dev.myclimateservice.eu/admin/group/types/manage/study/fields/group.study.field_study_area_map).
 
 ## License
  
