@@ -110,7 +110,24 @@ Although Map Component is integrated in [CI](https://ci.cismet.de/view/CLARITY/j
 
 ### Study Area Map
 
-// TODO: @therter
+The study area map does not use the dev or master branch, but a branch that is based on the map-component version that was integrated into drupal as a module.
+The current branch is bug/87_improve_edit_mode_of_study_area
+
+```sh
+sudo su docker
+cd /docker/100-csis/drupal-data/web/modules/custom/map-component/
+
+# pull the current branch
+git pull
+
+# if the branch has changed (e.g. because of a new bugfix), the new branch should be used
+git checkout <new branch>
+
+# it is not necessary to build the application, because the branch contains the builded application 
+
+# clear drupal cache
+docker exec --user 999 csis-drupal drush cr
+```
 
 ### Map Component
 
