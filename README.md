@@ -55,7 +55,7 @@ Whether the generic or a specialised map is rendered as two synchronised maps is
 
 ### Specialised Maps
 
-For convenience, specialised Maps currently offer just EU-GL-specific pre-sets of the query parameters and props, respectively, accepted by <BasicMap>. The following specialised maps are currently available:
+For convenience, specialised Maps currently offer just EU-GL-specific pre-sets of the query parameters and props, respectively, accepted by `<BasicMap>`. The following specialised maps are currently available:
 
 - [\<CharacteriseHazardMap\>](https://github.com/clarity-h2020/map-component/blob/dev/src/components/CharacteriseHazardMap.js)
 - [\<ExposureMap\>](https://github.com/clarity-h2020/map-component/blob/dev/src/components/ExposureMap.js)
