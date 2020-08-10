@@ -50,6 +50,8 @@ export default class BasicMap extends React.Component {
 		this.overlayLayersGroupingTagType = undefined;
 		this.overlayLayersGroupName = 'Default'; //default group name
 
+		this.hasAdaptedScenario = false;
+
 		/**
      * Base Layers
      * 
@@ -132,6 +134,8 @@ export default class BasicMap extends React.Component {
 		this.initialBounds[0][1] = this.queryParams.miny;
 		this.initialBounds[1][0] = this.queryParams.maxx;
 		this.initialBounds[1][1] = this.queryParams.maxy;
+
+		this.hasAdaptedScenario = this.queryParams.has_adapted_scenario ? true : false;
 
 		log.info(
 			`creating new ${props.mapSelectionId} map with layer group from ${this
@@ -235,6 +239,10 @@ export default class BasicMap extends React.Component {
 			}
 		} else {
 			log.warn(`cannot load additional resource layers`);
+		}
+
+		if(this.hasAdaptedScenario === true && this.props.showAdaptationScenario === true) {
+			log.warn(`want to show AdaptedScenario but no AdaptedScenarios are available! EMIKAT Map Layers will be empty.`);
 		}
 	}
 
@@ -853,7 +861,17 @@ BasicMap.propTypes = {
 	/**
    * Taxonomy for Layer Groups, e.g. 'taxonomy_term--hazards'
    */
-	groupingCriteria: PropTypes.string
+	groupingCriteria: PropTypes.string,
+
+	/**
+	 * show two synchronised maps (GenericMap will take care about this)
+	 */
+	isSynchronised: PropTypes.bool,
+
+	/**
+	 * tell LeafletMap to load STUDY_VARIANT='ADAPTATION-01'
+	 */
+	showAdaptationScenario: PropTypes.bool
 };
 
 /**
@@ -862,5 +880,7 @@ BasicMap.propTypes = {
  */
 BasicMap.defaultProps = {
 	mapSelectionId: undefined,
-	groupingCriteria: undefined
+	groupingCriteria: undefined,
+	isSynchronised: false,
+	showAdaptationScenario:false
 };

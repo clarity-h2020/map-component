@@ -63,7 +63,7 @@ export default class GenericMap extends BasicMap {
 		}
 
 		if (this.props.isSynchronised === true) {
-			log.info('rendering two sychronised maps: ' + this.props.isSynchronised);
+			log.info(`rendering two sychronised maps with AdaptationScenario = ${this.props.showAdaptationScenario}`);
 			
 			return (<>
 				<LeafletMap
@@ -88,11 +88,11 @@ export default class GenericMap extends BasicMap {
 					mapId={'synchronisedMapB'}
 					ref={(mapComponent) => (this.mapComponentB = mapComponent)}
 					fly={false}
-					showAdaptationScenario={true}
+					showAdaptationScenario={this.props.showAdaptationScenario}
 				/>
 			</>);
 		} else {
-			log.info('rendering one simple map: ' + this.props.isSynchronised);
+			log.info(`rendering one simple map with AdaptationScenario = ${this.props.showAdaptationScenario}`);
 			return (
 				<LeafletMap
 					loading={this.state.loading}
@@ -101,10 +101,9 @@ export default class GenericMap extends BasicMap {
 					overlays={this.state.overlays}
 					studyAreaPolygon={this.state.studyAreaPolygon}
 					exclusiveGroups={this.state.exclusiveGroups}
+					showAdaptationScenario={this.props.showAdaptationScenario}
 				/>
 			);
 		}
-
-
 	}
 }

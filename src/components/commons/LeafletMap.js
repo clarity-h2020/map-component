@@ -575,5 +575,6 @@ LeafletMap.propTypes = {
 	baseLayers: PropTypes.array,
 	exclusiveGroups: PropTypes.array,
 	overlays: PropTypes.array,
-	studyAreaPolygon: PropTypes.object
+	studyAreaPolygon: PropTypes.object,
+	showAdaptationScenario: PropTypes.bool
 };

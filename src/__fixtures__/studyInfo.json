@@ -1,0 +1,39 @@
+{
+    "id": "33",
+    "uuid": "3d8327f4-c47f-4c9e-bbc3-fb9018ea9607",
+    "write_permissions": 1,
+    "name": null,
+    "step": "1515",
+    "step_uuid": "70ebd885-5694-4163-93b9-cae4e7a0df9a",
+    "step_name": "adaptation_identification",
+    "study": "33",
+    "study_uuid": "3d8327f4-c47f-4c9e-bbc3-fb9018ea9607",
+    "study_emikat_id": 3209,
+    "calculation_status": "3",
+    "study_datapackage_uuid": "2434ce93-93d4-4ca2-8618-a2de768d3f16",
+    "study_area": "POLYGON ((23.551602 46.063544, 23.551602 46.080375, 23.577619 46.080375, 23.577619 46.063544, 23.551602 46.063544))",
+    "eea_city_name": "Alba Iulia",
+    "city_code": "RO014",
+    "study_presets": {
+        "time_period": "Baseline",
+        "emission_scenario": "Baseline",
+        "event_frequency": "Frequent"
+    },
+    "study_scenarios": [
+        {
+            "label": "Baseline Scenario, Frequent",
+            "time_period": "Baseline",
+            "emission_scenario": "Baseline",
+            "event_frequency": "Frequent"
+        },
+        {
+            "label": "Worst Case by Century's End",
+            "time_period": "20710101-21001231",
+            "emission_scenario": "rcp85",
+            "event_frequency": "Frequent"
+        }
+    ],
+    "has_adapted_scenario": true,
+    "is_anonymous": false,
+    "is_member": true
+}
