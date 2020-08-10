@@ -40,9 +40,8 @@ pipeline {
         failure {
             emailext attachLog: true, 
 				to: "dev@cismet.de", 
-				subject: "Build failed in Jenkins: ${currentBuild.fullDisplayName}",
-                body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-                <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>"""
+				subject: "Build of Map Component failed in Jenkins: ${currentBuild.fullDisplayName}",
+                body: """<p>FAILED: <a href='https://github.com/clarity-h2020/map-component'>Map Component</a> Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>"""
         }
         unstable {
             emailext attachLog: true, 

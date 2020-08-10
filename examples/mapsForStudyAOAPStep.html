@@ -1,0 +1,36 @@
+<script>
+    (function ($, Drupal) {
+        window.Drupal.behaviors.mapComponentIFrameConnector = {
+            attach: function (context, drupalSettings) {
+                // Using once() to apply the mapComponentIFrameConnector effect when you want to run just one function.
+                $(window, context).once('mapComponentIFrameConnector').each(function () {
+                    var grouping_tag = 'taxonomy_term--hazards';
+                    if (undefined !== drupalSettings && undefined !== drupalSettings.csisHelpers && undefined !== drupalSettings.csisHelpers.initMapComponent) {
+                        var mapType = 'AdaptationOptionsAppraisalMap';
+                        var iFrameMapComponent = document.getElementById('AdaptationOptionsAppraisalMap');
+                        drupalSettings.csisHelpers.initMapComponent(mapType, grouping_tag, iFrameMapComponent);
+
+                        var mapType = 'AdaptationHazardLocalEffectsMap';
+                        var iFrameMapComponent = document.getElementById('AdaptationHazardLocalEffectsMap');
+                        drupalSettings.csisHelpers.initMapComponent(mapType, grouping_tag, iFrameMapComponent);
+                    } else {
+                        console.error('no global drupalSettings object found, probably not connected to Drupal!');
+                    }
+                });
+            }
+        };
+
+    })(jQuery, Drupal); 
+</script>
+
+<h3>The map below always shows the impact without adaptation options on the left and the impact with adaptation options
+    on the right side.</h3>
+<iframe name="AdaptationOptionsAppraisalMap" id="AdaptationOptionsAppraisalMap"
+    src="https://csis.myclimateservice.eu/apps/map-component/build/loader.html" style="width:100%;height:500px">
+</iframe>
+
+<h3>The map below always shows the hazard with local effects without adaptation options on the left and the impact with
+    adaptation options on the right side.</h3>
+<iframe name="AdaptationHazardLocalEffectsMap" id="AdaptationHazardLocalEffectsMap"
+    src="https://csis.myclimateservice.eu/apps/map-component/build/loader.html" style="width:100%;height:500px">
+</iframe>
