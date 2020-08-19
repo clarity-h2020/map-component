@@ -125,8 +125,8 @@ export default class LeafletMap extends React.Component {
 			} else {
 				let loader = _this.layerControl.leafletElement._container.getElementsByClassName('lds-spinner');
 				if (loader.length > 0 && loader[0].parentElement != null) {
-					for (var i = 0; i < loader.length; ++i) {
-						loader[i].parentElement.removeChild(loader[i]);
+					for (var li = 0; li < loader.length; ++li) {
+						loader[li].parentElement.removeChild(loader[li]);
 					}
 				}
 			}
